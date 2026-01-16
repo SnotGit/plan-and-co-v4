@@ -1,0 +1,418 @@
+{
+  "phase": "01",
+  "nom": "SETUP PROJET",
+  "description": "Configuration initiale du projet Angular 20 et Backend Express",
+  "objectif": "Créer la structure de base et les fichiers de configuration nécessaires au démarrage du projet",
+  
+  "prerequis": [
+    "Node.js 18+ installé",
+    "Angular CLI 20 installé (npm install -g @angular/cli@latest)",
+    "Git configuré"
+  ],
+  
+  "workflow": {
+    "regles_absolues": [
+      "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
+      "Code COMPLET dans chaque artefact (pas de '...reste du code')",
+      "STOP après chaque fichier et ATTENDRE validation '✓ OK'",
+      "Ne PAS continuer sans validation explicite",
+      "Respecter l'ordre des fichiers ci-dessous"
+    ]
+  },
+  
+  "fichiers": [
+    {
+      "ordre": 1,
+      "nom": "package.json",
+      "path": "frontend/package.json",
+      "type": "Configuration",
+      "description": "Configuration npm du projet Angular avec toutes les dépendances nécessaires",
+      "dependances_importantes": [
+        "@angular/core@^20.0.0",
+        "@angular/common@^20.0.0",
+        "@angular/router@^20.0.0",
+        "@angular/forms@^20.0.0",
+        "@angular/platform-browser@^20.0.0",
+        "rxjs@^7.8.0",
+        "tslib@^2.6.0"
+      ],
+      "scripts": {
+        "start": "ng serve",
+        "build": "ng build",
+        "build:prod": "ng build --configuration production"
+      },
+      "instructions": [
+        "Créer le fichier package.json complet",
+        "Inclure TOUTES les dépendances Angular 20",
+        "Ajouter scripts de dev et build",
+        "Version Angular = ^20.0.0 ou latest"
+      ]
+    },
+    
+    {
+      "ordre": 2,
+      "nom": "tsconfig.json",
+      "path": "frontend/tsconfig.json",
+      "type": "Configuration",
+      "description": "Configuration TypeScript avec mode strict activé",
+      "regles_typescript": [
+        "strict: true",
+        "noImplicitAny: true",
+        "strictNullChecks: true",
+        "noUnusedLocals: true",
+        "noUnusedParameters: true"
+      ],
+      "instructions": [
+        "Mode strict OBLIGATOIRE",
+        "Paths alias configurés (@app, @core, @shared, @features)",
+        "Target ES2022",
+        "Aucun 'any' autorisé"
+      ]
+    },
+    
+    {
+      "ordre": 3,
+      "nom": "angular.json",
+      "path": "frontend/angular.json",
+      "type": "Configuration",
+      "description": "Configuration du workspace Angular",
+      "configurations": [
+        "development: sourceMap enabled",
+        "production: optimization, minification, budget limits"
+      ],
+      "instructions": [
+        "Définir projet 'plan-and-co-frontend'",
+        "Configuration dev et prod",
+        "Styles globaux dans assets/styles/styles.scss",
+        "Budget warnings configurés"
+      ]
+    },
+    
+    {
+      "ordre": 4,
+      "nom": "tsconfig.app.json",
+      "path": "frontend/tsconfig.app.json",
+      "type": "Configuration",
+      "description": "Configuration TypeScript spécifique à l'application",
+      "instructions": [
+        "Extend du tsconfig.json de base",
+        "Files: main.ts inclus",
+        "Exclude: tests, node_modules"
+      ]
+    },
+    
+    {
+      "ordre": 5,
+      "nom": ".gitignore",
+      "path": "frontend/.gitignore",
+      "type": "Configuration",
+      "description": "Fichiers à ignorer par Git",
+      "elements_ignores": [
+        "node_modules/",
+        "dist/",
+        ".angular/",
+        ".env",
+        ".env.local",
+        "*.log"
+      ],
+      "instructions": [
+        "Ignorer node_modules et dist",
+        "Ignorer fichiers environnement (.env)",
+        "Ignorer logs et caches Angular"
+      ]
+    },
+    
+    {
+      "ordre": 6,
+      "nom": "environment.ts",
+      "path": "frontend/src/environments/environment.ts",
+      "type": "Configuration",
+      "description": "Variables d'environnement pour le développement",
+      "variables": {
+        "production": false,
+        "apiUrl": "http://localhost:3000/api",
+        "supabaseUrl": "YOUR_SUPABASE_URL",
+        "supabaseKey": "YOUR_SUPABASE_ANON_KEY"
+      },
+      "instructions": [
+        "Créer interface Environment typée",
+        "Valeurs de développement",
+        "Commentaires pour indiquer où obtenir les clés"
+      ]
+    },
+    
+    {
+      "ordre": 7,
+      "nom": "environment.prod.ts",
+      "path": "frontend/src/environments/environment.prod.ts",
+      "type": "Configuration",
+      "description": "Variables d'environnement pour la production",
+      "variables": {
+        "production": true,
+        "apiUrl": "https://planandco-api.onrender.com/api",
+        "supabaseUrl": "YOUR_SUPABASE_URL",
+        "supabaseKey": "YOUR_SUPABASE_ANON_KEY"
+      },
+      "instructions": [
+        "Mêmes variables que environment.ts",
+        "production: true",
+        "URL API Render en production"
+      ]
+    },
+    
+    {
+      "ordre": 8,
+      "nom": "index.html",
+      "path": "frontend/src/index.html",
+      "type": "HTML",
+      "description": "Point d'entrée HTML de l'application",
+      "elements": [
+        "Meta tags (charset, viewport, description)",
+        "Title: Plan & Co | Expert Copywriting",
+        "Preconnect fonts Google",
+        "Base href='/'",
+        "<app-root></app-root>"
+      ],
+      "instructions": [
+        "HTML5 sémantique",
+        "Meta description SEO",
+        "Fonts Google (Inter + Playfair Display)",
+        "Balise app-root uniquement"
+      ]
+    },
+    
+    {
+      "ordre": 9,
+      "nom": "main.ts",
+      "path": "frontend/src/main.ts",
+      "type": "TypeScript",
+      "description": "Bootstrap de l'application Angular",
+      "imports": [
+        "bootstrapApplication from @angular/platform-browser",
+        "AppComponent",
+        "appConfig"
+      ],
+      "instructions": [
+        "Bootstrap standalone avec bootstrapApplication",
+        "Importer AppComponent et appConfig",
+        "Gestion erreur avec .catch()"
+      ]
+    },
+    
+    {
+      "ordre": 10,
+      "nom": "app.config.ts",
+      "path": "frontend/src/app/app.config.ts",
+      "type": "TypeScript",
+      "description": "Configuration de l'application (providers, routing)",
+      "providers": [
+        "provideRouter(routes)",
+        "provideHttpClient()",
+        "provideAnimations()"
+      ],
+      "instructions": [
+        "Exporter const appConfig: ApplicationConfig",
+        "Providers: router, http, animations",
+        "Importer les routes depuis app.routes.ts"
+      ]
+    },
+    
+    {
+      "ordre": 11,
+      "nom": "app.routes.ts",
+      "path": "frontend/src/app/app.routes.ts",
+      "type": "TypeScript",
+      "description": "Définition des routes de l'application",
+      "routes": [
+        "{ path: '', component: Home }",
+        "{ path: 'contact', component: Contact }",
+        "{ path: 'admin', component: Admin, canActivate: [authGuard] }",
+        "{ path: '**', redirectTo: '' }"
+      ],
+      "instructions": [
+        "Type Routes from @angular/router",
+        "Route home (/) + contact + admin",
+        "Admin protégé par authGuard (à créer plus tard)",
+        "Wildcard redirect vers home"
+      ]
+    },
+    
+    {
+      "ordre": 12,
+      "nom": "app.component.ts",
+      "path": "frontend/src/app/app.component.ts",
+      "type": "TypeScript",
+      "description": "Composant racine de l'application (structure principale)",
+      "structure": {
+        "imports": ["RouterOutlet"],
+        "selector": "app-root",
+        "standalone": true,
+        "template": "Séparé dans app.component.html"
+      },
+      "instructions": [
+        "Composant standalone",
+        "Pas de logique (juste structure)",
+        "Import RouterOutlet uniquement pour cette phase",
+        "Navbar et Footer seront ajoutés en phase 2"
+      ]
+    },
+    
+    {
+      "ordre": 13,
+      "nom": "app.component.html",
+      "path": "frontend/src/app/app.component.html",
+      "type": "HTML",
+      "description": "Template du composant racine",
+      "structure": [
+        "<!-- <app-navbar /> (Phase 2) -->",
+        "<router-outlet />",
+        "<!-- <app-footer /> (Phase 2) -->"
+      ],
+      "instructions": [
+        "Pour l'instant: juste router-outlet",
+        "Commentaires pour navbar/footer (ajoutés phase 2)",
+        "Propre et minimal"
+      ]
+    },
+    
+    {
+      "ordre": 14,
+      "nom": "app.component.scss",
+      "path": "frontend/src/app/app.component.scss",
+      "type": "SCSS",
+      "description": "Styles du composant racine (vide pour l'instant)",
+      "instructions": [
+        "Fichier vide ou commentaire 'Styles globaux dans styles.scss'",
+        "Pas de styles inline dans app.component"
+      ]
+    },
+    
+    {
+      "ordre": 15,
+      "nom": "_variables.scss",
+      "path": "frontend/src/assets/styles/_variables.scss",
+      "type": "SCSS",
+      "description": "Variables globales SCSS (couleurs, spacing, fonts)",
+      "variables": {
+        "couleurs": {
+          "$primary-color": "#E67E22",
+          "$secondary-color": "#F39C12",
+          "$text-dark": "#2C3E50",
+          "$text-gray": "#7F8C8D",
+          "$text-light": "#BDC3C7",
+          "$bg-light": "#FFF8F0",
+          "$border-color": "#E8E8E8"
+        },
+        "spacing": {
+          "$spacing-xs": "0.5rem",
+          "$spacing-sm": "1rem",
+          "$spacing-md": "1.5rem",
+          "$spacing-lg": "2.5rem",
+          "$spacing-xl": "4rem"
+        },
+        "fonts": {
+          "$font-primary": "'Inter', sans-serif",
+          "$font-display": "'Playfair Display', serif"
+        },
+        "autres": {
+          "$radius-sm": "8px",
+          "$radius-md": "12px",
+          "$radius-lg": "16px",
+          "$transition-fast": "0.2s ease",
+          "$transition-normal": "0.3s ease"
+        }
+      },
+      "instructions": [
+        "Extraire couleurs du site actuel",
+        "Spacing cohérent (basé sur 0.5rem)",
+        "Fonts Google (Inter + Playfair Display)",
+        "Variables réutilisables partout"
+      ]
+    },
+    
+    {
+      "ordre": 16,
+      "nom": "_mixins.scss",
+      "path": "frontend/src/assets/styles/_mixins.scss",
+      "type": "SCSS",
+      "description": "Mixins réutilisables pour composants",
+      "mixins": [
+        "@mixin button",
+        "@mixin card",
+        "@mixin gradient-warm",
+        "@mixin container"
+      ],
+      "instructions": [
+        "Créer mixins basiques (button, card)",
+        "Gradient warm (orange du site)",
+        "Container avec max-width et padding",
+        "Réutilisables dans tous les composants"
+      ]
+    },
+    
+    {
+      "ordre": 17,
+      "nom": "styles.scss",
+      "path": "frontend/src/assets/styles/styles.scss",
+      "type": "SCSS",
+      "description": "Point d'entrée des styles globaux",
+      "imports": [
+        "@use 'variables' as *;",
+        "@use 'mixins' as *;",
+        "Reset CSS basique",
+        "Styles globaux (body, html, a, button)"
+      ],
+      "instructions": [
+        "Importer variables et mixins",
+        "Reset CSS minimal (box-sizing, margin, padding)",
+        "Styles globaux body (font, color, line-height)",
+        "Liens sans underline par défaut"
+      ]
+    },
+    
+    {
+      "ordre": 18,
+      "nom": "README.md",
+      "path": "frontend/README.md",
+      "type": "Documentation",
+      "description": "Documentation du projet frontend",
+      "sections": [
+        "Titre et description",
+        "Stack technique",
+        "Installation (npm install)",
+        "Commandes (npm start, build)",
+        "Structure du projet",
+        "Environnement (.env à configurer)"
+      ],
+      "instructions": [
+        "Documentation claire et concise",
+        "Commandes essentielles",
+        "Liens vers ARCHITECTURE.md et INSTRUCTIONS.md"
+      ]
+    }
+  ],
+  
+  "validation_phase": {
+    "criteres": [
+      "Tous les fichiers créés et validés individuellement",
+      "npm install fonctionne sans erreur",
+      "ng serve démarre sans erreur",
+      "App affiche page blanche avec <router-outlet>",
+      "Aucune erreur TypeScript"
+    ],
+    "commandes_test": [
+      "cd frontend",
+      "npm install",
+      "ng serve",
+      "Ouvrir http://localhost:4200 → page blanche OK"
+    ]
+  },
+  
+  "notes_importantes": [
+    "Cette phase ne contient QUE les fichiers de configuration",
+    "Aucun composant métier (navbar, home, etc.) n'est créé ici",
+    "L'app doit démarrer mais afficher une page blanche",
+    "Phases suivantes ajouteront les composants un par un",
+    "Chaque fichier doit être validé avant de passer au suivant"
+  ]
+}

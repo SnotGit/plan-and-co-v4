@@ -1,0 +1,1002 @@
+{
+  "phase": "07",
+  "nom": "SYSTÈME BLOG",
+  "description": "Création du système blog complet avec éditeur auto-save, gestion articles admin et affichage public",
+  "objectif": "Blog professionnel avec rédaction confortable, auto-save, confirmations et affichage public élégant",
+  
+  "prerequis": [
+    "Phase 06 validée (admin dashboard fonctionnel)",
+    "Supabase configuré",
+    "Backend Express opérationnel"
+  ],
+  
+  "architecture_blog": {
+    "frontend_public": [
+      "/blog → Liste articles (cards titre + excerpt + date)",
+      "/blog/:slug → Article complet (titre + contenu + date)"
+    ],
+    "admin": [
+      "/admin/dashboard → Dashboard contacts (existant)",
+      "/admin/articles → Liste articles (titre, statut, date, actions)",
+      "/admin/articles/nouveau → Éditeur nouvel article",
+      "/admin/articles/:id/modifier → Éditeur modification"
+    ],
+    "features": [
+      "Auto-save localStorage (debounce 500ms)",
+      "Confirmation dialogs (annuler, supprimer, quitter)",
+      "Statut brouillon/publié",
+      "Slug unique auto-généré backend",
+      "Validation canPublish",
+      "Format date FR",
+      "Sidebar admin (Dashboard | Articles)"
+    ]
+  },
+  
+  "configuration_supabase": {
+    "table_articles": {
+      "nom": "articles",
+      "colonnes": [
+        "id SERIAL PRIMARY KEY",
+        "title TEXT NOT NULL",
+        "slug TEXT UNIQUE NOT NULL",
+        "content TEXT NOT NULL",
+        "excerpt TEXT",
+        "image_url TEXT",
+        "status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'published'))",
+        "created_at TIMESTAMPTZ DEFAULT NOW()",
+        "updated_at TIMESTAMPTZ DEFAULT NOW()",
+        "published_at TIMESTAMPTZ"
+      ],
+      "index": [
+        "CREATE UNIQUE INDEX idx_articles_slug ON articles(slug);",
+        "CREATE INDEX idx_articles_status ON articles(status);",
+        "CREATE INDEX idx_articles_published_at ON articles(published_at DESC);"
+      ],
+      "rls": [
+        "-- Permettre SELECT public sur articles publiés",
+        "CREATE POLICY 'Allow public read published' ON articles FOR SELECT USING (status = 'published');",
+        "-- Permettre tout pour admin (à sécuriser avec JWT)",
+        "CREATE POLICY 'Allow admin all' ON articles FOR ALL USING (true);"
+      ]
+    },
+    "fonction_slug": {
+      "description": "Fonction PostgreSQL auto-génération slug depuis titre",
+      "sql": [
+        "CREATE OR REPLACE FUNCTION generate_slug(title TEXT) RETURNS TEXT AS $$",
+        "DECLARE",
+        "  slug TEXT;",
+        "  counter INT := 0;",
+        "BEGIN",
+        "  slug := lower(unaccent(title));",
+        "  slug := regexp_replace(slug, '[^a-z0-9]+', '-', 'g');",
+        "  slug := trim(both '-' from slug);",
+        "  ",
+        "  WHILE EXISTS (SELECT 1 FROM articles WHERE articles.slug = slug) LOOP",
+        "    counter := counter + 1;",
+        "    slug := slug || '-' || counter;",
+        "  END LOOP;",
+        "  ",
+        "  RETURN slug;",
+        "END;",
+        "$$ LANGUAGE plpgsql;"
+      ]
+    }
+  },
+  
+  "fichiers": [
+    {
+      "ordre": 1,
+      "nom": "article.interface.ts",
+      "path": "frontend/src/app/shared/models/article.interface.ts",
+      "type": "Interface",
+      "description": "Interfaces TypeScript pour articles (list, detail, form)",
+      "interfaces": [
+        "ArticleCard { id, title, slug, excerpt, imageUrl, publishedAt }",
+        "ArticleDetail { id, title, slug, content, excerpt, imageUrl, status, publishedAt }",
+        "ArticleFormData { title, content, excerpt?, imageUrl? }",
+        "ArticlesListResponse { articles: ArticleCard[] }",
+        "ArticleResponse { article: ArticleDetail }"
+      ],
+      "instructions": [
+        "Export interface ArticleCard",
+        "Export interface ArticleDetail",
+        "Export interface ArticleFormData",
+        "Export interface ArticlesListResponse",
+        "Export interface ArticleResponse",
+        "Typage strict, dates en string (ISO)"
+      ]
+    },
+    
+    {
+      "ordre": 2,
+      "nom": "public-articles.service.ts",
+      "path": "frontend/src/app/core/services/public-articles.service.ts",
+      "type": "Service",
+      "description": "Service lecture articles publics (frontend public)",
+      "methodes": [
+        "async getPublishedArticles(): Promise<ArticleCard[]>",
+        "async getArticleBySlug(slug: string): Promise<ArticleDetail>"
+      ],
+      "logique": [
+        "GET /api/blog/articles (statut published uniquement)",
+        "GET /api/blog/articles/:slug",
+        "formatDate helper pour dates FR",
+        "firstValueFrom pattern"
+      ],
+      "instructions": [
+        "Injectable providedIn: 'root'",
+        "Injection HttpClient",
+        "Import environment.apiUrl",
+        "Méthodes async avec Promise",
+        "Helper formatDate(dateString): string",
+        "Try/catch avec throw error",
+        "Typage strict ArticleCard[], ArticleDetail"
+      ]
+    },
+    
+    {
+      "ordre": 3,
+      "nom": "articles.service.ts (admin)",
+      "path": "frontend/src/app/core/services/articles.service.ts",
+      "type": "Service",
+      "description": "Service CRUD articles admin",
+      "methodes": [
+        "async getAllArticles(): Promise<ArticleDetail[]>",
+        "async getArticle(id: number): Promise<ArticleDetail>",
+        "async createArticle(): Promise<number>",
+        "async saveArticle(id: number, data: ArticleFormData): Promise<void>",
+        "async publishArticle(id: number): Promise<void>",
+        "async deleteArticle(id: number): Promise<void>"
+      ],
+      "logique": [
+        "GET /api/admin/articles (tous statuts)",
+        "GET /api/admin/articles/:id",
+        "POST /api/admin/articles (crée brouillon vide)",
+        "PUT /api/admin/articles/:id (sauvegarde)",
+        "POST /api/admin/articles/:id/publish (publie)",
+        "DELETE /api/admin/articles/:id",
+        "Headers JWT via interceptor"
+      ],
+      "instructions": [
+        "Injectable providedIn: 'root'",
+        "Injection HttpClient",
+        "Pattern executeHttpRequest helper",
+        "Méthodes async Promise",
+        "buildArticleUrl helper",
+        "formatDate helper",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 4,
+      "nom": "save-article.service.ts",
+      "path": "frontend/src/app/core/services/save-article.service.ts",
+      "type": "Service",
+      "description": "Service sauvegarde article avec localStorage et debounce",
+      "methodes": [
+        "saveLocal(key: string, data: ArticleFormData): void",
+        "restoreLocal(key: string): ArticleFormData | null",
+        "clearLocal(key: string): void"
+      ],
+      "logique": [
+        "Debounce 500ms pour localStorage",
+        "Timeout clearable",
+        "Try/catch localStorage errors"
+      ],
+      "instructions": [
+        "Injectable providedIn: 'root'",
+        "Private saveLocalTimeout: number | undefined",
+        "scheduleLocalSave helper avec setTimeout 500ms",
+        "localStorage.setItem/getItem/removeItem",
+        "JSON.stringify/parse",
+        "Ignore errors localStorage (try/catch)",
+        "Typage strict ArticleFormData"
+      ]
+    },
+    
+    {
+      "ordre": 5,
+      "nom": "admin-dialog.service.ts",
+      "path": "frontend/src/app/core/services/admin-dialog.service.ts",
+      "type": "Service",
+      "description": "Service confirmations dialogs admin (annuler, supprimer, messages)",
+      "methodes": [
+        "confirmCancelArticle(): Promise<boolean>",
+        "confirmDeleteArticle(): Promise<boolean>",
+        "showSuccessMessage(): void",
+        "showErrorMessage(): void",
+        "onConfirm(): void",
+        "onCancel(): void"
+      ],
+      "logique": [
+        "Signal visible, dialogConfig",
+        "Promise-based confirmations",
+        "Auto-close messages après 3s",
+        "Config: title, message, confirmText, cancelText, isDanger"
+      ],
+      "instructions": [
+        "Injectable providedIn: 'root'",
+        "Private visible = signal(false)",
+        "Private dialogConfig = signal<ConfirmationConfig | null>(null)",
+        "Private resolvePromise: ((result: boolean) => void) | null",
+        "isVisible readonly signal",
+        "config readonly signal",
+        "showDialog(config): Promise<boolean>",
+        "showMessage(config): void avec setTimeout 3s",
+        "cleanup() method",
+        "S'inspirer de chroniques-dialog.service.ts"
+      ]
+    },
+    
+    {
+      "ordre": 6,
+      "nom": "blog-list.ts",
+      "path": "frontend/src/app/features/blog/blog-list.ts",
+      "type": "Component",
+      "description": "Page liste articles publics (/blog)",
+      "structure": {
+        "selector": "app-blog-list",
+        "standalone": true,
+        "imports": ["CommonModule", "RouterLink"],
+        "template": "blog-list.html",
+        "styles": "blog-list.scss"
+      },
+      "logique": [
+        "Resource articles published",
+        "Computed articles = resource.value() || []",
+        "Navigation vers /blog/:slug"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Injection PublicArticlesService, Router",
+        "Resource articlesResource avec loader getPublishedArticles()",
+        "Computed articles()",
+        "Méthode navigateToArticle(slug)",
+        "Typage strict ArticleCard[]"
+      ]
+    },
+    
+    {
+      "ordre": 7,
+      "nom": "blog-list.html",
+      "path": "frontend/src/app/features/blog/blog-list.html",
+      "type": "Template",
+      "description": "Template liste articles (grid cards)",
+      "structure": [
+        "<div class='blog-page'>",
+        "  <div class='container'>",
+        "    <h1>Blog</h1>",
+        "    <div class='articles-grid'>",
+        "      @for (article of articles(); track article.id) {",
+        "        <div class='article-card' (click)='navigateToArticle(article.slug)'>",
+        "          @if (article.imageUrl) {",
+        "            <img [src]='article.imageUrl' [alt]='article.title'>",
+        "          }",
+        "          <h2>{{ article.title }}</h2>",
+        "          <p class='excerpt'>{{ article.excerpt }}</p>",
+        "          <span class='date'>{{ article.publishedAt }}</span>",
+        "        </div>",
+        "      } @empty {",
+        "        <p>Aucun article publié</p>",
+        "      }",
+        "    </div>",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "Control flow @for et @empty",
+        "@if pour image conditionnelle",
+        "Grid responsive 3 cols → 1 col mobile",
+        "Card cliquable (click) navigateToArticle",
+        "Classes cohérentes"
+      ]
+    },
+    
+    {
+      "ordre": 8,
+      "nom": "blog-list.scss",
+      "path": "frontend/src/app/features/blog/blog-list.scss",
+      "type": "Styles",
+      "description": "Styles liste articles (grid cards, hover)",
+      "features": [
+        "Grid 3 colonnes desktop",
+        "Cards avec image, shadow, radius",
+        "Hover effect (scale, shadow)",
+        "Responsive mobile",
+        "Excerpt ellipsis 3 lignes"
+      ],
+      "instructions": [
+        "Import variables et mixins",
+        "Grid gap cohérent",
+        "Card hover transform + shadow",
+        "Image aspect-ratio 16/9",
+        "Excerpt line-clamp 3",
+        "Date style subtle",
+        "Media query 768px"
+      ]
+    },
+    
+    {
+      "ordre": 9,
+      "nom": "article-reader.ts",
+      "path": "frontend/src/app/features/blog/article-reader.ts",
+      "type": "Component",
+      "description": "Page lecture article (/blog/:slug)",
+      "structure": {
+        "selector": "app-article-reader",
+        "standalone": true,
+        "imports": ["CommonModule", "RouterLink"],
+        "template": "article-reader.html",
+        "styles": "article-reader.scss"
+      },
+      "logique": [
+        "Input slug = input.required<string>()",
+        "Resource articleResource avec slug param",
+        "Computed article()",
+        "Redirection si article null"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Injection PublicArticlesService, Router",
+        "slug = input.required<string>()",
+        "Resource avec params () => ({ slug: this.slug() })",
+        "Loader getArticleBySlug(params.slug)",
+        "Computed article() = resource.value()",
+        "If null → router.navigate(['/blog'])",
+        "Typage strict ArticleDetail"
+      ]
+    },
+    
+    {
+      "ordre": 10,
+      "nom": "article-reader.html",
+      "path": "frontend/src/app/features/blog/article-reader.html",
+      "type": "Template",
+      "description": "Template lecture article (titre + image + contenu + date)",
+      "structure": [
+        "@if (article(); as data) {",
+        "  <div class='article-page'>",
+        "    <div class='container'>",
+        "      <article class='article'>",
+        "        <h1>{{ data.title }}</h1>",
+        "        <p class='date'>{{ data.publishedAt }}</p>",
+        "        @if (data.imageUrl) {",
+        "          <img [src]='data.imageUrl' [alt]='data.title'>",
+        "        }",
+        "        <div class='content'>{{ data.content }}</div>",
+        "        <a [routerLink]=\"['/blog']\" class='back-link'>← Retour au blog</a>",
+        "      </article>",
+        "    </div>",
+        "  </div>",
+        "}"
+      ],
+      "instructions": [
+        "@if (article(); as data) pattern",
+        "Sémantique <article>",
+        "@if pour image conditionnelle",
+        "Content div avec white-space: pre-wrap",
+        "RouterLink retour blog",
+        "Classes cohérentes"
+      ]
+    },
+    
+    {
+      "ordre": 11,
+      "nom": "article-reader.scss",
+      "path": "frontend/src/app/features/blog/article-reader.scss",
+      "type": "Styles",
+      "description": "Styles lecture article (typographie, responsive)",
+      "features": [
+        "Max-width 800px content",
+        "Typographie lisible (line-height 1.8)",
+        "Image full-width",
+        "Spacing généreux",
+        "Back link styled"
+      ],
+      "instructions": [
+        "Import variables",
+        "Container max-width 800px",
+        "h1 large, margin bottom",
+        "Date style subtle",
+        "Content white-space: pre-wrap, line-height 1.8",
+        "Image max-width 100%, height auto",
+        "Back link hover effect",
+        "Responsive mobile padding"
+      ]
+    },
+    
+    {
+      "ordre": 12,
+      "nom": "admin-articles-list.ts",
+      "path": "frontend/src/app/features/admin/components/articles-list/admin-articles-list.ts",
+      "type": "Component",
+      "description": "Liste articles admin avec filtres et actions",
+      "structure": {
+        "selector": "app-admin-articles-list",
+        "standalone": true,
+        "imports": ["CommonModule", "RouterLink"],
+        "template": "admin-articles-list.html",
+        "styles": "admin-articles-list.scss"
+      },
+      "logique": [
+        "Resource articlesResource",
+        "Signal filterStatus = signal('tous')",
+        "Computed articles filteredByStatus",
+        "Méthodes filterByStatus, deleteArticle, navigateToEdit"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Injection ArticlesService, AdminDialogService, Router",
+        "Resource articlesResource loader getAllArticles()",
+        "Signal filterStatus('tous' | 'draft' | 'published')",
+        "Computed articles() avec filter selon status",
+        "Méthode filterByStatus(status)",
+        "Méthode async deleteArticle(id) avec confirmation",
+        "Méthode navigateToEdit(id)",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 13,
+      "nom": "admin-articles-list.html",
+      "path": "frontend/src/app/features/admin/components/articles-list/admin-articles-list.html",
+      "type": "Template",
+      "description": "Template liste articles admin (table + filtres)",
+      "structure": [
+        "<div class='admin-articles'>",
+        "  <div class='header'>",
+        "    <h1>Articles</h1>",
+        "    <a [routerLink]=\"['/admin/articles/nouveau']\" class='btn-new'>Nouvel article</a>",
+        "  </div>",
+        "  <div class='filters'>",
+        "    <button (click)='filterByStatus(\"tous\")' [class.active]='filterStatus() === \"tous\"'>Tous</button>",
+        "    <button (click)='filterByStatus(\"draft\")' [class.active]='filterStatus() === \"draft\"'>Brouillons</button>",
+        "    <button (click)='filterByStatus(\"published\")' [class.active]='filterStatus() === \"published\"'>Publiés</button>",
+        "  </div>",
+        "  <table class='articles-table'>",
+        "    <thead>",
+        "      <tr>",
+        "        <th>Titre</th>",
+        "        <th>Statut</th>",
+        "        <th>Date</th>",
+        "        <th>Actions</th>",
+        "      </tr>",
+        "    </thead>",
+        "    <tbody>",
+        "      @for (article of articles(); track article.id) {",
+        "        <tr>",
+        "          <td>{{ article.title || 'Sans titre' }}</td>",
+        "          <td><span class='badge' [class]='article.status'>{{ article.status }}</span></td>",
+        "          <td>{{ article.updatedAt }}</td>",
+        "          <td>",
+        "            <button (click)='navigateToEdit(article.id)'>Modifier</button>",
+        "            <button (click)='deleteArticle(article.id)' class='danger'>Supprimer</button>",
+        "          </td>",
+        "        </tr>",
+        "      } @empty {",
+        "        <tr><td colspan='4'>Aucun article</td></tr>",
+        "      }",
+        "    </tbody>",
+        "  </table>",
+        "</div>"
+      ],
+      "instructions": [
+        "Header avec titre + bouton nouveau",
+        "Filtres buttons avec [class.active]",
+        "Table responsive",
+        "@for et @empty",
+        "Badge status coloré",
+        "Actions modifier/supprimer",
+        "RouterLink pour nouveau"
+      ]
+    },
+    
+    {
+      "ordre": 14,
+      "nom": "admin-articles-list.scss",
+      "path": "frontend/src/app/features/admin/components/articles-list/admin-articles-list.scss",
+      "type": "Styles",
+      "description": "Styles liste articles admin",
+      "features": [
+        "Header flexbox (titre left, bouton right)",
+        "Filtres buttons",
+        "Table responsive",
+        "Badges status colorés",
+        "Actions buttons"
+      ],
+      "instructions": [
+        "Import variables",
+        "Header avec justify-content space-between",
+        "Filters buttons active state",
+        "Table width 100%, hover rows",
+        "Badges draft (gris), published (vert)",
+        "Actions buttons inline",
+        "Danger button rouge",
+        "Responsive mobile"
+      ]
+    },
+    
+    {
+      "ordre": 15,
+      "nom": "admin-article-editor.ts",
+      "path": "frontend/src/app/features/admin/components/article-editor/admin-article-editor.ts",
+      "type": "Component",
+      "description": "Éditeur article admin (nouveau + modification)",
+      "structure": {
+        "selector": "app-admin-article-editor",
+        "standalone": true,
+        "imports": ["FormsModule", "CommonModule"],
+        "template": "admin-article-editor.html",
+        "styles": "admin-article-editor.scss"
+      },
+      "logique": [
+        "Input id = input<number>()",
+        "Signal title, content, excerpt, imageUrl",
+        "Signal originalData",
+        "Resource articleResource (si id existe)",
+        "Computed isNew = !id()",
+        "Computed isEdited (compare current vs original)",
+        "Computed canPublish (title + content non vides)",
+        "Computed articleId (auto-créé si isNew)",
+        "Effect initializeArticleData (si resource)",
+        "Effect localSaveEffect (debounce 500ms)",
+        "Méthodes: cancel, saveAndQuit, publish, delete"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Injection ArticlesService, SaveArticleService, AdminDialogService, Router, Location",
+        "id = input<number>()",
+        "Signals title, content, excerpt, imageUrl, originalData",
+        "Signal articleId = signal(0)",
+        "Resource articleResource SI id() existe",
+        "Computed isNew() = !id()",
+        "Computed articleData() = { title, content, excerpt, imageUrl }",
+        "Computed isEdited() compare current vs original",
+        "Computed canPublish() = title.trim() && content.trim()",
+        "Effect _initializeArticleDataEffect si resource",
+        "Effect _localSaveEffect debounce avec saveArticleService",
+        "ngOnInit: restoreLocalModifications(), createInitialDraft() si isNew",
+        "async createInitialDraft() → articlesService.createArticle() → set articleId",
+        "async cancel() → confirmation → delete si new → navigate back",
+        "async saveAndQuit() → save → clearLocal → navigate",
+        "async publish() → save → publishArticle → clearLocal → navigate",
+        "async delete() → confirmation → delete → clearLocal → navigate",
+        "S'inspirer de edit-new.ts et edit-draft.ts"
+      ]
+    },
+    
+    {
+      "ordre": 16,
+      "nom": "admin-article-editor.html",
+      "path": "frontend/src/app/features/admin/components/article-editor/admin-article-editor.html",
+      "type": "Template",
+      "description": "Template éditeur article (titre, excerpt, image, contenu)",
+      "structure": [
+        "<div class='article-editor'>",
+        "  <div class='header'>",
+        "    <h1>{{ isNew() ? 'Nouvel Article' : 'Modifier Article' }}</h1>",
+        "    <button class='btn' (click)='saveAndQuit()'>Retour</button>",
+        "  </div>",
+        "  <div class='editor'>",
+        "    <div class='form-group'>",
+        "      <label>Titre</label>",
+        "      <input type='text' [(ngModel)]='title' placeholder='Titre...'>",
+        "    </div>",
+        "    <div class='form-group'>",
+        "      <label>Extrait (optionnel)</label>",
+        "      <textarea [(ngModel)]='excerpt' rows='3' placeholder='Résumé court...'></textarea>",
+        "    </div>",
+        "    <div class='form-group'>",
+        "      <label>Image URL (optionnel)</label>",
+        "      <input type='url' [(ngModel)]='imageUrl' placeholder='https://...'>",
+        "    </div>",
+        "    <div class='form-group'>",
+        "      <label>Contenu</label>",
+        "      <textarea [(ngModel)]='content' rows='20' placeholder='Rédigez votre article...'></textarea>",
+        "    </div>",
+        "  </div>",
+        "  <div class='footer'>",
+        "    <button class='btn' (click)='cancel()'>Annuler</button>",
+        "    @if (!isNew()) {",
+        "      <button class='btn danger' (click)='delete()'>Supprimer</button>",
+        "    }",
+        "    <button class='btn primary' (click)='publish()' [disabled]='!canPublish()'>",
+        "      {{ isNew() ? 'Publier' : 'Republier' }}",
+        "    </button>",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "Header dynamique isNew()",
+        "FormsModule [(ngModel)]",
+        "Form-group pour chaque champ",
+        "Textarea content rows='20'",
+        "Footer avec boutons",
+        "@if (!isNew()) pour delete",
+        "Disabled si !canPublish()",
+        "Classes cohérentes"
+      ]
+    },
+    
+    {
+      "ordre": 17,
+      "nom": "admin-article-editor.scss",
+      "path": "frontend/src/app/features/admin/components/article-editor/admin-article-editor.scss",
+      "type": "Styles",
+      "description": "Styles éditeur article",
+      "features": [
+        "Layout propre avec spacing",
+        "Inputs/textarea large width",
+        "Textarea content grande taille",
+        "Footer buttons alignés right"
+      ],
+      "instructions": [
+        "Import variables",
+        "Header avec flexbox",
+        "Form-group margin bottom",
+        "Inputs width 100%, padding",
+        "Textarea resize vertical",
+        "Footer buttons avec gap",
+        "Primary button style",
+        "Danger button rouge",
+        "Responsive mobile"
+      ]
+    },
+    
+    {
+      "ordre": 18,
+      "nom": "admin.html (UPDATE)",
+      "path": "frontend/src/app/features/admin/admin.html",
+      "type": "Template Update",
+      "description": "Ajouter sidebar navigation admin",
+      "structure": [
+        "<div class='admin-layout'>",
+        "  <aside class='sidebar'>",
+        "    <nav>",
+        "      <a [routerLink]=\"['/admin/dashboard']\" routerLinkActive='active'>Dashboard</a>",
+        "      <a [routerLink]=\"['/admin/articles']\" routerLinkActive='active'>Articles</a>",
+        "      <button (click)='logout()'>Déconnexion</button>",
+        "    </nav>",
+        "  </aside>",
+        "  <main class='admin-content'>",
+        "    <router-outlet />",
+        "  </main>",
+        "</div>"
+      ],
+      "instructions": [
+        "Layout avec sidebar + content",
+        "Nav links avec routerLinkActive",
+        "Bouton logout",
+        "Router-outlet dans main",
+        "Classes cohérentes"
+      ]
+    },
+    
+    {
+      "ordre": 19,
+      "nom": "admin.scss (UPDATE)",
+      "path": "frontend/src/app/features/admin/admin.scss",
+      "type": "Styles Update",
+      "description": "Styles layout admin avec sidebar",
+      "features": [
+        "Flexbox layout sidebar + content",
+        "Sidebar fixed width",
+        "Content flex-grow",
+        "Nav links styled",
+        "Active state"
+      ],
+      "instructions": [
+        "Import variables",
+        ".admin-layout display flex",
+        "Sidebar width 250px, background dark",
+        "Content flex 1, padding",
+        "Nav links block, padding, hover",
+        "routerLinkActive style",
+        "Logout button bottom",
+        "Responsive mobile (sidebar collapse)"
+      ]
+    },
+    
+    {
+      "ordre": 20,
+      "nom": "app.routes.ts (UPDATE)",
+      "path": "frontend/src/app/app.routes.ts",
+      "type": "Routes Update",
+      "description": "Ajouter routes blog public + admin articles",
+      "routes_blog_public": [
+        "{ path: 'blog', component: BlogList }",
+        "{ path: 'blog/:slug', component: ArticleReader }"
+      ],
+      "routes_admin": [
+        "Modifier children admin:",
+        "{ path: 'dashboard', component: Dashboard }",
+        "{ path: 'articles', component: AdminArticlesList }",
+        "{ path: 'articles/nouveau', component: AdminArticleEditor }",
+        "{ path: 'articles/:id/modifier', component: AdminArticleEditor }"
+      ],
+      "instructions": [
+        "Import composants blog et admin articles",
+        "Routes blog après contact",
+        "Routes admin articles dans children admin",
+        "id param pour editor modification",
+        "Ordre: dashboard, articles, articles/nouveau, articles/:id"
+      ]
+    },
+    
+    {
+      "ordre": 21,
+      "nom": "navbar.html (UPDATE)",
+      "path": "frontend/src/app/shared/components/navbar/navbar.html",
+      "type": "Template Update",
+      "description": "Ajouter lien Blog dans navbar",
+      "modifications": [
+        "Ajouter lien Blog entre Tarifs et Contact"
+      ],
+      "structure": [
+        "<li><a [routerLink]=\"['/']\" fragment='tarifs'>Tarifs</a></li>",
+        "<li><a [routerLink]=\"['/blog']\">Blog</a></li>",
+        "<li><a [routerLink]=\"['/contact']\">Contact</a></li>"
+      ],
+      "instructions": [
+        "Ajouter <li> avec routerLink='/blog'",
+        "Pas de fragment (route normale)",
+        "Ordre: après Tarifs, avant Contact"
+      ]
+    },
+    
+    {
+      "ordre": 22,
+      "nom": "article.interface.ts (backend)",
+      "path": "backend/src/models/article.interface.ts",
+      "type": "Interface",
+      "description": "Interfaces TypeScript backend articles",
+      "interfaces": [
+        "ArticleFormData { title, content, excerpt?, imageUrl? }",
+        "Article (complet BDD avec id, slug, status, timestamps)"
+      ],
+      "instructions": [
+        "Export interface ArticleFormData",
+        "Export interface Article extends ArticleFormData { id, slug, status, ... }",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 23,
+      "nom": "article.service.ts (backend)",
+      "path": "backend/src/services/article.service.ts",
+      "type": "Service",
+      "description": "Service métier articles backend (CRUD + génération slug)",
+      "methodes": [
+        "async getAllArticles(): Promise<Article[]>",
+        "async getPublishedArticles(): Promise<Article[]>",
+        "async getArticleBySlug(slug: string): Promise<Article>",
+        "async getArticleById(id: number): Promise<Article>",
+        "async createArticle(): Promise<number>",
+        "async saveArticle(id: number, data: ArticleFormData): Promise<void>",
+        "async publishArticle(id: number): Promise<void>",
+        "async deleteArticle(id: number): Promise<void>",
+        "generateSlug(title: string): Promise<string>"
+      ],
+      "logique_generateSlug": [
+        "Appeler fonction PostgreSQL generate_slug(title)",
+        "OU implémenter en TypeScript:",
+        "  - lowercase, remove accents",
+        "  - replace non-alphanumeric with -",
+        "  - trim dashes",
+        "  - check uniqueness, add counter if exists"
+      ],
+      "instructions": [
+        "Import supabase depuis config/database",
+        "Méthodes async Promise",
+        "getAllArticles: SELECT * ORDER BY updated_at DESC",
+        "getPublishedArticles: WHERE status = 'published' ORDER BY published_at DESC",
+        "getArticleBySlug: WHERE slug = ?",
+        "getArticleById: WHERE id = ?",
+        "createArticle: INSERT title='', content='', slug=generate_slug('Sans titre') → return id",
+        "saveArticle: UPDATE title, content, excerpt, imageUrl, slug=generate_slug(title), updated_at=NOW()",
+        "publishArticle: UPDATE status='published', published_at=NOW()",
+        "deleteArticle: DELETE WHERE id",
+        "generateSlug: utiliser fonction PostgreSQL OU implémenter TS",
+        "Gestion erreurs Supabase",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 24,
+      "nom": "article.controller.ts (backend)",
+      "path": "backend/src/controllers/article.controller.ts",
+      "type": "Controller",
+      "description": "Controllers HTTP routes articles",
+      "methodes": [
+        "async getPublishedArticles(req, res)",
+        "async getArticleBySlug(req, res)",
+        "async getAllArticles(req, res) [admin]",
+        "async getArticleById(req, res) [admin]",
+        "async createArticle(req, res) [admin]",
+        "async saveArticle(req, res) [admin]",
+        "async publishArticle(req, res) [admin]",
+        "async deleteArticle(req, res) [admin]"
+      ],
+      "instructions": [
+        "Import articleService",
+        "Async functions try/catch",
+        "Typage Request, Response",
+        "getPublishedArticles: articleService.getPublishedArticles() → 200",
+        "getArticleBySlug: params.slug → articleService.getArticleBySlug() → 200 ou 404",
+        "getAllArticles: articleService.getAllArticles() → 200",
+        "getArticleById: params.id → articleService.getArticleById() → 200 ou 404",
+        "createArticle: articleService.createArticle() → 201 { id }",
+        "saveArticle: params.id, body data → articleService.saveArticle() → 200",
+        "publishArticle: params.id → articleService.publishArticle() → 200",
+        "deleteArticle: params.id → articleService.deleteArticle() → 200",
+        "Catch errors → 500"
+      ]
+    },
+    
+    {
+      "ordre": 25,
+      "nom": "article.routes.ts (backend)",
+      "path": "backend/src/routes/article.routes.ts",
+      "type": "Routes",
+      "description": "Routes Express articles (public + admin)",
+      "routes_public": [
+        "GET /blog/articles (getPublishedArticles)",
+        "GET /blog/articles/:slug (getArticleBySlug)"
+      ],
+      "routes_admin": [
+        "GET /admin/articles (getAllArticles, protected)",
+        "GET /admin/articles/:id (getArticleById, protected)",
+        "POST /admin/articles (createArticle, protected)",
+        "PUT /admin/articles/:id (saveArticle, protected)",
+        "POST /admin/articles/:id/publish (publishArticle, protected)",
+        "DELETE /admin/articles/:id (deleteArticle, protected)"
+      ],
+      "instructions": [
+        "Import Router, controllers, verifyToken middleware",
+        "Créer publicRouter = Router()",
+        "Créer adminRouter = Router()",
+        "publicRouter.get('/articles', getPublishedArticles)",
+        "publicRouter.get('/articles/:slug', getArticleBySlug)",
+        "adminRouter.get('/articles', verifyToken, getAllArticles)",
+        "adminRouter.get('/articles/:id', verifyToken, getArticleById)",
+        "adminRouter.post('/articles', verifyToken, createArticle)",
+        "adminRouter.put('/articles/:id', verifyToken, saveArticle)",
+        "adminRouter.post('/articles/:id/publish', verifyToken, publishArticle)",
+        "adminRouter.delete('/articles/:id', verifyToken, deleteArticle)",
+        "Export { publicRouter, adminRouter }"
+      ]
+    },
+    
+    {
+      "ordre": 26,
+      "nom": "app.ts (UPDATE backend)",
+      "path": "backend/src/app.ts",
+      "type": "Application Update",
+      "description": "Monter routes articles public et admin",
+      "modifications": [
+        "Import { publicRouter as blogRouter, adminRouter as adminArticlesRouter }",
+        "app.use('/api/blog', blogRouter)",
+        "app.use('/api/admin', adminArticlesRouter)"
+      ],
+      "instructions": [
+        "Import article routes",
+        "Monter /api/blog pour public",
+        "Monter /api/admin pour admin articles (en plus de /admin existant)",
+        "Vérifier ordre routes"
+      ]
+    },
+    
+    {
+      "ordre": 27,
+      "nom": "README.md (UPDATE backend)",
+      "path": "backend/README.md",
+      "type": "Documentation Update",
+      "description": "Documenter endpoints articles",
+      "sections": [
+        "Endpoints Blog Public:",
+        "  - GET /api/blog/articles",
+        "  - GET /api/blog/articles/:slug",
+        "Endpoints Admin Articles:",
+        "  - GET /api/admin/articles (JWT)",
+        "  - GET /api/admin/articles/:id (JWT)",
+        "  - POST /api/admin/articles (JWT)",
+        "  - PUT /api/admin/articles/:id (JWT)",
+        "  - POST /api/admin/articles/:id/publish (JWT)",
+        "  - DELETE /api/admin/articles/:id (JWT)"
+      ],
+      "instructions": [
+        "Ajouter section Blog/Articles",
+        "Décrire chaque endpoint",
+        "Body/params/response examples",
+        "Indiquer JWT required pour admin"
+      ]
+    }
+  ],
+  
+  "validation_phase": {
+    "criteres_frontend_public": [
+      "/blog affiche liste articles publiés",
+      "/blog/:slug affiche article complet",
+      "Navigation smooth entre liste et article",
+      "Responsive mobile OK",
+      "Si aucun article: message 'Aucun article'"
+    ],
+    "criteres_admin": [
+      "Sidebar admin avec liens Dashboard + Articles",
+      "/admin/articles affiche liste tous articles",
+      "Filtres statut fonctionnent (tous/brouillons/publiés)",
+      "Bouton 'Nouvel article' → éditeur",
+      "Éditeur auto-save localStorage (debounce 500ms)",
+      "Création article brouillon vide automatique au premier caractère",
+      "Slug auto-généré lors sauvegarde",
+      "Publication change statut + date published_at",
+      "Suppression avec confirmation fonctionne",
+      "Annuler avec confirmation si édité",
+      "Retour sauvegarde brouillon",
+      "Messages success/error visibles"
+    ],
+    "criteres_backend": [
+      "GET /api/blog/articles retourne articles publiés uniquement",
+      "GET /api/blog/articles/:slug retourne article correct",
+      "CRUD admin articles fonctionne avec JWT",
+      "Slug généré unique (pas de collision)",
+      "Fonction generate_slug PostgreSQL opérationnelle",
+      "published_at update lors publication"
+    ],
+    "commandes_test": [
+      "Backend:",
+      "  cd backend && npm run dev",
+      "  Postman: GET /api/blog/articles",
+      "  Postman: POST /api/admin/articles (JWT)",
+      "",
+      "Frontend:",
+      "  cd frontend && ng serve",
+      "  Ouvrir http://localhost:4200/blog",
+      "  Login admin → /admin/articles",
+      "  Créer article → auto-save → publier",
+      "  Vérifier article visible sur /blog"
+    ]
+  },
+  
+  "notes_importantes": [
+    "Phase complexe (27 fichiers), prendre le temps",
+    "Auto-save localStorage = feature badass, bien la tester",
+    "Slug unique crucial, tester collisions",
+    "Confirmation dialogs améliorent UX énormément",
+    "Sidebar admin rend navigation claire",
+    "Workflow strict: 1 fichier = 1 validation",
+    "S'inspirer fortement de chroniques (même patterns)",
+    "Backend: fonction PostgreSQL generate_slug à créer en SQL Editor Supabase AVANT phase",
+    "Frontend: tester auto-save en éditant puis fermant onglet → rouvrir → vérifier restauration"
+  ],
+  
+  "preparation_supabase": {
+    "etapes": [
+      "1. Ouvrir Supabase SQL Editor",
+      "2. Créer table articles avec colonnes définies",
+      "3. Créer index unique sur slug",
+      "4. Créer fonction generate_slug (SQL plpgsql)",
+      "5. Configurer RLS (public read published, admin all)",
+      "6. Tester fonction: SELECT generate_slug('Mon Super Article');"
+    ]
+  },
+  
+  "integration_complete": {
+    "test_final": [
+      "1. Créer article en admin avec auto-save",
+      "2. Publier article",
+      "3. Vérifier article visible /blog",
+      "4. Cliquer article → /blog/:slug",
+      "5. Modifier article admin → vérifier slug reste stable",
+      "6. Supprimer article → vérifier disparaît de /blog",
+      "7. Tester filtres admin (brouillons/publiés)",
+      "8. Tester annulation avec confirmation",
+      "9. Fermer onglet pendant édition → rouvrir → vérifier localStorage restore"
+    ],
+    "felicitations": "Système blog badass complet ! Auto-save, confirmations, slug unique. 🔥"
+  }
+}

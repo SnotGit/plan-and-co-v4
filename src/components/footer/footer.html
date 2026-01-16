@@ -1,0 +1,42 @@
+<p>footer works!</p>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h3>Plan & Co</h3>
+        <p>Expert en copywriting et rédaction web.</p>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li>
+            <a [routerLink]="['/']" fragment="services">Services</a>
+          </li>
+          <li>
+            <a [routerLink]="['/']" fragment="tarifs">Tarifs</a>
+          </li>
+          <li>
+            <a [routerLink]="['/contact']">Contact</a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li>
+            <a href="mailto:planandco9@gmail.com">planandco9@gmail.com</a>
+          </li>
+          <li>
+            <a href="tel:0640286297">06 40 28 62 97</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} Plan & Co - Tous droits réservés</p>
+    </div>
+  </div>
+</footer>

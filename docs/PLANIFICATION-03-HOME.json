@@ -1,0 +1,591 @@
+{
+  "phase": "03",
+  "nom": "PAGE HOME",
+  "description": "Création de la page d'accueil single-page avec sections hero, services, tarifs et CTA",
+  "objectif": "Transformer le site HTML statique en page Angular moderne avec scroll smooth et sections réactives",
+  
+  "prerequis": [
+    "Phase 02 validée (navbar + footer)",
+    "ScrollSpyService fonctionnel",
+    "Variables et mixins SCSS disponibles",
+    "Contenu du site HTML actuel accessible"
+  ],
+  
+  "proposition_design": {
+    "titre": "💡 PROPOSITION DESIGN - Home Moderne & Élégante",
+    "ameliorations": [
+      {
+        "nom": "Gradients subtils sur sections",
+        "description": "Backgrounds avec gradients légers orange/crème",
+        "benefice": "Élégance visuelle, hiérarchie claire",
+        "exemple": "linear-gradient(135deg, #FFF8F0 0%, #FFFBF7 100%)"
+      },
+      {
+        "nom": "Cards services avec hover effect",
+        "description": "Élévation au survol, transition smooth",
+        "benefice": "Interaction moderne, feedback utilisateur",
+        "css": "transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,0.1)"
+      },
+      {
+        "nom": "Animations au scroll (fade-in)",
+        "description": "Éléments apparaissent progressivement au scroll",
+        "benefice": "Dynamisme, expérience premium",
+        "librairie": "CSS animations ou Intersection Observer"
+      },
+      {
+        "nom": "CTA avec gradient button",
+        "description": "Bouton principal avec gradient orange animé",
+        "benefice": "Attention visuelle, conversion",
+        "css": "background: linear-gradient(45deg, #E67E22, #F39C12)"
+      }
+    ],
+    "validation_requise": "Valider design avant implémentation"
+  },
+  
+  "analyse_site_existant": {
+    "instruction": "Analyser le site HTML dans project knowledge AVANT de coder",
+    "fichiers_source": [
+      "index.html (structure home)",
+      "styles/main.css (couleurs, spacing)",
+      "styles/gradients.css (gradients existants)"
+    ],
+    "extraire": [
+      "Textes hero (titre, sous-titre, CTA)",
+      "Liste services avec descriptions",
+      "Tarifs/packages avec prix",
+      "Texte CTA final",
+      "Couleurs exactes (#E67E22, etc.)",
+      "Fonts (Inter, Playfair Display)"
+    ],
+    "commande_analyse": "Utiliser /analyze pour extraire contenu avec citations exactes"
+  },
+  
+  "fichiers": [
+    {
+      "ordre": 1,
+      "nom": "home.ts",
+      "path": "frontend/src/app/features/home/home.ts",
+      "type": "Component",
+      "description": "Container principal de la page home (assemble toutes les sections)",
+      "structure": {
+        "selector": "app-home",
+        "standalone": true,
+        "imports": ["Banner", "Services", "Tarifs", "Cta"],
+        "template": "home.html",
+        "styles": "home.scss"
+      },
+      "logique": [
+        "Injection ScrollSpyService",
+        "OnInit: observer sections avec ScrollSpyService",
+        "Références aux sections (#hero, #services, #tarifs, #cta)",
+        "Pas de logique métier (juste assemblage sections)"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Importer les 4 composants sections",
+        "Utiliser inject() pour ScrollSpyService",
+        "ngOnInit: appeler scrollSpyService.observe(sections)",
+        "ViewChild pour récupérer sections si besoin",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 2,
+      "nom": "home.html",
+      "path": "frontend/src/app/features/home/home.html",
+      "type": "Template",
+      "description": "Template home assemblant les 4 sections avec IDs pour scroll spy",
+      "structure": [
+        "<main class='home'>",
+        "  <section id='hero'>",
+        "    <app-banner />",
+        "  </section>",
+        "  <section id='services'>",
+        "    <app-services />",
+        "  </section>",
+        "  <section id='tarifs'>",
+        "    <app-tarifs />",
+        "  </section>",
+        "  <section id='cta'>",
+        "    <app-cta />",
+        "  </section>",
+        "</main>"
+      ],
+      "instructions": [
+        "IDs sections pour scroll spy (hero, services, tarifs, cta)",
+        "Chaque section wrap un composant",
+        "Balise <main> sémantique",
+        "Minimal et propre",
+        "Classes cohérentes"
+      ]
+    },
+    
+    {
+      "ordre": 3,
+      "nom": "home.scss",
+      "path": "frontend/src/app/features/home/home.scss",
+      "type": "Styles",
+      "description": "Styles généraux page home (spacing sections, scroll-behavior)",
+      "imports": [
+        "@use '@assets/styles/variables' as *;"
+      ],
+      "features": [
+        "scroll-behavior: smooth",
+        "Spacing entre sections cohérent",
+        "Backgrounds alternés (blanc/crème)",
+        "Responsive"
+      ],
+      "instructions": [
+        "scroll-behavior: smooth sur html",
+        "Sections avec padding vertical",
+        "Alternance backgrounds subtile",
+        "Media queries si besoin",
+        "Minimal (sections gèrent leurs styles)"
+      ]
+    },
+    
+    {
+      "ordre": 4,
+      "nom": "banner.ts",
+      "path": "frontend/src/app/features/home/components/banner/banner.ts",
+      "type": "Component",
+      "description": "Section hero/bannière d'accueil avec titre, sous-titre, CTA",
+      "structure": {
+        "selector": "app-banner",
+        "standalone": true,
+        "imports": ["RouterLink"],
+        "template": "banner.html",
+        "styles": "banner.scss"
+      },
+      "contenu_extrait_site": {
+        "titre": "À extraire de index.html (ex: 'Plan & Co - Expert Copywriting')",
+        "sous_titre": "À extraire de index.html",
+        "cta_principal": "Bouton 'Contactez-moi' → /contact",
+        "cta_secondaire": "Bouton téléphone (optionnel)"
+      },
+      "logique": [
+        "Composant présentationnel (pas de logique)",
+        "Contenu statique extrait du site HTML"
+      ],
+      "instructions": [
+        "Standalone component",
+        "RouterLink pour bouton CTA",
+        "Extraire EXACTEMENT les textes du site HTML actuel",
+        "Utiliser /analyze pour citations",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 5,
+      "nom": "banner.html",
+      "path": "frontend/src/app/features/home/components/banner/banner.html",
+      "type": "Template",
+      "description": "Template hero avec titre principal, description, boutons CTA",
+      "structure": [
+        "<div class='banner'>",
+        "  <div class='container'>",
+        "    <div class='banner-content'>",
+        "      <h1 class='banner-title'>",
+        "        Plan & Co <span class='gradient-text'>Expert Copywriting</span>",
+        "      </h1>",
+        "      <p class='banner-description'>",
+        "        Transformez vos mots en résultats mesurables",
+        "      </p>",
+        "      <div class='banner-cta'>",
+        "        <a [routerLink]=\"['/contact']\" class='btn btn-primary'>Contactez-moi</a>",
+        "        <a href='tel:0640286297' class='btn btn-secondary'>📞 06 40 28 62 97</a>",
+        "      </div>",
+        "    </div>",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "EXTRAIRE contenu réel du site HTML",
+        "RouterLink pour navigation",
+        "Classes cohérentes (btn, btn-primary...)",
+        "Span pour gradient sur partie titre",
+        "Sémantique HTML5 (h1, p)"
+      ]
+    },
+    
+    {
+      "ordre": 6,
+      "nom": "banner.scss",
+      "path": "frontend/src/app/features/home/components/banner/banner.scss",
+      "type": "Styles",
+      "description": "Styles section hero (grand titre, gradient, CTA prominent)",
+      "imports": [
+        "@use '@assets/styles/variables' as *;",
+        "@use '@assets/styles/mixins' as *;"
+      ],
+      "features": [
+        "Padding vertical généreux (120px+ desktop)",
+        "Titre très large (clamp 2.5rem - 4rem)",
+        "Gradient sur span titre (.gradient-text)",
+        "Boutons avec hover effects",
+        "Centré verticalement et horizontalement",
+        "Background gradient subtil",
+        "Responsive mobile"
+      ],
+      "instructions": [
+        "Utiliser variables couleurs et spacing",
+        "clamp() pour titre responsive",
+        "Gradient orange sur .gradient-text",
+        "Mixin @include button si disponible",
+        "Hover effects subtils",
+        "Media query < 768px"
+      ]
+    },
+    
+    {
+      "ordre": 7,
+      "nom": "services.ts",
+      "path": "frontend/src/app/features/home/components/services/services.ts",
+      "type": "Component",
+      "description": "Section grille de services avec cards",
+      "structure": {
+        "selector": "app-services",
+        "standalone": true,
+        "imports": ["CommonModule"],
+        "template": "services.html",
+        "styles": "services.scss"
+      },
+      "donnees": {
+        "source": "Extraire du site HTML actuel (index.html ou services.html)",
+        "structure": "Array d'objets { icon, titre, description }"
+      },
+      "logique": [
+        "Signal services = signal<Service[]>([...])",
+        "Interface Service { icon: string, title: string, description: string }",
+        "Données extraites du site HTML"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Interface Service typée",
+        "Signal avec liste services",
+        "EXTRAIRE services du site HTML avec /analyze",
+        "Icons emoji ou SVG simple",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 8,
+      "nom": "services.html",
+      "path": "frontend/src/app/features/home/components/services/services.html",
+      "type": "Template",
+      "description": "Template grille services avec cards",
+      "structure": [
+        "<div class='services'>",
+        "  <div class='container'>",
+        "    <h2 class='section-title'>Mes Services</h2>",
+        "    <p class='section-description'>Solutions complètes pour votre communication</p>",
+        "    <div class='services-grid'>",
+        "      @for (service of services(); track service.title) {",
+        "        <div class='service-card'>",
+        "          <div class='service-icon'>{{ service.icon }}</div>",
+        "          <h3 class='service-title'>{{ service.title }}</h3>",
+        "          <p class='service-description'>{{ service.description }}</p>",
+        "        </div>",
+        "      }",
+        "    </div>",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "Control flow @for (Angular 20)",
+        "track par service.title",
+        "Interpolation {{ }}",
+        "Grid responsive (3 cols desktop → 1 col mobile)",
+        "Classes cohérentes"
+      ]
+    },
+    
+    {
+      "ordre": 9,
+      "nom": "services.scss",
+      "path": "frontend/src/app/features/home/components/services/services.scss",
+      "type": "Styles",
+      "description": "Styles section services (grid cards, hover effects)",
+      "imports": [
+        "@use '@assets/styles/variables' as *;",
+        "@use '@assets/styles/mixins' as *;"
+      ],
+      "features": [
+        "Grid 3 colonnes (desktop) → 1 (mobile)",
+        "Cards avec border, radius, shadow",
+        "Hover effect (élévation + scale subtil)",
+        "Icons large et colorés",
+        "Spacing cohérent",
+        "Background section alternée"
+      ],
+      "instructions": [
+        "Grid avec gap variable",
+        "Cards avec mixin @include card si disponible",
+        "Hover: transform translateY(-8px) + shadow",
+        "Icons centré, taille 3rem+",
+        "Transition 0.3s ease",
+        "Responsive breakpoint 768px"
+      ]
+    },
+    
+    {
+      "ordre": 10,
+      "nom": "tarifs.ts",
+      "path": "frontend/src/app/features/home/components/tarifs/tarifs.ts",
+      "type": "Component",
+      "description": "Section tarifs/packages avec pricing cards",
+      "structure": {
+        "selector": "app-tarifs",
+        "standalone": true,
+        "imports": ["CommonModule", "RouterLink"],
+        "template": "tarifs.html",
+        "styles": "tarifs.scss"
+      },
+      "donnees": {
+        "source": "Extraire du site HTML (packages.html)",
+        "structure": "Array { name, price, features: string[], featured: boolean }"
+      },
+      "logique": [
+        "Signal packages = signal<Package[]>([...])",
+        "Interface Package { name, price, features, featured? }",
+        "Données extraites du site HTML"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Interface Package typée",
+        "Signal avec liste packages",
+        "EXTRAIRE packages du site HTML avec /analyze",
+        "featured pour mise en avant (optionnel)",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 11,
+      "nom": "tarifs.html",
+      "path": "frontend/src/app/features/home/components/tarifs/tarifs.html",
+      "type": "Template",
+      "description": "Template grille packages pricing",
+      "structure": [
+        "<div class='tarifs'>",
+        "  <div class='container'>",
+        "    <h2 class='section-title'>Nos Tarifs</h2>",
+        "    <p class='section-description'>Choisissez le package adapté à vos besoins</p>",
+        "    <div class='tarifs-grid'>",
+        "      @for (pkg of packages(); track pkg.name) {",
+        "        <div class='package-card' [class.featured]='pkg.featured'>",
+        "          @if (pkg.featured) {",
+        "            <span class='badge'>Populaire</span>",
+        "          }",
+        "          <h3 class='package-name'>{{ pkg.name }}</h3>",
+        "          <p class='package-price'>{{ pkg.price }}</p>",
+        "          <ul class='package-features'>",
+        "            @for (feature of pkg.features; track feature) {",
+        "              <li>✓ {{ feature }}</li>",
+        "            }",
+        "          </ul>",
+        "          <a [routerLink]=\"['/contact']\" class='btn btn-primary'>Choisir</a>",
+        "        </div>",
+        "      }",
+        "    </div>",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "Control flow @for et @if (Angular 20)",
+        "Binding [class.featured] conditionnel",
+        "Badge 'Populaire' si featured",
+        "RouterLink pour CTA",
+        "Liste features avec checkmarks",
+        "Grid responsive"
+      ]
+    },
+    
+    {
+      "ordre": 12,
+      "nom": "tarifs.scss",
+      "path": "frontend/src/app/features/home/components/tarifs/tarifs.scss",
+      "type": "Styles",
+      "description": "Styles section tarifs (cards pricing, featured highlight)",
+      "imports": [
+        "@use '@assets/styles/variables' as *;",
+        "@use '@assets/styles/mixins' as *;"
+      ],
+      "features": [
+        "Grid 3 colonnes (desktop) → 1 (mobile)",
+        "Cards avec border, shadow",
+        "Featured card: border primary, scale légèrement plus grand",
+        "Badge 'Populaire' en haut à droite",
+        "Prix large et visible",
+        "Hover effects",
+        "Bouton centré bas de card"
+      ],
+      "instructions": [
+        "Grid avec gap",
+        "Featured card: border $primary-color, transform scale(1.05)",
+        "Badge position absolute top-right",
+        "Prix font-size 2rem+, font-weight bold",
+        "Features liste avec padding",
+        "Hover subtle",
+        "Responsive breakpoint"
+      ]
+    },
+    
+    {
+      "ordre": 13,
+      "nom": "cta.ts",
+      "path": "frontend/src/app/features/home/components/cta/cta.ts",
+      "type": "Component",
+      "description": "Section CTA final (call-to-action avant footer)",
+      "structure": {
+        "selector": "app-cta",
+        "standalone": true,
+        "imports": ["RouterLink"],
+        "template": "cta.html",
+        "styles": "cta.scss"
+      },
+      "contenu": {
+        "titre": "À extraire du site HTML",
+        "description": "Phrase incitative",
+        "bouton": "Contactez-moi maintenant"
+      },
+      "logique": [
+        "Composant présentationnel simple",
+        "Pas de logique"
+      ],
+      "instructions": [
+        "Standalone component",
+        "RouterLink pour CTA",
+        "EXTRAIRE textes du site HTML",
+        "Minimal",
+        "Typage strict"
+      ]
+    },
+    
+    {
+      "ordre": 14,
+      "nom": "cta.html",
+      "path": "frontend/src/app/features/home/components/cta/cta.html",
+      "type": "Template",
+      "description": "Template CTA centré avec titre, description, gros bouton",
+      "structure": [
+        "<div class='cta'>",
+        "  <div class='container'>",
+        "    <div class='cta-content'>",
+        "      <h2 class='cta-title'>Prêt à transformer votre communication ?</h2>",
+        "      <p class='cta-description'>",
+        "        Discutons de votre projet dès aujourd'hui",
+        "      </p>",
+        "      <a [routerLink]=\"['/contact']\" class='btn btn-primary btn-large'>",
+        "        Contactez-moi maintenant",
+        "      </a>",
+        "    </div>",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "EXTRAIRE textes du site HTML",
+        "Centré (text-align center)",
+        "Bouton large et visible",
+        "RouterLink navigation",
+        "Sémantique HTML5"
+      ]
+    },
+    
+    {
+      "ordre": 15,
+      "nom": "cta.scss",
+      "path": "frontend/src/app/features/home/components/cta/cta.scss",
+      "type": "Styles",
+      "description": "Styles section CTA (background gradient, centré, bouton prominent)",
+      "imports": [
+        "@use '@assets/styles/variables' as *;",
+        "@use '@assets/styles/mixins' as *;"
+      ],
+      "features": [
+        "Background gradient orange (#E67E22 → #F39C12)",
+        "Texte blanc",
+        "Padding vertical généreux",
+        "Titre large",
+        "Bouton blanc avec hover effet",
+        "Centré"
+      ],
+      "instructions": [
+        "Background gradient-warm (mixin ou variable)",
+        "Color white pour texte",
+        "text-align center",
+        "Bouton .btn-large avec padding large",
+        "Hover bouton: scale ou shadow",
+        "Responsive"
+      ]
+    },
+    
+    {
+      "ordre": 16,
+      "nom": "app.routes.ts (UPDATE)",
+      "path": "frontend/src/app/app.routes.ts",
+      "type": "Routes Update",
+      "description": "Ajouter la route home dans les routes",
+      "modifications": [
+        "Importer Home component",
+        "Ajouter route { path: '', component: Home }"
+      ],
+      "instructions": [
+        "Import { Home } from './features/home/home'",
+        "Route vide ('') pointe vers Home",
+        "Vérifier autres routes existantes (contact, admin)",
+        "Ordre: home en premier"
+      ]
+    }
+  ],
+  
+  "validation_phase": {
+    "criteres": [
+      "Page home affichée sur /",
+      "4 sections visibles (hero, services, tarifs, cta)",
+      "Scroll smooth fonctionnel",
+      "Scroll spy active liens navbar",
+      "Contenu extrait du site HTML présent",
+      "Design moderne appliqué (si validé)",
+      "Responsive mobile OK",
+      "Aucune erreur console",
+      "Aucune erreur TypeScript"
+    ],
+    "commandes_test": [
+      "cd frontend",
+      "ng serve",
+      "Ouvrir http://localhost:4200",
+      "Scroller la page (smooth scroll)",
+      "Vérifier navbar links s'activent",
+      "Tester responsive (réduire écran)",
+      "Cliquer boutons CTA"
+    ]
+  },
+  
+  "notes_importantes": [
+    "OBLIGATOIRE: Utiliser /analyze pour extraire contenu du site HTML",
+    "Ne PAS inventer les textes, les extraire du site actuel",
+    "Scroll spy devrait fonctionner maintenant avec sections présentes",
+    "Proposer design moderne en début de phase",
+    "Respecter workflow: 1 fichier = 1 validation",
+    "Cette phase est longue (16 fichiers), prendre le temps",
+    "Valider chaque section avant de passer à la suivante"
+  ],
+  
+  "integration_app": {
+    "nouveaux_composants": [
+      "Home (features/home/)",
+      "Banner (features/home/components/banner/)",
+      "Services (features/home/components/services/)",
+      "Tarifs (features/home/components/tarifs/)",
+      "Cta (features/home/components/cta/)"
+    ],
+    "fichiers_modifies": [
+      "app.routes.ts (ajout route home)"
+    ],
+    "scroll_spy": "Sera fonctionnel avec sections présentes"
+  }
+}
