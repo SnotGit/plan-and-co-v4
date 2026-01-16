@@ -1,353 +1,289 @@
 {
   "phase": "04",
-  "nom": "PAGE CONTACT",
-  "description": "Création du formulaire de contact avec validation et préparation connexion API backend",
-  "objectif": "Formulaire moderne, validé, prêt à envoyer données au backend Express",
+  "nom": "FEATURE CONTACT",
+  "description": "Formulaire contact avec validation, champ sujet, intégration API",
+  "objectif": "Page contact élégante, envoi vers backend, feedback utilisateur",
   
-  "prerequis": [
-    "Phase 03 validée (home fonctionnelle)",
-    "ReactiveFormsModule disponible",
-    "HttpClient configuré dans app.config.ts",
-    "Variables environment.ts avec apiUrl"
-  ],
-  
-  "proposition_design": {
-    "titre": "💡 PROPOSITION DESIGN - Formulaire Moderne",
-    "ameliorations": [
-      {
-        "nom": "Validation visuelle immédiate",
-        "description": "Border rouge si erreur, vert si valide, feedback en temps réel",
-        "benefice": "UX claire, utilisateur sait si champ OK",
-        "css": "border-color dynamique + icônes validation"
-      },
-      {
-        "nom": "Loading state animé",
-        "description": "Spinner + désactivation form pendant envoi",
-        "benefice": "Feedback visuel, évite double soumission",
-        "css": "Bouton avec spinner, opacity form"
-      },
-      {
-        "nom": "Success message élégant",
-        "description": "Card success avec animation fade-in",
-        "benefice": "Confirmation claire de l'envoi",
-        "css": "Background vert léger, checkmark animé"
-      }
-    ],
-    "validation_requise": "Valider design avant implémentation"
+  "structure_feature": {
+    "path": "src/features/contact/",
+    "organisation": [
+      "components/ → contact (form)",
+      "services/ → contact.service.ts",
+      "routes/ → contact.routes.ts"
+    ]
   },
   
-  "analyse_formulaire_existant": {
-    "instruction": "Analyser contact.html du site actuel AVANT de coder",
-    "fichier_source": "contact.html",
-    "extraire": [
-      "Champs du formulaire (firstName, lastName, email, phone, company, service, budget, message)",
-      "Labels exacts",
-      "Placeholders",
-      "Options select (services, budget)",
-      "Textes page (titre, description)",
-      "Action Formspree (à remplacer par notre API)"
-    ],
-    "commande": "Utiliser /analyze pour extraire structure exacte"
+  "workflow": {
+    "regles_absolues": [
+      "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
+      "Code COMPLET (jamais '...')",
+      "STOP après chaque → ATTENDRE '✓ OK'",
+      "Ordre strict",
+      "TypeScript strict (aucun 'any')"
+    ]
   },
   
   "fichiers": [
     {
       "ordre": 1,
       "nom": "contact.interface.ts",
-      "path": "frontend/src/app/shared/models/contact.interface.ts",
+      "path": "src/shared/models/contact.interface.ts",
       "type": "Interface",
-      "description": "Interface TypeScript pour données formulaire contact",
+      "description": "Modèle contact avec sujet",
       "structure": {
         "ContactFormData": {
           "firstName": "string",
           "lastName": "string",
           "email": "string",
-          "phone": "string (optionnel)",
-          "company": "string (optionnel)",
-          "service": "string",
-          "budget": "string (optionnel)",
+          "phone": "string | undefined",
+          "company": "string | undefined",
+          "subject": "SubjectType",
+          "message": "string"
+        },
+        "SubjectType": "'copywriting' | 'strategy' | 'seo' | 'web' | 'other'",
+        "ContactResponse": {
+          "success": "boolean",
           "message": "string"
         }
       },
       "instructions": [
-        "Export interface ContactFormData",
-        "Tous champs typés string",
-        "Phone, company, budget optionnels (?: )",
-        "Pas de any",
-        "Commentaires pour clarté"
+        "Interface ContactFormData complète",
+        "Type SubjectType pour dropdown",
+        "ContactResponse pour API",
+        "Export all"
       ]
     },
     
     {
       "ordre": 2,
-      "nom": "contact.service.ts",
-      "path": "frontend/src/app/core/services/contact.service.ts",
-      "type": "Service",
-      "description": "Service pour envoyer données formulaire au backend",
-      "structure": {
-        "methode": "submitContact(data: ContactFormData): Observable<ApiResponse>",
-        "endpoint": "POST ${environment.apiUrl}/contact"
-      },
-      "logique": [
-        "Injection HttpClient avec inject()",
-        "Méthode submitContact retourne Observable",
-        "URL depuis environment.apiUrl",
-        "Headers JSON",
-        "Gestion erreurs avec catchError"
+      "nom": "contact.routes.ts",
+      "path": "src/features/contact/routes/contact.routes.ts",
+      "type": "Routes",
+      "description": "Routes feature contact",
+      "routes": [
+        "{ path: '', component: Contact }"
       ],
       "instructions": [
-        "Injectable providedIn: 'root'",
-        "Injection HttpClient avec inject()",
-        "Import environment depuis '@environments/environment'",
-        "POST vers ${apiUrl}/contact",
-        "Return Observable<{success: boolean, message: string}>",
-        "catchError pour gestion erreurs",
-        "Typage strict"
+        "Export default Routes array",
+        "Route vide → Contact component"
       ]
     },
     
     {
       "ordre": 3,
-      "nom": "contact.ts",
-      "path": "frontend/src/app/features/contact/contact.ts",
-      "type": "Component",
-      "description": "Composant page contact avec formulaire réactif",
-      "structure": {
-        "selector": "app-contact",
-        "standalone": true,
-        "imports": ["ReactiveFormsModule", "CommonModule"],
-        "template": "contact.html",
-        "styles": "contact.scss"
-      },
-      "logique": [
-        "Injection ContactService et FormBuilder",
-        "FormGroup avec validators",
-        "Validators.required sur champs obligatoires",
-        "Validators.email sur email",
-        "Validators.pattern sur phone (optionnel)",
-        "Signal isLoading = signal(false)",
-        "Signal isSuccess = signal(false)",
-        "Signal errorMessage = signal('')",
-        "Méthode onSubmit()",
-        "Gestion états (loading, success, error)"
-      ],
-      "validation": [
-        "firstName: required, minLength(2)",
-        "lastName: required, minLength(2)",
-        "email: required, email",
-        "phone: pattern(numéro français optionnel)",
-        "service: required",
-        "message: required, minLength(10)"
+      "nom": "contact.service.ts",
+      "path": "src/features/contact/services/contact.service.ts",
+      "type": "Service",
+      "description": "Service API contact",
+      "methodes": [
+        "submitContact(data: ContactFormData): Observable<ContactResponse>"
       ],
       "instructions": [
-        "Standalone component",
-        "Utiliser inject() pour services",
-        "FormBuilder pour créer form",
-        "Validators Angular (@angular/forms)",
-        "Signals pour états UI",
-        "onSubmit: vérifier form.valid puis appeler service",
-        "Désactiver form pendant loading",
-        "Afficher success ou error selon réponse",
-        "Reset form si success",
-        "Typage strict"
+        "Injectable({ providedIn: 'root' })",
+        "Inject HttpClient, environment",
+        "POST ${apiUrl}/contact",
+        "Return Observable<ContactResponse>",
+        "Gestion erreurs catchError"
       ]
     },
     
     {
       "ordre": 4,
-      "nom": "contact.html",
-      "path": "frontend/src/app/features/contact/contact.html",
-      "type": "Template",
-      "description": "Template page contact avec formulaire et messages feedback",
-      "structure": [
-        "<div class='contact-page'>",
-        "  <div class='container'>",
-        "    <div class='contact-header'>",
-        "      <h1>Contactez-moi</h1>",
-        "      <p>Décrivons de votre projet</p>",
-        "    </div>",
-        "    ",
-        "    @if (!isSuccess()) {",
-        "      <form [formGroup]='contactForm' (ngSubmit)='onSubmit()' class='contact-form'>",
-        "        <!-- Champs formulaire -->",
-        "        <div class='form-row'>",
-        "          <div class='form-group'>",
-        "            <label>Prénom *</label>",
-        "            <input formControlName='firstName' />",
-        "            @if (contactForm.get('firstName')?.invalid && contactForm.get('firstName')?.touched) {",
-        "              <span class='error'>Prénom requis</span>",
-        "            }",
-        "          </div>",
-        "          <!-- Autres champs... -->",
-        "        </div>",
-        "        <button type='submit' [disabled]='contactForm.invalid || isLoading()'>",
-        "          @if (isLoading()) { Envoi... } @else { Envoyer }",
-        "        </button>",
-        "      </form>",
-        "    } @else {",
-        "      <div class='success-message'>",
-        "        <h2>✓ Message envoyé !</h2>",
-        "        <p>Je vous réponds sous 24h.</p>",
-        "      </div>",
-        "    }",
-        "    ",
-        "    @if (errorMessage()) {",
-        "      <div class='error-message'>{{ errorMessage() }}</div>",
-        "    }",
-        "  </div>",
-        "</div>"
-      ],
-      "champs_formulaire": [
-        "firstName (input text, required)",
-        "lastName (input text, required)",
-        "email (input email, required)",
-        "phone (input tel, optionnel)",
-        "company (input text, optionnel)",
-        "service (select avec options, required)",
-        "budget (select avec ranges prix, optionnel)",
-        "message (textarea, required)"
+      "nom": "contact.ts",
+      "path": "src/features/contact/components/contact.ts",
+      "type": "Component",
+      "description": "Formulaire contact avec validation",
+      "structure": {
+        "selector": "app-contact",
+        "standalone": true,
+        "imports": [
+          "ReactiveFormsModule",
+          "NgIf"
+        ],
+        "templateUrl": "./contact.html",
+        "styleUrl": "./contact.scss"
+      },
+      "logique": [
+        "Inject ContactService, FormBuilder",
+        "FormGroup avec validators",
+        "Champs: firstName, lastName, email, phone, company, subject, message",
+        "subject: dropdown (required)",
+        "email: pattern validator",
+        "message: minLength(20)",
+        "Signal isSubmitting, submitSuccess, submitError",
+        "onSubmit() → service.submitContact()"
       ],
       "instructions": [
-        "EXTRAIRE structure exacte de contact.html actuel",
-        "formGroup binding [formGroup]",
-        "formControlName sur chaque champ",
-        "ngSubmit event sur form",
-        "@if pour afficher erreurs validation",
-        "@if pour loading/success states",
-        "Disabled button si form invalid ou loading",
-        "Select options extraites du site HTML",
-        "Sémantique HTML5",
-        "Classes cohérentes"
+        "ReactiveFormsModule",
+        "Validators.required sur champs obligatoires",
+        "Validators.email sur email",
+        "Validators.minLength(20) sur message",
+        "Disable form pendant submit",
+        "Feedback success/error"
       ]
     },
     
     {
       "ordre": 5,
-      "nom": "contact.scss",
-      "path": "frontend/src/app/features/contact/contact.scss",
-      "type": "Styles",
-      "description": "Styles page contact et formulaire (validation visuelle, états)",
-      "imports": [
-        "@use '@assets/styles/variables' as *;",
-        "@use '@assets/styles/mixins' as *;"
-      ],
-      "features": [
-        "Layout 2 colonnes (form + info contact si applicable)",
-        "Inputs avec border, radius, padding",
-        "Focus state visible (border primary)",
-        "Validation visuelle (border rouge/vert)",
-        "Error messages en rouge sous champs",
-        "Success message card verte",
-        "Loading state (opacity, spinner)",
-        "Responsive mobile (1 colonne)"
-      ],
-      "validation_states": [
-        ".ng-invalid.ng-touched: border rouge",
-        ".ng-valid.ng-touched: border vert (optionnel)",
-        ".error: color rouge, font-size small"
+      "nom": "contact.html",
+      "path": "src/features/contact/components/contact.html",
+      "type": "Template",
+      "description": "Template formulaire contact",
+      "structure": [
+        "<div class=\"contact-container\">",
+        "  <header class=\"contact-header\">",
+        "    <h1>Contactez-moi</h1>",
+        "    <p>Discutons de votre projet ensemble</p>",
+        "  </header>",
+        "  ",
+        "  <form [formGroup]=\"contactForm\" (ngSubmit)=\"onSubmit()\" class=\"contact-form\">",
+        "    <div class=\"form-row\">",
+        "      <div class=\"form-field\">",
+        "        <label for=\"firstName\">Prénom *</label>",
+        "        <input id=\"firstName\" formControlName=\"firstName\" type=\"text\" />",
+        "        @if (contactForm.get('firstName')?.invalid && contactForm.get('firstName')?.touched) {",
+        "          <span class=\"error\">Prénom requis</span>",
+        "        }",
+        "      </div>",
+        "      ",
+        "      <div class=\"form-field\">",
+        "        <label for=\"lastName\">Nom *</label>",
+        "        <input id=\"lastName\" formControlName=\"lastName\" type=\"text\" />",
+        "        @if (contactForm.get('lastName')?.invalid && contactForm.get('lastName')?.touched) {",
+        "          <span class=\"error\">Nom requis</span>",
+        "        }",
+        "      </div>",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-row\">",
+        "      <div class=\"form-field\">",
+        "        <label for=\"email\">Email *</label>",
+        "        <input id=\"email\" formControlName=\"email\" type=\"email\" />",
+        "        @if (contactForm.get('email')?.invalid && contactForm.get('email')?.touched) {",
+        "          <span class=\"error\">Email valide requis</span>",
+        "        }",
+        "      </div>",
+        "      ",
+        "      <div class=\"form-field\">",
+        "        <label for=\"phone\">Téléphone</label>",
+        "        <input id=\"phone\" formControlName=\"phone\" type=\"tel\" />",
+        "      </div>",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-field\">",
+        "      <label for=\"company\">Entreprise</label>",
+        "      <input id=\"company\" formControlName=\"company\" type=\"text\" />",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-field\">",
+        "      <label for=\"subject\">Sujet *</label>",
+        "      <select id=\"subject\" formControlName=\"subject\">",
+        "        <option value=\"\">Sélectionnez un sujet</option>",
+        "        <option value=\"copywriting\">Copywriting</option>",
+        "        <option value=\"strategy\">Stratégie de Contenu</option>",
+        "        <option value=\"seo\">SEO Rédaction</option>",
+        "        <option value=\"web\">Création Site Web</option>",
+        "        <option value=\"other\">Autre</option>",
+        "      </select>",
+        "      @if (contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched) {",
+        "        <span class=\"error\">Sujet requis</span>",
+        "      }",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-field\">",
+        "      <label for=\"message\">Message *</label>",
+        "      <textarea id=\"message\" formControlName=\"message\" rows=\"6\"></textarea>",
+        "      @if (contactForm.get('message')?.invalid && contactForm.get('message')?.touched) {",
+        "        <span class=\"error\">Message requis (min 20 caractères)</span>",
+        "      }",
+        "    </div>",
+        "    ",
+        "    <button type=\"submit\" [disabled]=\"contactForm.invalid || isSubmitting()\" class=\"submit-button\">",
+        "      {{ isSubmitting() ? 'Envoi en cours...' : 'Envoyer' }}",
+        "    </button>",
+        "    ",
+        "    @if (submitSuccess()) {",
+        "      <div class=\"success-message\">",
+        "        ✓ Message envoyé ! Je vous réponds sous 24h.",
+        "      </div>",
+        "    }",
+        "    ",
+        "    @if (submitError()) {",
+        "      <div class=\"error-message\">",
+        "        ✗ Erreur lors de l'envoi. Réessayez.",
+        "      </div>",
+        "    }",
+        "  </form>",
+        "</div>"
       ],
       "instructions": [
-        "Utiliser variables couleurs",
-        "Mixin @include form-field si disponible",
-        "States validation avec classes Angular (.ng-invalid, .ng-touched)",
-        "Success card: background vert léger, border vert",
-        "Loading: opacity 0.6, cursor not-allowed",
-        "Transitions smooth (0.2s)",
-        "Responsive breakpoint 768px"
+        "FormGroup reactive",
+        "Labels avec for/id",
+        "@if pour erreurs conditionnelles",
+        "Bouton disabled si invalid ou submitting",
+        "Feedback success/error"
       ]
     },
     
     {
       "ordre": 6,
-      "nom": "app.config.ts (UPDATE)",
-      "path": "frontend/src/app/app.config.ts",
-      "type": "Config Update",
-      "description": "S'assurer que HttpClient est configuré dans providers",
-      "verifications": [
-        "provideHttpClient() présent dans providers",
-        "Si absent, l'ajouter"
+      "nom": "contact.scss",
+      "path": "src/features/contact/components/contact.scss",
+      "type": "Styles",
+      "description": "Styles formulaire Modern Editorial",
+      "design": [
+        "Container max-width: 600px",
+        "Background: white",
+        "Padding: 3rem",
+        "Border-radius: 12px",
+        "Shadow subtle",
+        "Form-field: margin-bottom 1.5rem",
+        "Input/select/textarea: border $color-text, focus accent",
+        "Button: $color-accent, large, rounded",
+        "Error: red",
+        "Success: green"
       ],
       "instructions": [
-        "Vérifier import { provideHttpClient } from '@angular/common/http'",
-        "Vérifier providers array contient provideHttpClient()",
-        "Si absent: ajouter provideHttpClient()",
-        "Ne pas dupliquer si déjà présent"
-      ]
-    },
-    
-    {
-      "ordre": 7,
-      "nom": "app.routes.ts (UPDATE)",
-      "path": "frontend/src/app/app.routes.ts",
-      "type": "Routes Update",
-      "description": "Vérifier que route /contact existe",
-      "verifications": [
-        "Route { path: 'contact', component: Contact } présente",
-        "Si absente, l'ajouter"
-      ],
-      "instructions": [
-        "Import { Contact } from './features/contact/contact'",
-        "Route contact dans array routes",
-        "Ordre après home",
-        "Ne pas dupliquer"
+        "@use '@shared/styles' as *",
+        "Form-row: grid 2 cols (1 col mobile)",
+        "Label: font-weight 500",
+        "Input height: 3rem",
+        "Textarea resize: vertical",
+        "Focus: border-color accent, outline none",
+        "Button hover: darker accent"
       ]
     }
   ],
   
   "validation_phase": {
     "criteres": [
-      "Page /contact accessible",
-      "Formulaire affiché avec tous champs",
-      "Validation fonctionnelle (champs requis, email format)",
-      "Messages erreur visibles si champ invalide",
-      "Bouton désactivé si form invalid",
-      "Loading state fonctionne (pour l'instant, erreur API normale)",
-      "Success/Error states testables (mock pour l'instant)",
-      "Responsive mobile OK",
-      "Aucune erreur console",
-      "Aucune erreur TypeScript"
+      "Tous fichiers créés et validés",
+      "/contact affiche formulaire",
+      "Validation champs fonctionne",
+      "Champ sujet dropdown OK",
+      "Erreurs affichées si invalid",
+      "Submit disabled si form invalid",
+      "Feedback success après envoi",
+      "Design Modern Editorial",
+      "Responsive mobile"
     ],
     "commandes_test": [
-      "cd frontend",
       "ng serve",
-      "Ouvrir http://localhost:4200/contact",
-      "Tester validation (champs vides, email invalide)",
-      "Tester submit (erreur réseau attendue car backend pas encore créé)",
-      "Vérifier responsive mobile"
-    ],
-    "note_backend": "Backend pas encore créé, donc submit retournera erreur réseau. C'est normal."
-  },
-  
-  "notes_importantes": [
-    "Backend API sera créé en Phase 05",
-    "Pour l'instant, submit échouera (pas de backend) - c'est NORMAL",
-    "Tester validation et UI states sans backend",
-    "EXTRAIRE structure formulaire du site HTML actuel",
-    "Ne PAS inventer les champs, les copier du site",
-    "Respecter workflow: 1 fichier = 1 validation",
-    "Phase courte (7 fichiers) mais importante pour UX"
-  ],
-  
-  "integration_app": {
-    "nouveaux_composants": [
-      "Contact (features/contact/)"
-    ],
-    "nouveaux_services": [
-      "ContactService (core/services/)"
-    ],
-    "nouvelles_interfaces": [
-      "ContactFormData (shared/models/)"
-    ],
-    "fichiers_modifies": [
-      "app.config.ts (vérif HttpClient)",
-      "app.routes.ts (vérif route contact)"
+      "http://localhost:4200/contact",
+      "Remplir form → submit",
+      "Vérifier erreurs validation",
+      "Backend pas encore créé (Phase 05) → mock OK"
     ]
   },
   
-  "preparation_backend": {
-    "note": "Cette phase prépare le frontend pour Phase 05 (Backend)",
-    "endpoint_attendu": "POST /api/contact",
-    "format_reponse": "{ success: boolean, message: string }",
-    "format_envoi": "ContactFormData en JSON"
-  }
+  "notes_importantes": [
+    "Champ 'subject' nouveau (dropdown)",
+    "Message minimum 20 caractères",
+    "Email + firstName + lastName + subject + message = required",
+    "Phone + company = optional",
+    "Backend API Phase 05",
+    "Email notification Phase 05",
+    "Design sobre et professionnel",
+    "1 fichier = 1 validation obligatoire"
+  ]
 }

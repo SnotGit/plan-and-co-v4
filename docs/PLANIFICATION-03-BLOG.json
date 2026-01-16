@@ -1,0 +1,537 @@
+{
+  "phase": "03",
+  "nom": "FEATURE BLOG",
+  "description": "Système blog complet: liste articles, article détail avec CTA service, articles similaires",
+  "objectif": "Blog public avec preview home connecté, CTA contextualisés par service, design éditorial",
+  
+  "structure_feature": {
+    "path": "src/features/blog/",
+    "organisation": [
+      "components/ → blog-list, article-detail",
+      "services/ → blog.service.ts, article-state.service.ts",
+      "routes/ → blog.routes.ts"
+    ]
+  },
+  
+  "workflow": {
+    "regles_absolues": [
+      "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
+      "Code COMPLET (jamais '...')",
+      "STOP après chaque → ATTENDRE '✓ OK'",
+      "Ordre strict",
+      "TypeScript strict (aucun 'any')"
+    ]
+  },
+  
+  "fichiers": [
+    {
+      "ordre": 1,
+      "nom": "article.interface.ts",
+      "path": "src/shared/models/article.interface.ts",
+      "type": "Interface",
+      "description": "Modèle Article complet",
+      "structure": {
+        "Article": {
+          "id": "string",
+          "slug": "string",
+          "title": "string",
+          "excerpt": "string",
+          "content": "string",
+          "coverImage": "string | undefined",
+          "author": "string",
+          "publishedAt": "Date",
+          "updatedAt": "Date",
+          "status": "'draft' | 'published'",
+          "category": "ArticleCategory",
+          "relatedService": "ServiceType",
+          "tags": "string[]",
+          "readTime": "number"
+        },
+        "ArticleCategory": "union type",
+        "ServiceType": "union type",
+        "ArticleFormData": "pour admin editor"
+      },
+      "instructions": [
+        "Interface complète Article",
+        "Types ArticleCategory, ServiceType",
+        "ArticleFormData pour forms",
+        "Export all interfaces"
+      ]
+    },
+    
+    {
+      "ordre": 2,
+      "nom": "blog.routes.ts",
+      "path": "src/features/blog/routes/blog.routes.ts",
+      "type": "Routes",
+      "description": "Routes feature blog",
+      "routes": [
+        "{ path: '', component: BlogList }",
+        "{ path: ':slug', component: ArticleDetail }"
+      ],
+      "instructions": [
+        "Export default Routes array",
+        "Liste: path vide",
+        "Detail: param :slug"
+      ]
+    },
+    
+    {
+      "ordre": 3,
+      "nom": "blog.service.ts",
+      "path": "src/features/blog/services/blog.service.ts",
+      "type": "Service",
+      "description": "Service API blog (get articles)",
+      "methodes": [
+        "getArticles(): Observable<Article[]>",
+        "getArticleBySlug(slug: string): Observable<Article>",
+        "getLatestArticles(count: number): Observable<Article[]>",
+        "getRelatedArticles(articleId: string): Observable<Article[]>"
+      ],
+      "instructions": [
+        "Injectable({ providedIn: 'root' })",
+        "Inject HttpClient",
+        "API calls vers ${apiUrl}/articles",
+        "Filtrer status: 'published' uniquement",
+        "Gestion erreurs avec catchError"
+      ]
+    },
+    
+    {
+      "ordre": 4,
+      "nom": "article-state.service.ts",
+      "path": "src/features/blog/services/article-state.service.ts",
+      "type": "Service",
+      "description": "State management articles (cache)",
+      "fonctionnalites": [
+        "Signal articles cache",
+        "Signal currentArticle",
+        "Éviter requêtes multiples",
+        "Clear cache si nécessaire"
+      ],
+      "instructions": [
+        "Injectable({ providedIn: 'root' })",
+        "Inject BlogService",
+        "Signals pour state",
+        "Methods: loadArticles(), loadArticle(slug), clearCache()"
+      ]
+    },
+    
+    {
+      "ordre": 5,
+      "nom": "blog-list.ts",
+      "path": "src/features/blog/components/blog-list/blog-list.ts",
+      "type": "Component",
+      "description": "Liste tous articles publiés",
+      "structure": {
+        "selector": "app-blog-list",
+        "standalone": true,
+        "imports": ["NgFor", "RouterLink", "DatePipe"],
+        "templateUrl": "./blog-list.html",
+        "styleUrl": "./blog-list.scss"
+      },
+      "logique": [
+        "Inject ArticleStateService",
+        "Signal articles",
+        "ngOnInit: loadArticles()",
+        "Filtres (optionnel phase 03)"
+      ],
+      "instructions": [
+        "Load articles via state service",
+        "Grid responsive",
+        "Card click → navigate /blog/:slug"
+      ]
+    },
+    
+    {
+      "ordre": 6,
+      "nom": "blog-list.html",
+      "path": "src/features/blog/components/blog-list/blog-list.html",
+      "type": "Template",
+      "description": "Template liste articles",
+      "structure": [
+        "<div class=\"blog-list-container\">",
+        "  <header class=\"blog-header\">",
+        "    <h1>Articles & Conseils</h1>",
+        "    <p>Stratégies et astuces copywriting</p>",
+        "  </header>",
+        "  ",
+        "  <div class=\"articles-grid\">",
+        "    @for (article of articles(); track article.id) {",
+        "      <article class=\"article-card\" [routerLink]=\"'/blog/' + article.slug\">",
+        "        @if (article.coverImage) {",
+        "          <img [src]=\"article.coverImage\" [alt]=\"article.title\" />",
+        "        }",
+        "        <div class=\"article-content\">",
+        "          <span class=\"article-category\">{{ article.category }}</span>",
+        "          <h2>{{ article.title }}</h2>",
+        "          <p>{{ article.excerpt }}</p>",
+        "          <div class=\"article-meta\">",
+        "            <span>{{ article.publishedAt | date }}</span>",
+        "            <span>{{ article.readTime }} min</span>",
+        "          </div>",
+        "        </div>",
+        "      </article>",
+        "    }",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "Header avec titre",
+        "Grid 3 colonnes desktop",
+        "@if pour image conditionnelle",
+        "Meta: date + temps lecture"
+      ]
+    },
+    
+    {
+      "ordre": 7,
+      "nom": "blog-list.scss",
+      "path": "src/features/blog/components/blog-list/blog-list.scss",
+      "type": "Styles",
+      "description": "Styles liste blog Modern Editorial",
+      "design": [
+        "Container max-width: 1200px",
+        "Grid 3 cols (gap 2rem)",
+        "Cards: white, shadow, hover scale",
+        "Image aspect-ratio 16:9",
+        "Category badge accent"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Responsive: 1 col mobile",
+        "Hover: transform scale(1.02)",
+        "Cursor pointer"
+      ]
+    },
+    
+    {
+      "ordre": 8,
+      "nom": "article-detail.ts",
+      "path": "src/features/blog/components/article-detail/article-detail.ts",
+      "type": "Component",
+      "description": "Page article complet + CTA service",
+      "structure": {
+        "selector": "app-article-detail",
+        "standalone": true,
+        "imports": [
+          "ServiceCtaCard",
+          "RelatedArticles",
+          "DatePipe",
+          "ActivatedRoute"
+        ],
+        "templateUrl": "./article-detail.html",
+        "styleUrl": "./article-detail.scss"
+      },
+      "logique": [
+        "Inject ActivatedRoute, ArticleStateService",
+        "Signal article",
+        "ngOnInit: route.params → loadArticle(slug)",
+        "Signal relatedArticles"
+      ],
+      "instructions": [
+        "Get slug from route params",
+        "Load article via state service",
+        "Pass relatedService to ServiceCtaCard",
+        "Load related articles"
+      ]
+    },
+    
+    {
+      "ordre": 9,
+      "nom": "article-detail.html",
+      "path": "src/features/blog/components/article-detail/article-detail.html",
+      "type": "Template",
+      "description": "Template article detail",
+      "structure": [
+        "<article class=\"article-container\">",
+        "  <header class=\"article-header\">",
+        "    @if (article().coverImage) {",
+        "      <img [src]=\"article().coverImage\" [alt]=\"article().title\" />",
+        "    }",
+        "    <h1>{{ article().title }}</h1>",
+        "    <div class=\"article-meta\">",
+        "      <span>{{ article().publishedAt | date }}</span>",
+        "      <span>{{ article().readTime }} min de lecture</span>",
+        "      <span>{{ article().category }}</span>",
+        "    </div>",
+        "  </header>",
+        "  ",
+        "  <div class=\"article-body\">",
+        "    <div class=\"article-content\" [innerHTML]=\"article().content\"></div>",
+        "    ",
+        "    <aside class=\"article-sidebar\">",
+        "      <app-service-cta-card [serviceType]=\"article().relatedService\" />",
+        "    </aside>",
+        "  </div>",
+        "  ",
+        "  <app-related-articles [currentArticleId]=\"article().id\" />",
+        "</article>"
+      ],
+      "instructions": [
+        "Header: image + titre + meta",
+        "Body: 2 colonnes (content 70% + sidebar 30%)",
+        "Sidebar: ServiceCtaCard",
+        "Footer: related articles",
+        "Mobile: sidebar en bas"
+      ]
+    },
+    
+    {
+      "ordre": 10,
+      "nom": "article-detail.scss",
+      "path": "src/features/blog/components/article-detail/article-detail.scss",
+      "type": "Styles",
+      "description": "Styles article detail",
+      "design": [
+        "Max-width: 1000px",
+        "Typographie: Playfair h1, Inter body",
+        "Content: line-height 1.8",
+        "Sidebar: sticky top 2rem",
+        "Image cover: full-width"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Grid 70/30 desktop",
+        "Stack mobile (content puis sidebar)",
+        "Content prose styles (p, h2, h3, ul, ol)"
+      ]
+    },
+    
+    {
+      "ordre": 11,
+      "nom": "service-cta-card.ts",
+      "path": "src/shared/components/service-cta-card/service-cta-card.ts",
+      "type": "Component",
+      "description": "CTA service contextuel dans articles",
+      "structure": {
+        "selector": "app-service-cta-card",
+        "standalone": true,
+        "imports": ["RouterLink"],
+        "templateUrl": "./service-cta-card.html",
+        "styleUrl": "./service-cta-card.scss"
+      },
+      "inputs": [
+        "@Input() serviceType: ServiceType"
+      ],
+      "logique": [
+        "computed serviceConfig basé sur serviceType",
+        "Mapping serviceType → config (title, description, cta, icon)"
+      ],
+      "mapping": {
+        "copywriting": {
+          "title": "Copywriting Professionnel",
+          "description": "Besoin de textes qui convertissent ?",
+          "cta": "Découvrir le service",
+          "icon": "✍️"
+        },
+        "content-strategy": {
+          "title": "Stratégie de Contenu",
+          "description": "Planifiez votre communication efficacement",
+          "cta": "En savoir plus",
+          "icon": "📊"
+        },
+        "seo-writing": {
+          "title": "SEO Rédaction",
+          "description": "Optimisez votre visibilité Google",
+          "cta": "Booster mon SEO",
+          "icon": "🔍"
+        },
+        "web-creation": {
+          "title": "Création Sites Web",
+          "description": "Un site qui reflète votre expertise",
+          "cta": "Voir mes réalisations",
+          "icon": "💻"
+        }
+      },
+      "instructions": [
+        "@Input required serviceType",
+        "Computed pour config dynamique",
+        "RouterLink vers /contact",
+        "Design card accent"
+      ]
+    },
+    
+    {
+      "ordre": 12,
+      "nom": "service-cta-card.html",
+      "path": "src/shared/components/service-cta-card/service-cta-card.html",
+      "type": "Template",
+      "description": "Template CTA service",
+      "structure": [
+        "<div class=\"service-cta\">",
+        "  <div class=\"cta-icon\">{{ serviceConfig().icon }}</div>",
+        "  <h3>{{ serviceConfig().title }}</h3>",
+        "  <p>{{ serviceConfig().description }}</p>",
+        "  <a routerLink=\"/contact\" class=\"cta-button\">",
+        "    {{ serviceConfig().cta }} →",
+        "  </a>",
+        "</div>"
+      ],
+      "instructions": [
+        "Icon en haut",
+        "Titre + description",
+        "Bouton CTA accent"
+      ]
+    },
+    
+    {
+      "ordre": 13,
+      "nom": "service-cta-card.scss",
+      "path": "src/shared/components/service-cta-card/service-cta-card.scss",
+      "type": "Styles",
+      "description": "Styles CTA card",
+      "design": [
+        "Background: $color-bg-alt",
+        "Border: 2px $color-accent",
+        "Padding: 2rem",
+        "Border-radius: 12px",
+        "Icon: large, accent color",
+        "Button: accent, full-width"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Text-align center",
+        "Sticky sidebar (desktop)",
+        "Shadow subtle"
+      ]
+    },
+    
+    {
+      "ordre": 14,
+      "nom": "related-articles.ts",
+      "path": "src/features/blog/components/article-detail/components/related-articles/related-articles.ts",
+      "type": "Component",
+      "description": "Articles similaires (3 max)",
+      "structure": {
+        "selector": "app-related-articles",
+        "standalone": true,
+        "imports": ["NgFor", "RouterLink"],
+        "templateUrl": "./related-articles.html",
+        "styleUrl": "./related-articles.scss"
+      },
+      "inputs": [
+        "@Input() currentArticleId: string"
+      ],
+      "logique": [
+        "Inject BlogService",
+        "Signal relatedArticles",
+        "ngOnInit: loadRelated(currentArticleId)"
+      ],
+      "instructions": [
+        "Load 3 articles similaires",
+        "Same category ou random",
+        "Grid horizontal"
+      ]
+    },
+    
+    {
+      "ordre": 15,
+      "nom": "related-articles.html",
+      "path": "src/features/blog/components/article-detail/components/related-articles/related-articles.html",
+      "type": "Template",
+      "description": "Template articles similaires",
+      "structure": [
+        "<section class=\"related-articles\">",
+        "  <h2>Articles similaires</h2>",
+        "  <div class=\"related-grid\">",
+        "    @for (article of relatedArticles(); track article.id) {",
+        "      <article class=\"related-card\" [routerLink]=\"'/blog/' + article.slug\">",
+        "        <h3>{{ article.title }}</h3>",
+        "        <p>{{ article.excerpt }}</p>",
+        "      </article>",
+        "    }",
+        "  </div>",
+        "</section>"
+      ],
+      "instructions": [
+        "Titre section",
+        "Grid 3 colonnes",
+        "Cards minimalistes"
+      ]
+    },
+    
+    {
+      "ordre": 16,
+      "nom": "related-articles.scss",
+      "path": "src/features/blog/components/article-detail/components/related-articles/related-articles.scss",
+      "type": "Styles",
+      "description": "Styles related articles",
+      "design": [
+        "Grid 3 cols",
+        "Gap: 1rem",
+        "Cards: border subtle, hover accent"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Responsive: 1 col mobile",
+        "Hover: border-color accent"
+      ]
+    },
+    
+    {
+      "ordre": 17,
+      "nom": "Update home.service.ts",
+      "path": "src/features/home/services/home.service.ts",
+      "type": "Service",
+      "description": "Connecter blog preview à BlogService",
+      "modifications": [
+        "Inject BlogService",
+        "getLatestArticles() → return blogService.getLatestArticles(3)"
+      ],
+      "instructions": [
+        "Remplacer mock data",
+        "Delegate to BlogService",
+        "Pas de duplication logique"
+      ]
+    },
+    
+    {
+      "ordre": 18,
+      "nom": "Update blog-preview-card.ts",
+      "path": "src/features/home/components/blog-preview-card/blog-preview-card.ts",
+      "type": "Component",
+      "description": "Connecter à HomeService",
+      "modifications": [
+        "Inject HomeService",
+        "ngOnInit: loadLatest() via service",
+        "Signal latestArticles populated"
+      ],
+      "instructions": [
+        "Supprimer mock data",
+        "Load via HomeService",
+        "Handle loading/error states"
+      ]
+    }
+  ],
+  
+  "validation_phase": {
+    "criteres": [
+      "Tous fichiers créés et validés",
+      "/blog affiche liste articles",
+      "/blog/:slug affiche article complet",
+      "ServiceCtaCard affiche bon service selon relatedService",
+      "Related articles fonctionnels",
+      "Home blog-preview connecté au backend",
+      "Design Modern Editorial cohérent",
+      "Responsive mobile OK"
+    ],
+    "commandes_test": [
+      "ng serve",
+      "http://localhost:4200/blog → liste",
+      "Click article → detail + CTA service",
+      "Home → blog preview = vrais articles"
+    ]
+  },
+  
+  "notes_importantes": [
+    "ServiceCtaCard dans shared (réutilisable)",
+    "Mapping relatedService → config CTA",
+    "Related articles même category prioritaire",
+    "Blog preview home connecté via HomeService",
+    "Article content: innerHTML (sanitized)",
+    "Phase 05: backend API articles",
+    "Phase 06: admin editor articles",
+    "1 fichier = 1 validation obligatoire"
+  ]
+}

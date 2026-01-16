@@ -1,0 +1,493 @@
+{
+  "phase": "07",
+  "nom": "POLISH & DEPLOY",
+  "description": "Tests, optimisations, SEO, accessibilité, déploiement Firebase + Render",
+  "objectif": "Application production-ready, performante, accessible, déployée",
+  
+  "workflow": {
+    "regles_absolues": [
+      "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
+      "Code COMPLET (jamais '...')",
+      "STOP après chaque → ATTENDRE '✓ OK'",
+      "Ordre strict",
+      "TypeScript strict (aucun 'any')"
+    ]
+  },
+  
+  "fichiers": [
+    {
+      "ordre": 1,
+      "nom": "footer.ts",
+      "path": "src/shared/components/footer/footer.ts",
+      "type": "Component",
+      "description": "Footer global (Phase 01 si pas fait)",
+      "structure": {
+        "selector": "app-footer",
+        "standalone": true,
+        "imports": ["RouterLink"],
+        "templateUrl": "./footer.html",
+        "styleUrl": "./footer.scss"
+      },
+      "content": [
+        "Logo/Nom: Plan & Co",
+        "Navigation: Home, Blog, Contact",
+        "Social links optionnels",
+        "Copyright © 2026"
+      ],
+      "instructions": [
+        "Design Modern Editorial",
+        "Background $color-primary",
+        "Text $color-secondary",
+        "Minimal et élégant"
+      ]
+    },
+    
+    {
+      "ordre": 2,
+      "nom": "footer.html",
+      "path": "src/shared/components/footer/footer.html",
+      "type": "Template",
+      "description": "Template footer",
+      "structure": [
+        "<footer class=\"site-footer\">",
+        "  <div class=\"footer-content\">",
+        "    <div class=\"footer-brand\">",
+        "      <h3>Plan & Co</h3>",
+        "      <p>Expert Copywriting & Stratégie de Contenu</p>",
+        "    </div>",
+        "    <nav class=\"footer-nav\">",
+        "      <a routerLink=\"/\">Accueil</a>",
+        "      <a routerLink=\"/blog\">Blog</a>",
+        "      <a routerLink=\"/contact\">Contact</a>",
+        "    </nav>",
+        "  </div>",
+        "  <div class=\"footer-bottom\">",
+        "    <p>&copy; 2026 Plan & Co. Tous droits réservés.</p>",
+        "  </div>",
+        "</footer>"
+      ],
+      "instructions": [
+        "Grid 2 colonnes desktop",
+        "Stack mobile",
+        "Links hover accent"
+      ]
+    },
+    
+    {
+      "ordre": 3,
+      "nom": "footer.scss",
+      "path": "src/shared/components/footer/footer.scss",
+      "type": "Styles",
+      "description": "Styles footer",
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Background $color-primary",
+        "Color $color-secondary",
+        "Padding: 3rem 0",
+        "Footer-content: grid 2 cols",
+        "Footer-bottom: text-center, border-top"
+      ]
+    },
+    
+    {
+      "ordre": 4,
+      "nom": "error.interceptor.ts",
+      "path": "src/core/interceptors/error.interceptor.ts",
+      "type": "Interceptor",
+      "description": "Interceptor gestion erreurs HTTP globales",
+      "instructions": [
+        "HttpInterceptorFn type",
+        "Catch errors with catchError",
+        "Log errors console",
+        "Display user-friendly message",
+        "401 → redirect login si admin route",
+        "Return throwError"
+      ]
+    },
+    
+    {
+      "ordre": 5,
+      "nom": "loading.service.ts",
+      "path": "src/shared/services/loading.service.ts",
+      "type": "Service",
+      "description": "Service loading state global",
+      "instructions": [
+        "Injectable({ providedIn: 'root' })",
+        "Signal isLoading",
+        "show() / hide() methods",
+        "Auto-hide après timeout optionnel"
+      ]
+    },
+    
+    {
+      "ordre": 6,
+      "nom": "loading.interceptor.ts",
+      "path": "src/core/interceptors/loading.interceptor.ts",
+      "type": "Interceptor",
+      "description": "Interceptor show/hide loading auto",
+      "instructions": [
+        "HttpInterceptorFn type",
+        "Inject LoadingService",
+        "show() avant request",
+        "hide() après response/error",
+        "Use finalize()"
+      ]
+    },
+    
+    {
+      "ordre": 7,
+      "nom": "meta.service.ts",
+      "path": "src/shared/services/meta.service.ts",
+      "type": "Service",
+      "description": "Service meta tags SEO",
+      "methodes": [
+        "setTitle(title: string)",
+        "setDescription(description: string)",
+        "setKeywords(keywords: string)",
+        "setOgTags(title, description, image)"
+      ],
+      "instructions": [
+        "Injectable({ providedIn: 'root' })",
+        "Inject Title, Meta from @angular/platform-browser",
+        "Update meta tags dynamically",
+        "Use in components ngOnInit"
+      ]
+    },
+    
+    {
+      "ordre": 8,
+      "nom": "Update home.ts with SEO",
+      "path": "src/features/home/components/home.ts",
+      "type": "Component",
+      "description": "Ajouter meta tags home",
+      "modifications": [
+        "Inject MetaService",
+        "ngOnInit: setTitle('Plan & Co | Expert Copywriting')",
+        "setDescription('Services copywriting, stratégie de contenu, SEO...')",
+        "setKeywords('copywriting, stratégie contenu, SEO...')"
+      ],
+      "instructions": [
+        "SEO optimisé home",
+        "Title + description unique"
+      ]
+    },
+    
+    {
+      "ordre": 9,
+      "nom": "Update article-detail.ts with SEO",
+      "path": "src/features/blog/components/article-detail/article-detail.ts",
+      "type": "Component",
+      "description": "Ajouter meta tags article",
+      "modifications": [
+        "Inject MetaService",
+        "ngOnInit after load article:",
+        "setTitle(article.title + ' | Plan & Co')",
+        "setDescription(article.excerpt)",
+        "setOgTags(article.title, article.excerpt, article.coverImage)"
+      ],
+      "instructions": [
+        "Meta tags dynamiques par article",
+        "OpenGraph tags pour partage social"
+      ]
+    },
+    
+    {
+      "ordre": 10,
+      "nom": "sitemap.xml",
+      "path": "public/sitemap.xml",
+      "type": "XML",
+      "description": "Sitemap SEO",
+      "urls": [
+        "https://planandco.com/",
+        "https://planandco.com/blog",
+        "https://planandco.com/contact",
+        "<!-- Articles blog générés dynamiquement -->"
+      ],
+      "instructions": [
+        "XML sitemap basique",
+        "Priority: home 1.0, blog/contact 0.8",
+        "Changefreq: home weekly, blog daily",
+        "TODO: générer dynamiquement articles"
+      ]
+    },
+    
+    {
+      "ordre": 11,
+      "nom": "robots.txt",
+      "path": "public/robots.txt",
+      "type": "Text",
+      "description": "Robots.txt SEO",
+      "content": [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Sitemap: https://planandco.com/sitemap.xml"
+      ],
+      "instructions": [
+        "Allow all sauf /admin/",
+        "Link sitemap"
+      ]
+    },
+    
+    {
+      "ordre": 12,
+      "nom": ".firebaserc",
+      "path": ".firebaserc",
+      "type": "Configuration",
+      "description": "Config Firebase project",
+      "content": {
+        "projects": {
+          "default": "plan-and-co-prod"
+        }
+      },
+      "instructions": [
+        "Firebase project ID",
+        "Remplacer par vrai ID après init"
+      ]
+    },
+    
+    {
+      "ordre": 13,
+      "nom": "firebase.json",
+      "path": "firebase.json",
+      "type": "Configuration",
+      "description": "Config Firebase Hosting",
+      "config": {
+        "hosting": {
+          "public": "dist/plan-and-co/browser",
+          "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+          "rewrites": [
+            {
+              "source": "**",
+              "destination": "/index.html"
+            }
+          ]
+        }
+      },
+      "instructions": [
+        "Public: dist après build",
+        "Rewrites pour SPA routing",
+        "Headers cache optionnels"
+      ]
+    },
+    
+    {
+      "ordre": 14,
+      "nom": "Update angular.json budgets",
+      "path": "angular.json",
+      "type": "Configuration",
+      "description": "Optimiser budgets bundle size",
+      "modifications": [
+        "budgets.maximumWarning: 500kb → 400kb",
+        "budgets.maximumError: 1mb → 800kb",
+        "optimization: true en prod",
+        "sourceMap: false en prod"
+      ],
+      "instructions": [
+        "Budget strict pour perf",
+        "Optimizations activées prod"
+      ]
+    },
+    
+    {
+      "ordre": 15,
+      "nom": "Update environment.prod.ts",
+      "path": "src/environments/environment.prod.ts",
+      "type": "Configuration",
+      "description": "URLs production finales",
+      "modifications": [
+        "apiUrl: URL Render finale",
+        "supabaseUrl: URL Supabase vraie",
+        "supabaseKey: Clé anon vraie"
+      ],
+      "instructions": [
+        "Valider toutes URLs prod",
+        "Secrets Supabase configurés"
+      ]
+    },
+    
+    {
+      "ordre": 16,
+      "nom": "DEPLOYMENT.md",
+      "path": "DEPLOYMENT.md",
+      "type": "Documentation",
+      "description": "Guide déploiement complet",
+      "sections": [
+        "# Déploiement Plan & Co",
+        "",
+        "## Frontend (Firebase Hosting)",
+        "1. `npm run build:prod`",
+        "2. `firebase login`",
+        "3. `firebase deploy --only hosting`",
+        "",
+        "## Backend (Render)",
+        "1. Push code GitHub",
+        "2. Render auto-deploy branch main",
+        "3. Variables env configurées dans Render dashboard",
+        "",
+        "## Supabase",
+        "1. Créer projet Supabase",
+        "2. Exécuter SQL schema (tables contacts + articles)",
+        "3. Copier URL + Keys",
+        "4. Configurer env frontend + backend",
+        "",
+        "## Post-Deployment",
+        "1. Tester toutes routes",
+        "2. Vérifier email notifications",
+        "3. Tester admin login + CRUD",
+        "4. Valider SEO (meta tags, sitemap)",
+        "5. Performance Lighthouse > 90"
+      ],
+      "instructions": [
+        "Guide step-by-step",
+        "Commandes complètes",
+        "Checklist validation"
+      ]
+    },
+    
+    {
+      "ordre": 17,
+      "nom": "TESTING.md",
+      "path": "TESTING.md",
+      "type": "Documentation",
+      "description": "Guide tests manuels",
+      "sections": [
+        "# Tests Plan & Co",
+        "",
+        "## Tests Fonctionnels",
+        "- [ ] Home affiche 4 sections",
+        "- [ ] Blog preview charge 3 articles",
+        "- [ ] Navigation blog → articles",
+        "- [ ] Article detail + CTA service OK",
+        "- [ ] Formulaire contact validation",
+        "- [ ] Submit contact → email reçu",
+        "- [ ] Admin login fonctionne",
+        "- [ ] Dashboard contacts liste OK",
+        "- [ ] Update statut contact",
+        "- [ ] CRUD articles admin",
+        "- [ ] Publier article → visible public",
+        "",
+        "## Tests Responsive",
+        "- [ ] Mobile (375px) OK",
+        "- [ ] Tablet (768px) OK",
+        "- [ ] Desktop (1920px) OK",
+        "",
+        "## Tests Performance",
+        "- [ ] Lighthouse Performance > 90",
+        "- [ ] Lighthouse Accessibility > 90",
+        "- [ ] Lighthouse Best Practices > 90",
+        "- [ ] Lighthouse SEO > 90"
+      ],
+      "instructions": [
+        "Checklist complète",
+        "Tests manuels avant prod",
+        "Lighthouse audit"
+      ]
+    },
+    
+    {
+      "ordre": 18,
+      "nom": "README-FINAL.md",
+      "path": "README-FINAL.md",
+      "type": "Documentation",
+      "description": "Documentation finale projet",
+      "sections": [
+        "# Plan & Co - Application Complète",
+        "",
+        "## Description",
+        "Site vitrine copywriting avec blog, formulaire contact, dashboard admin.",
+        "",
+        "## Stack Technique",
+        "- Frontend: Angular 20 (signals, standalone)",
+        "- Backend: Node.js + Express + TypeScript",
+        "- Database: Supabase (PostgreSQL)",
+        "- Auth: JWT",
+        "- Email: Resend",
+        "- Hosting: Firebase (frontend) + Render (backend)",
+        "- Design: Modern Editorial (Noir/Blanc/Rouge)",
+        "",
+        "## Features",
+        "- Home: Hero + 4 Services + Blog Preview + CTA",
+        "- Blog: Liste articles + Detail avec CTA service",
+        "- Contact: Formulaire avec validation",
+        "- Admin: Login JWT + Gestion contacts + CRUD articles",
+        "",
+        "## Structure",
+        "```",
+        "src/",
+        "├── app/ (root)",
+        "├── core/ (guards, interceptors, services)",
+        "├── shared/ (components, models, styles)",
+        "├── features/ (home, blog, contact, admin)",
+        "└── environments/",
+        "```",
+        "",
+        "## Installation",
+        "Voir DEPLOYMENT.md",
+        "",
+        "## Tests",
+        "Voir TESTING.md"
+      ],
+      "instructions": [
+        "Documentation complète",
+        "Architecture claire",
+        "Liens vers autres docs"
+      ]
+    }
+  ],
+  
+  "validation_phase": {
+    "criteres": [
+      "Tous fichiers créés et validés",
+      "Footer présent et stylé",
+      "Interceptors error + loading OK",
+      "Meta tags SEO sur home + articles",
+      "Sitemap.xml + robots.txt",
+      "Firebase config prêt",
+      "Budgets Angular optimisés",
+      "Documentation déploiement complète",
+      "Tests checklist fournie",
+      "README final complet"
+    ],
+    "commandes_test": [
+      "ng build --configuration production",
+      "Vérifier dist/ size < 800kb",
+      "firebase deploy --only hosting (dry-run)",
+      "Lighthouse audit sur prod",
+      "Tester toutes features"
+    ]
+  },
+  
+  "deploiement_checklist": [
+    "✓ Frontend build prod OK",
+    "✓ Backend push GitHub",
+    "✓ Supabase tables créées",
+    "✓ Variables env configurées (frontend + backend)",
+    "✓ Firebase deploy réussi",
+    "✓ Render deploy réussi",
+    "✓ Custom domain configuré (optionnel)",
+    "✓ Email service testé",
+    "✓ Admin login testé prod",
+    "✓ CRUD articles testé prod",
+    "✓ Formulaire contact testé prod",
+    "✓ SEO validé (meta tags, sitemap)",
+    "✓ Performance Lighthouse > 90",
+    "✓ Mobile responsive validé",
+    "✓ Toutes features testées end-to-end"
+  ],
+  
+  "notes_importantes": [
+    "Phase finale: polish + deploy",
+    "Footer global ajouté si manquant Phase 01",
+    "Interceptors error + loading pour UX",
+    "Meta tags SEO dynamiques par page",
+    "Sitemap basique (améliorer avec génération dynamique)",
+    "Firebase Hosting: SPA rewrites configurés",
+    "Render: auto-deploy GitHub main branch",
+    "Budgets Angular stricts pour perf",
+    "Documentation complète avant prod",
+    "Tests manuels checklist fournie",
+    "Lighthouse audit obligatoire avant lancement",
+    "1 fichier = 1 validation obligatoire"
+  ]
+}

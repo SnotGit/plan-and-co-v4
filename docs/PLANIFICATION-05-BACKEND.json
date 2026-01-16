@@ -1,61 +1,29 @@
 {
   "phase": "05",
-  "nom": "BACKEND API",
-  "description": "Création du backend Express en TypeScript avec Supabase et service email",
-  "objectif": "API REST fonctionnelle pour contact form + préparation auth admin",
+  "nom": "BACKEND EXPRESS + SUPABASE",
+  "description": "API Express TypeScript avec routes contact, articles, auth, email notifications",
+  "objectif": "Backend complet avec Supabase, JWT auth, CRUD articles, envoi emails",
   
-  "prerequis": [
-    "Phase 04 validée (formulaire contact frontend)",
-    "Node.js 18+ installé",
-    "Compte Supabase créé (ou à créer)",
-    "Compte service email (Resend gratuit ou SendGrid)"
-  ],
-  
-  "architecture_backend": {
-    "stack": "Node.js + Express + TypeScript",
-    "database": "Supabase (PostgreSQL)",
-    "email": "Resend (gratuit 3000/mois) ou SendGrid",
-    "auth": "JWT (jsonwebtoken)",
-    "validation": "express-validator",
-    "deployment": "Render (free tier)"
+  "structure_backend": {
+    "path": "backend/",
+    "organisation": [
+      "src/config/ → database, email, jwt",
+      "src/middleware/ → auth, validation",
+      "src/routes/ → contact, articles, auth, admin",
+      "src/controllers/ → logique métier",
+      "src/services/ → services tiers (email, db)",
+      "src/models/ → interfaces TypeScript"
+    ]
   },
   
-  "configuration_supabase": {
-    "etapes": [
-      "1. Créer compte sur supabase.com",
-      "2. Créer nouveau projet",
-      "3. Récupérer URL et clés (anon + service)",
-      "4. Créer table 'contacts' via SQL Editor",
-      "5. Configurer RLS (Row Level Security)"
-    ],
-    "table_contacts": {
-      "nom": "contacts",
-      "colonnes": [
-        "id UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
-        "first_name TEXT NOT NULL",
-        "last_name TEXT NOT NULL",
-        "email TEXT NOT NULL",
-        "phone TEXT",
-        "company TEXT",
-        "service TEXT NOT NULL",
-        "budget TEXT",
-        "message TEXT NOT NULL",
-        "status TEXT DEFAULT 'nouveau' CHECK (status IN ('nouveau', 'lu', 'traité'))",
-        "created_at TIMESTAMPTZ DEFAULT NOW()",
-        "updated_at TIMESTAMPTZ DEFAULT NOW()"
-      ],
-      "index": [
-        "CREATE INDEX idx_contacts_email ON contacts(email);",
-        "CREATE INDEX idx_contacts_status ON contacts(status);",
-        "CREATE INDEX idx_contacts_created_at ON contacts(created_at DESC);"
-      ],
-      "rls": [
-        "-- Permettre INSERT public (formulaire contact)",
-        "CREATE POLICY 'Allow public insert' ON contacts FOR INSERT WITH CHECK (true);",
-        "-- Permettre SELECT/UPDATE/DELETE admin uniquement (à configurer avec JWT plus tard)",
-        "CREATE POLICY 'Allow admin read' ON contacts FOR SELECT USING (true); -- À sécuriser après"
-      ]
-    }
+  "workflow": {
+    "regles_absolues": [
+      "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
+      "Code COMPLET (jamais '...')",
+      "STOP après chaque → ATTENDRE '✓ OK'",
+      "Ordre strict",
+      "TypeScript strict (aucun 'any')"
+    ]
   },
   
   "fichiers": [
@@ -64,37 +32,31 @@
       "nom": "package.json",
       "path": "backend/package.json",
       "type": "Configuration",
-      "description": "Configuration npm backend avec dépendances Express + TypeScript",
-      "dependencies": {
-        "express": "^4.18.2",
-        "@supabase/supabase-js": "^2.39.0",
-        "dotenv": "^16.3.1",
-        "cors": "^2.8.5",
-        "express-validator": "^7.0.1",
-        "jsonwebtoken": "^9.0.2",
-        "bcryptjs": "^2.4.3",
-        "resend": "^3.0.0"
-      },
-      "devDependencies": {
-        "typescript": "^5.3.0",
-        "@types/node": "^20.10.0",
-        "@types/express": "^4.17.21",
-        "@types/cors": "^2.8.17",
-        "@types/jsonwebtoken": "^9.0.5",
-        "@types/bcryptjs": "^2.4.6",
-        "tsx": "^4.7.0",
-        "nodemon": "^3.0.2"
-      },
+      "description": "Dépendances backend",
+      "dependances": [
+        "express",
+        "@supabase/supabase-js",
+        "jsonwebtoken",
+        "bcrypt",
+        "dotenv",
+        "cors",
+        "express-validator",
+        "nodemailer ou resend",
+        "typescript",
+        "@types/express",
+        "@types/jsonwebtoken",
+        "@types/bcrypt",
+        "@types/node"
+      ],
       "scripts": {
-        "dev": "nodemon --exec tsx src/server.ts",
+        "dev": "tsx watch src/server.ts",
         "build": "tsc",
         "start": "node dist/server.js"
       },
       "instructions": [
-        "Créer package.json complet",
-        "Versions récentes des packages",
-        "Scripts dev (tsx + nodemon) et prod (tsc + node)",
-        "Type: module ou commonjs (à choisir)"
+        "Toutes dépendances listées",
+        "Scripts dev (tsx watch) et prod",
+        "TypeScript + types"
       ]
     },
     
@@ -103,27 +65,18 @@
       "nom": "tsconfig.json",
       "path": "backend/tsconfig.json",
       "type": "Configuration",
-      "description": "Configuration TypeScript backend strict",
+      "description": "TypeScript config backend",
       "config": {
-        "compilerOptions": {
-          "target": "ES2022",
-          "module": "commonjs",
-          "outDir": "./dist",
-          "rootDir": "./src",
-          "strict": true,
-          "esModuleInterop": true,
-          "skipLibCheck": true,
-          "forceConsistentCasingInFileNames": true,
-          "resolveJsonModule": true
-        },
-        "include": ["src/**/*"],
-        "exclude": ["node_modules", "dist"]
+        "target": "ES2022",
+        "module": "commonjs",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true
       },
       "instructions": [
-        "Mode strict OBLIGATOIRE",
-        "outDir: dist, rootDir: src",
-        "Target ES2022",
-        "Aucun any autorisé"
+        "Mode strict activé",
+        "Output: dist/",
+        "Paths alias si besoin"
       ]
     },
     
@@ -132,100 +85,77 @@
       "nom": ".env.example",
       "path": "backend/.env.example",
       "type": "Configuration",
-      "description": "Template variables environnement (git committed)",
+      "description": "Variables environnement template",
       "variables": [
         "NODE_ENV=development",
         "PORT=3000",
-        "SUPABASE_URL=your_supabase_url",
-        "SUPABASE_SERVICE_KEY=your_supabase_service_key",
-        "JWT_SECRET=your_jwt_secret_min_32_chars",
-        "RESEND_API_KEY=your_resend_api_key",
-        "ADMIN_EMAIL=planandco9@gmail.com",
+        "DATABASE_URL=YOUR_SUPABASE_URL",
+        "SUPABASE_KEY=YOUR_SUPABASE_SERVICE_KEY",
+        "JWT_SECRET=YOUR_JWT_SECRET",
+        "EMAIL_SERVICE=resend",
+        "EMAIL_API_KEY=YOUR_EMAIL_API_KEY",
         "FRONTEND_URL=http://localhost:4200"
       ],
       "instructions": [
-        "Fichier template (committé)",
-        "Commentaires pour expliquer où obtenir les clés",
-        "Pas de vraies valeurs"
+        "Template .env",
+        "Commentaires explicatifs",
+        "Ne pas commit .env réel"
       ]
     },
     
     {
       "ordre": 4,
-      "nom": ".gitignore",
-      "path": "backend/.gitignore",
+      "nom": "database.config.ts",
+      "path": "backend/src/config/database.config.ts",
       "type": "Configuration",
-      "description": "Fichiers à ignorer par Git",
-      "content": [
-        "node_modules/",
-        "dist/",
-        ".env",
-        ".env.local",
-        "*.log"
-      ],
+      "description": "Config Supabase client",
       "instructions": [
-        "Ignorer node_modules et dist",
-        "Ignorer .env (secrets)",
-        "Ignorer logs"
+        "Import @supabase/supabase-js",
+        "createClient avec URL + KEY",
+        "Export supabase client",
+        "Type safety avec Database types"
       ]
     },
     
     {
       "ordre": 5,
-      "nom": "contact.interface.ts",
-      "path": "backend/src/models/contact.interface.ts",
-      "type": "Interface",
-      "description": "Interfaces TypeScript pour Contact (identique frontend)",
-      "interfaces": [
-        "ContactFormData (données reçues du frontend)",
-        "Contact (données BDD avec id, status, timestamps)"
-      ],
+      "nom": "email.config.ts",
+      "path": "backend/src/config/email.config.ts",
+      "type": "Configuration",
+      "description": "Config email service (Resend ou Nodemailer)",
       "instructions": [
-        "Export interface ContactFormData { ... }",
-        "Export interface Contact extends ContactFormData { id, status, created_at, updated_at }",
-        "Typage strict",
-        "Même structure que frontend"
+        "Import service email",
+        "Config avec API_KEY",
+        "Export emailClient",
+        "Method sendEmail(to, subject, html)"
       ]
     },
     
     {
       "ordre": 6,
-      "nom": "database.ts",
-      "path": "backend/src/config/database.ts",
+      "nom": "jwt.config.ts",
+      "path": "backend/src/config/jwt.config.ts",
       "type": "Configuration",
-      "description": "Configuration et connexion Supabase",
-      "logique": [
-        "Import createClient from @supabase/supabase-js",
-        "Créer client Supabase avec URL et service key",
-        "Export client pour utilisation dans services"
-      ],
+      "description": "Config JWT",
       "instructions": [
-        "Import dotenv/config en premier",
-        "Créer supabaseClient avec createClient()",
-        "URL et key depuis process.env",
-        "Vérifier variables existent (throw si manquantes)",
-        "Export const supabase",
-        "Typage strict"
+        "Import jsonwebtoken",
+        "generateToken(payload)",
+        "verifyToken(token)",
+        "Secret from env"
       ]
     },
     
     {
       "ordre": 7,
-      "nom": "email.ts",
-      "path": "backend/src/config/email.ts",
-      "type": "Configuration",
-      "description": "Configuration service email (Resend)",
-      "logique": [
-        "Import Resend from 'resend'",
-        "Créer instance Resend avec API key",
-        "Export pour utilisation dans services"
-      ],
+      "nom": "auth.middleware.ts",
+      "path": "backend/src/middleware/auth.middleware.ts",
+      "type": "Middleware",
+      "description": "Middleware auth JWT",
       "instructions": [
-        "Import dotenv/config",
-        "Créer const resend = new Resend(process.env.RESEND_API_KEY)",
-        "Vérifier API key existe",
-        "Export const resend",
-        "Typage strict"
+        "Verify token from headers",
+        "Attach user to req",
+        "Return 401 si invalid",
+        "Type Request avec user"
       ]
     },
     
@@ -234,80 +164,42 @@
       "nom": "validation.middleware.ts",
       "path": "backend/src/middleware/validation.middleware.ts",
       "type": "Middleware",
-      "description": "Middleware validation données avec express-validator",
-      "validations": {
-        "validateContact": [
-          "body('firstName').notEmpty().trim().isLength({ min: 2 })",
-          "body('lastName').notEmpty().trim().isLength({ min: 2 })",
-          "body('email').isEmail().normalizeEmail()",
-          "body('phone').optional().matches(/^[0-9\\s\\+\\-]+$/)",
-          "body('service').notEmpty()",
-          "body('message').notEmpty().isLength({ min: 10 })"
-        ]
-      },
+      "description": "Middleware validation express-validator",
       "instructions": [
-        "Import { body, validationResult } from 'express-validator'",
-        "Export array validateContact avec rules",
-        "Export middleware handleValidationErrors",
-        "handleValidationErrors: check errors, return 400 si erreurs",
-        "Typage Request, Response, NextFunction"
+        "Import express-validator",
+        "validationResult",
+        "Return 400 si erreurs",
+        "Format errors array"
       ]
     },
     
     {
       "ordre": 9,
-      "nom": "contact.service.ts",
-      "path": "backend/src/services/contact.service.ts",
-      "type": "Service",
-      "description": "Service métier pour gérer les contacts (save Supabase + email)",
-      "methodes": [
-        "async createContact(data: ContactFormData): Promise<Contact>",
-        "async sendNotificationEmail(contact: Contact): Promise<void>"
-      ],
-      "logique_createContact": [
-        "Insérer contact dans Supabase (table contacts)",
-        "Vérifier erreur insert",
-        "Retourner contact créé avec id"
-      ],
-      "logique_sendEmail": [
-        "Utiliser Resend pour envoyer email admin",
-        "Destinataire: ADMIN_EMAIL",
-        "Sujet: Nouveau contact - Plan & Co",
-        "Body HTML avec détails contact"
-      ],
+      "nom": "contact.interface.ts",
+      "path": "backend/src/models/contact.interface.ts",
+      "type": "Interface",
+      "description": "Interface Contact backend",
+      "structure": {
+        "ContactFormData": "même que frontend",
+        "ContactDB": "avec id, createdAt, status"
+      },
       "instructions": [
-        "Import supabase depuis config/database",
-        "Import resend depuis config/email",
-        "Méthode createContact: .insert() dans 'contacts'",
-        "Gérer erreurs Supabase",
-        "Méthode sendEmail: resend.emails.send()",
-        "Template email HTML simple",
-        "Typage strict, async/await"
+        "Sync avec frontend interface",
+        "ContactDB pour Supabase",
+        "Status: 'nouveau' | 'lu' | 'traité'"
       ]
     },
     
     {
       "ordre": 10,
-      "nom": "contact.controller.ts",
-      "path": "backend/src/controllers/contact.controller.ts",
-      "type": "Controller",
-      "description": "Controller HTTP pour route POST /api/contact",
-      "methode": "async submitContact(req: Request, res: Response)",
-      "logique": [
-        "Extraire données body (ContactFormData)",
-        "Appeler contactService.createContact()",
-        "Appeler contactService.sendNotificationEmail()",
-        "Retourner 201 { success: true, message: 'Contact enregistré' }",
-        "Catch erreurs → 500 { success: false, message: error }"
-      ],
+      "nom": "article.interface.ts",
+      "path": "backend/src/models/article.interface.ts",
+      "type": "Interface",
+      "description": "Interface Article backend",
       "instructions": [
-        "Import Request, Response from express",
-        "Import ContactFormData interface",
-        "Import contactService",
-        "Async function submitContact",
-        "Try/catch avec gestion erreurs",
-        "Status 201 si success, 500 si error",
-        "Typage strict"
+        "Sync avec frontend interface",
+        "ArticleDB pour Supabase",
+        "ArticleCreateDTO, ArticleUpdateDTO"
       ]
     },
     
@@ -316,156 +208,247 @@
       "nom": "contact.routes.ts",
       "path": "backend/src/routes/contact.routes.ts",
       "type": "Routes",
-      "description": "Routes Express pour contact",
-      "route": "POST /api/contact",
-      "middlewares": [
-        "validateContact (validation)",
-        "handleValidationErrors",
-        "submitContact (controller)"
+      "description": "Routes contact",
+      "routes": [
+        "POST /api/contact → submitContact"
       ],
       "instructions": [
-        "Import { Router } from 'express'",
-        "Import controller et middlewares",
-        "Créer router = Router()",
-        "router.post('/', validateContact, handleValidationErrors, submitContact)",
-        "Export default router",
-        "Typage strict"
+        "Express Router",
+        "Validation middleware",
+        "Controller submitContact",
+        "Export router"
       ]
     },
     
     {
       "ordre": 12,
-      "nom": "app.ts",
-      "path": "backend/src/app.ts",
-      "type": "Application",
-      "description": "Configuration Express principale (middlewares, routes)",
-      "middlewares": [
-        "cors({ origin: FRONTEND_URL })",
-        "express.json()",
-        "express.urlencoded({ extended: true })"
-      ],
-      "routes": [
-        "app.use('/api/contact', contactRoutes)"
+      "nom": "contact.controller.ts",
+      "path": "backend/src/controllers/contact.controller.ts",
+      "type": "Controller",
+      "description": "Controller contact",
+      "methodes": [
+        "submitContact: insert Supabase + send email"
       ],
       "instructions": [
-        "Import express, cors, dotenv",
-        "Import routes",
-        "Créer app = express()",
-        "Middleware CORS (whitelist frontend)",
-        "Middleware JSON parser",
-        "Monter routes (/api/contact)",
-        "Route 404 handler",
-        "Error handler global",
-        "Export app",
-        "Typage strict"
+        "Insert dans table contacts",
+        "Status: 'nouveau'",
+        "Send email notification",
+        "Return 201 success",
+        "Catch errors → 500"
       ]
     },
     
     {
       "ordre": 13,
-      "nom": "server.ts",
-      "path": "backend/src/server.ts",
-      "type": "Entry Point",
-      "description": "Point d'entrée serveur (listen port)",
-      "logique": [
-        "Import app from './app'",
-        "Import dotenv/config",
-        "const PORT = process.env.PORT || 3000",
-        "app.listen(PORT, callback)"
+      "nom": "articles.routes.ts",
+      "path": "backend/src/routes/articles.routes.ts",
+      "type": "Routes",
+      "description": "Routes articles public + admin",
+      "routes": [
+        "GET /api/articles → getArticles (published only)",
+        "GET /api/articles/latest/:count → getLatestArticles",
+        "GET /api/articles/:slug → getArticleBySlug",
+        "POST /api/articles → createArticle (auth required)",
+        "PUT /api/articles/:id → updateArticle (auth required)",
+        "DELETE /api/articles/:id → deleteArticle (auth required)",
+        "PATCH /api/articles/:id/publish → publishArticle (auth required)"
       ],
       "instructions": [
-        "Import app",
-        "dotenv config",
-        "PORT depuis env ou 3000",
-        "app.listen avec console.log",
-        "Minimal et propre"
+        "Public: GET sans auth",
+        "Admin: POST/PUT/DELETE/PATCH avec authMiddleware",
+        "Validation middlewares",
+        "Export router"
       ]
     },
     
     {
       "ordre": 14,
-      "nom": "README.md",
-      "path": "backend/README.md",
-      "type": "Documentation",
-      "description": "Documentation backend (installation, env vars, endpoints)",
-      "sections": [
-        "Description",
-        "Stack technique",
-        "Installation (npm install)",
-        "Variables environnement (.env)",
-        "Commandes (npm run dev, build, start)",
-        "Endpoints API",
-        "Déploiement Render"
+      "nom": "articles.controller.ts",
+      "path": "backend/src/controllers/articles.controller.ts",
+      "type": "Controller",
+      "description": "Controller articles CRUD",
+      "methodes": [
+        "getArticles: filter published, order by publishedAt desc",
+        "getLatestArticles: limit N, published",
+        "getArticleBySlug: return article + increment views",
+        "createArticle: insert with status draft",
+        "updateArticle: update fields",
+        "deleteArticle: delete by id",
+        "publishArticle: set status published + publishedAt"
       ],
       "instructions": [
-        "Documentation claire",
-        "Lister toutes variables .env",
-        "Décrire chaque endpoint (method, body, response)",
-        "Expliquer setup Supabase",
-        "Guide déploiement Render"
+        "Queries Supabase",
+        "Status published pour public",
+        "Increment views on read",
+        "Auth user from middleware",
+        "Return 404 si not found"
+      ]
+    },
+    
+    {
+      "ordre": 15,
+      "nom": "auth.routes.ts",
+      "path": "backend/src/routes/auth.routes.ts",
+      "type": "Routes",
+      "description": "Routes auth admin",
+      "routes": [
+        "POST /api/auth/login → login"
+      ],
+      "instructions": [
+        "Login avec email + password",
+        "Return JWT token",
+        "Validation middleware"
+      ]
+    },
+    
+    {
+      "ordre": 16,
+      "nom": "auth.controller.ts",
+      "path": "backend/src/controllers/auth.controller.ts",
+      "type": "Controller",
+      "description": "Controller auth",
+      "methodes": [
+        "login: verify credentials, generate token"
+      ],
+      "instructions": [
+        "Check user in Supabase ou env",
+        "Compare password bcrypt",
+        "Generate JWT",
+        "Return { token, user }",
+        "401 si invalid"
+      ]
+    },
+    
+    {
+      "ordre": 17,
+      "nom": "admin.routes.ts",
+      "path": "backend/src/routes/admin.routes.ts",
+      "type": "Routes",
+      "description": "Routes admin contacts",
+      "routes": [
+        "GET /api/contacts → getContacts (auth required)",
+        "PATCH /api/contacts/:id/status → updateStatus (auth required)"
+      ],
+      "instructions": [
+        "Auth middleware",
+        "Get all contacts",
+        "Update status (nouveau → lu → traité)"
+      ]
+    },
+    
+    {
+      "ordre": 18,
+      "nom": "admin.controller.ts",
+      "path": "backend/src/controllers/admin.controller.ts",
+      "type": "Controller",
+      "description": "Controller admin",
+      "methodes": [
+        "getContacts: return all, order by createdAt desc",
+        "updateStatus: update contact status"
+      ],
+      "instructions": [
+        "Query Supabase contacts table",
+        "Filter by status optionnel",
+        "Update status avec validation"
+      ]
+    },
+    
+    {
+      "ordre": 19,
+      "nom": "app.ts",
+      "path": "backend/src/app.ts",
+      "type": "Express App",
+      "description": "Config Express app",
+      "middlewares": [
+        "cors",
+        "express.json()",
+        "express.urlencoded()"
+      ],
+      "routes": [
+        "/api/contact",
+        "/api/articles",
+        "/api/auth",
+        "/api/contacts (admin)"
+      ],
+      "instructions": [
+        "Import routes",
+        "CORS config",
+        "Body parsers",
+        "Mount routes",
+        "Error handler global",
+        "Export app"
+      ]
+    },
+    
+    {
+      "ordre": 20,
+      "nom": "server.ts",
+      "path": "backend/src/server.ts",
+      "type": "Server",
+      "description": "Server entry point",
+      "instructions": [
+        "Import app",
+        "Load dotenv",
+        "app.listen(PORT)",
+        "Console log server started"
+      ]
+    },
+    
+    {
+      "ordre": 21,
+      "nom": "supabase-tables.sql",
+      "path": "backend/supabase-tables.sql",
+      "type": "SQL",
+      "description": "Schéma tables Supabase",
+      "tables": [
+        "contacts (id, firstName, lastName, email, phone, company, subject, message, status, createdAt, updatedAt)",
+        "articles (id, slug, title, excerpt, content, coverImage, author, publishedAt, updatedAt, status, category, relatedService, tags, readTime, views)"
+      ],
+      "indexes": [
+        "idx_articles_slug",
+        "idx_articles_status",
+        "idx_articles_published"
+      ],
+      "instructions": [
+        "CREATE TABLE contacts",
+        "CREATE TABLE articles",
+        "CREATE INDEXes",
+        "RLS policies si besoin"
       ]
     }
   ],
   
   "validation_phase": {
     "criteres": [
-      "Backend démarre sans erreur (npm run dev)",
+      "Tous fichiers créés et validés",
+      "npm install OK",
+      "npm run dev démarre backend",
+      "Tables Supabase créées",
       "POST /api/contact fonctionne",
-      "Données sauvegardées dans Supabase",
-      "Email notification reçu (si configuré)",
-      "Validation formulaire côté serveur active",
-      "CORS configuré (frontend peut appeler)",
-      "Erreurs gérées proprement (500, 400)",
-      "Aucune erreur TypeScript"
+      "GET /api/articles retourne articles",
+      "POST /api/auth/login retourne token",
+      "Routes admin protégées JWT",
+      "Email notification envoyée",
+      "CORS configuré"
     ],
     "commandes_test": [
       "cd backend",
       "npm install",
-      "Créer .env avec vraies valeurs",
       "npm run dev",
-      "Tester avec Postman/Thunder Client:",
-      "  POST http://localhost:3000/api/contact",
-      "  Body JSON: { firstName, lastName, email, service, message }",
-      "Vérifier Supabase → nouveau contact",
-      "Vérifier email reçu"
-    ],
-    "test_integration_frontend": [
-      "Démarrer backend (npm run dev)",
-      "Démarrer frontend (ng serve)",
-      "Soumettre formulaire contact",
-      "Vérifier success message",
-      "Vérifier contact dans Supabase"
+      "curl -X POST http://localhost:3000/api/contact",
+      "curl http://localhost:3000/api/articles"
     ]
   },
   
   "notes_importantes": [
-    "Créer compte Supabase AVANT cette phase",
-    "Créer compte Resend (gratuit) ou SendGrid",
-    "Configurer table contacts dans Supabase SQL Editor",
-    "Créer .env avec vraies valeurs (copier .env.example)",
-    "Tester avec Postman avant d'intégrer frontend",
-    "Phase longue (14 fichiers), prendre le temps",
-    "Workflow strict: 1 fichier = 1 validation",
-    "Auth admin sera ajoutée en Phase 06"
-  ],
-  
-  "integration_frontend": {
-    "note": "Après validation backend, le formulaire frontend devrait fonctionner",
-    "test": "Soumettre formulaire → success message → contact en BDD",
-    "cors": "Vérifier CORS autorise http://localhost:4200"
-  },
-  
-  "deployment_render": {
-    "etapes": [
-      "1. Push code sur GitHub",
-      "2. Créer compte Render.com",
-      "3. New Web Service → Connect repository",
-      "4. Build Command: npm install && npm run build",
-      "5. Start Command: npm start",
-      "6. Ajouter variables environnement dans Render dashboard",
-      "7. Deploy (auto à chaque push)"
-    ],
-    "url_production": "https://planandco-api.onrender.com",
-    "note": "Free tier: serveur dort après 15min inactivité"
-  }
+    "Supabase tables à créer manuellement",
+    "Variables env à configurer",
+    "Email service: Resend recommandé (gratuit 100/jour)",
+    "JWT secret: générer strong",
+    "CORS: allow frontend URL",
+    "Validation avec express-validator",
+    "Error handling global",
+    "Phase 06: admin frontend connecté",
+    "1 fichier = 1 validation obligatoire"
+  ]
 }

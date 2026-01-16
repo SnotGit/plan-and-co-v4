@@ -1,726 +1,651 @@
 {
   "phase": "06",
-  "nom": "DASHBOARD ADMIN",
-  "description": "Création du dashboard admin avec authentification JWT et liste des contacts",
-  "objectif": "Interface admin sécurisée pour consulter et gérer les demandes de contact",
+  "nom": "FEATURE ADMIN",
+  "description": "Dashboard admin avec auth JWT, gestion contacts, CRUD articles avec éditeur",
+  "objectif": "Interface admin complète pour gérer contacts et publier articles blog",
   
-  "prerequis": [
-    "Phase 05 validée (backend fonctionnel)",
-    "Supabase configuré avec table contacts",
-    "JWT secret configuré dans backend .env"
-  ],
-  
-  "architecture_auth": {
-    "flow": [
-      "1. User visite /admin → AuthGuard redirect vers /admin/login",
-      "2. User entre credentials → POST /api/admin/login",
-      "3. Backend vérifie credentials → retourne JWT token",
-      "4. Frontend stocke JWT dans localStorage",
-      "5. Frontend redirect vers /admin/dashboard",
-      "6. Toutes requêtes admin incluent JWT dans header Authorization",
-      "7. Backend vérifie JWT avec middleware"
-    ],
-    "credentials_admin": {
-      "username": "admin (hardcodé backend pour l'instant)",
-      "password": "à définir (hasher avec bcrypt)"
-    },
-    "note_securite": "Pour simplifier, 1 seul compte admin hardcodé. Production = BDD users."
+  "structure_feature": {
+    "path": "src/features/admin/",
+    "organisation": [
+      "components/ → admin (container), contacts/, articles/",
+      "services/ → admin.service.ts, article-admin.service.ts",
+      "routes/ → admin.routes.ts"
+    ]
   },
   
-  "proposition_design": {
-    "titre": "💡 PROPOSITION DESIGN - Dashboard Moderne",
-    "ameliorations": [
-      {
-        "nom": "Table contacts avec tri et filtres",
-        "description": "Colonnes triables, filtres par statut, recherche",
-        "benefice": "Gestion efficace des contacts",
-        "css": "Table responsive avec hover rows"
-      },
-      {
-        "nom": "Badges colorés pour statuts",
-        "description": "Badges nouveau (bleu), lu (orange), traité (vert)",
-        "benefice": "Visibilité instantanée statuts",
-        "css": "Badge avec border-radius, couleurs distinctes"
-      },
-      {
-        "nom": "Modal détails contact",
-        "description": "Clic sur ligne → modal avec tous détails",
-        "benefice": "Vue complète sans quitter liste",
-        "css": "Modal overlay avec animation"
-      }
-    ],
-    "validation_requise": "Valider design avant implémentation"
+  "workflow": {
+    "regles_absolues": [
+      "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
+      "Code COMPLET (jamais '...')",
+      "STOP après chaque → ATTENDRE '✓ OK'",
+      "Ordre strict",
+      "TypeScript strict (aucun 'any')"
+    ]
   },
   
   "fichiers": [
     {
       "ordre": 1,
       "nom": "admin.interface.ts",
-      "path": "frontend/src/app/shared/models/admin.interface.ts",
+      "path": "src/shared/models/admin.interface.ts",
       "type": "Interface",
-      "description": "Interfaces TypeScript pour admin (login, contacts list)",
-      "interfaces": [
-        "LoginCredentials { username: string, password: string }",
-        "LoginResponse { token: string, message: string }",
-        "Contact (même que backend avec id, status, timestamps)",
-        "ContactsResponse { contacts: Contact[], total: number }"
-      ],
+      "description": "Interfaces admin",
+      "structure": {
+        "LoginCredentials": {
+          "email": "string",
+          "password": "string"
+        },
+        "AuthResponse": {
+          "token": "string",
+          "user": "{ email: string, role: string }"
+        },
+        "ContactStatus": "'nouveau' | 'lu' | 'traité'"
+      },
       "instructions": [
-        "Export interface LoginCredentials",
-        "Export interface LoginResponse",
-        "Export interface Contact (complet avec BDD fields)",
-        "Export interface ContactsResponse",
-        "Typage strict"
+        "Interfaces login",
+        "AuthResponse avec token",
+        "ContactStatus enum"
       ]
     },
     
     {
       "ordre": 2,
-      "nom": "auth.service.ts (frontend)",
-      "path": "frontend/src/app/core/services/auth.service.ts",
-      "type": "Service",
-      "description": "Service authentification frontend (login, logout, token management)",
-      "methodes": [
-        "login(credentials: LoginCredentials): Observable<LoginResponse>",
-        "logout(): void",
-        "getToken(): string | null",
-        "isAuthenticated(): boolean"
-      ],
-      "logique": [
-        "login: POST /api/admin/login, stocke token localStorage",
-        "logout: supprime token localStorage",
-        "getToken: récupère token depuis localStorage",
-        "isAuthenticated: vérifie présence token (basique)"
-      ],
+      "nom": "auth.guard.ts",
+      "path": "src/core/guards/auth.guard.ts",
+      "type": "Guard",
+      "description": "Guard protection routes admin",
       "instructions": [
-        "Injectable providedIn: 'root'",
-        "Injection HttpClient avec inject()",
-        "Import environment.apiUrl",
-        "localStorage.setItem('jwt_token', token)",
-        "localStorage.removeItem('jwt_token')",
-        "localStorage.getItem('jwt_token')",
-        "Typage strict, Observable pour login"
+        "CanActivateFn type",
+        "Inject AuthService",
+        "Check isAuthenticated()",
+        "Redirect /admin/login si false",
+        "Return true si authenticated"
       ]
     },
     
     {
       "ordre": 3,
-      "nom": "admin.service.ts (frontend)",
-      "path": "frontend/src/app/core/services/admin.service.ts",
+      "nom": "auth.service.ts",
+      "path": "src/core/services/auth.service.ts",
       "type": "Service",
-      "description": "Service pour appels API admin (liste contacts, update status)",
+      "description": "Service auth JWT",
       "methodes": [
-        "getContacts(params?: { status?: string }): Observable<ContactsResponse>",
-        "updateContactStatus(id: string, status: string): Observable<Contact>"
-      ],
-      "logique": [
-        "getContacts: GET /api/admin/contacts avec query params",
-        "updateContactStatus: PATCH /api/admin/contacts/:id",
-        "Inclure JWT token dans headers Authorization"
+        "login(credentials): Observable<AuthResponse>",
+        "logout(): void",
+        "isAuthenticated(): boolean",
+        "getToken(): string | null",
+        "saveToken(token): void"
       ],
       "instructions": [
-        "Injectable providedIn: 'root'",
-        "Injection HttpClient et AuthService",
-        "Headers: Authorization: Bearer ${token}",
-        "HttpParams pour query string",
-        "Typage strict, Observable"
+        "Injectable({ providedIn: 'root' })",
+        "POST /api/auth/login",
+        "Store token localStorage",
+        "Signal isAuthenticated",
+        "Clear token on logout"
       ]
     },
     
     {
       "ordre": 4,
-      "nom": "auth.guard.ts",
-      "path": "frontend/src/app/core/guards/auth.guard.ts",
-      "type": "Guard",
-      "description": "Guard pour protéger routes admin",
-      "logique": [
-        "Vérifier si user authentifié (AuthService.isAuthenticated())",
-        "Si oui: return true",
-        "Si non: redirect vers /admin/login, return false"
-      ],
+      "nom": "auth.interceptor.ts",
+      "path": "src/core/interceptors/auth.interceptor.ts",
+      "type": "Interceptor",
+      "description": "Interceptor ajout token headers",
       "instructions": [
-        "Export const authGuard: CanActivateFn",
-        "Injection AuthService et Router avec inject()",
-        "Check authService.isAuthenticated()",
-        "Si false: router.navigate(['/admin/login'])",
-        "Return boolean",
-        "Typage CanActivateFn"
+        "HttpInterceptorFn type",
+        "Inject AuthService",
+        "Get token",
+        "Clone request + add Authorization header",
+        "Return next.handle(req)"
       ]
     },
     
     {
       "ordre": 5,
-      "nom": "auth.interceptor.ts",
-      "path": "frontend/src/app/core/interceptors/auth.interceptor.ts",
-      "type": "Interceptor",
-      "description": "Interceptor HTTP pour ajouter JWT automatiquement aux requêtes admin",
-      "logique": [
-        "Intercepter toutes requêtes HTTP",
-        "Si URL contient '/api/admin/', ajouter header Authorization",
-        "Header: Authorization: Bearer ${token}"
+      "nom": "admin.routes.ts",
+      "path": "src/features/admin/routes/admin.routes.ts",
+      "type": "Routes",
+      "description": "Routes admin avec guard",
+      "routes": [
+        "{ path: 'login', component: AdminLogin }",
+        "{ path: '', component: Admin, canActivate: [authGuard], children: [",
+        "  { path: '', redirectTo: 'contacts', pathMatch: 'full' },",
+        "  { path: 'contacts', component: ContactsList },",
+        "  { path: 'articles', component: ArticlesList },",
+        "  { path: 'articles/new', component: ArticleEditor },",
+        "  { path: 'articles/:id/edit', component: ArticleEditor }",
+        "]}"
       ],
       "instructions": [
-        "Export const authInterceptor: HttpInterceptorFn",
-        "Injection AuthService avec inject()",
-        "Check si req.url.includes('/api/admin/')",
-        "Clone request et ajoute header Authorization",
-        "Return next(clonedRequest)",
-        "Typage HttpInterceptorFn"
+        "Route login publique",
+        "Routes admin protégées par authGuard",
+        "Child routes pour contacts/articles",
+        "Lazy loading"
       ]
     },
     
     {
       "ordre": 6,
-      "nom": "login.ts",
-      "path": "frontend/src/app/features/admin/components/login/login.ts",
+      "nom": "admin-login.ts",
+      "path": "src/features/admin/components/admin-login/admin-login.ts",
       "type": "Component",
-      "description": "Composant formulaire login admin",
+      "description": "Page login admin",
       "structure": {
-        "selector": "app-login",
+        "selector": "app-admin-login",
         "standalone": true,
-        "imports": ["ReactiveFormsModule", "CommonModule", "RouterLink"],
-        "template": "login.html",
-        "styles": "login.scss"
+        "imports": ["ReactiveFormsModule", "Router"],
+        "templateUrl": "./admin-login.html",
+        "styleUrl": "./admin-login.scss"
       },
       "logique": [
-        "FormGroup avec username et password (Validators.required)",
-        "Signal isLoading = signal(false)",
-        "Signal errorMessage = signal('')",
-        "Méthode onSubmit()",
-        "AuthService.login() → stocke token → redirect /admin/dashboard"
+        "FormGroup (email, password)",
+        "Signal isLoading, error",
+        "onSubmit() → authService.login()",
+        "Success → navigate /admin",
+        "Error → display message"
       ],
       "instructions": [
-        "Standalone component",
-        "Injection FormBuilder, AuthService, Router",
-        "FormGroup avec validators",
-        "Signals pour états UI",
-        "onSubmit: appeler authService.login()",
-        "Si success: router.navigate(['/admin/dashboard'])",
-        "Si error: afficher errorMessage",
-        "Typage strict"
+        "Form validation",
+        "Disable submit si loading",
+        "Store token on success",
+        "Navigate admin dashboard"
       ]
     },
     
     {
       "ordre": 7,
-      "nom": "login.html",
-      "path": "frontend/src/app/features/admin/components/login/login.html",
+      "nom": "admin-login.html",
+      "path": "src/features/admin/components/admin-login/admin-login.html",
       "type": "Template",
-      "description": "Template formulaire login simple et sobre",
+      "description": "Template login",
       "structure": [
-        "<div class='login-page'>",
-        "  <div class='login-card'>",
-        "    <h1>Connexion Admin</h1>",
-        "    <form [formGroup]='loginForm' (ngSubmit)='onSubmit()'>",
-        "      <div class='form-group'>",
-        "        <label>Nom d'utilisateur</label>",
-        "        <input type='text' formControlName='username' />",
-        "      </div>",
-        "      <div class='form-group'>",
-        "        <label>Mot de passe</label>",
-        "        <input type='password' formControlName='password' />",
-        "      </div>",
-        "      @if (errorMessage()) {",
-        "        <div class='error-message'>{{ errorMessage() }}</div>",
-        "      }",
-        "      <button type='submit' [disabled]='loginForm.invalid || isLoading()'>",
-        "        @if (isLoading()) { Connexion... } @else { Se connecter }",
-        "      </button>",
-        "    </form>",
-        "  </div>",
+        "<div class=\"login-container\">",
+        "  <h1>Connexion Admin</h1>",
+        "  <form [formGroup]=\"loginForm\" (ngSubmit)=\"onSubmit()\">",
+        "    <div class=\"form-field\">",
+        "      <label for=\"email\">Email</label>",
+        "      <input id=\"email\" formControlName=\"email\" type=\"email\" />",
+        "    </div>",
+        "    <div class=\"form-field\">",
+        "      <label for=\"password\">Mot de passe</label>",
+        "      <input id=\"password\" formControlName=\"password\" type=\"password\" />",
+        "    </div>",
+        "    @if (error()) {",
+        "      <div class=\"error-message\">{{ error() }}</div>",
+        "    }",
+        "    <button type=\"submit\" [disabled]=\"loginForm.invalid || isLoading()\">",
+        "      {{ isLoading() ? 'Connexion...' : 'Se connecter' }}",
+        "    </button>",
+        "  </form>",
         "</div>"
       ],
       "instructions": [
-        "Form centré verticalement et horizontalement",
-        "Card avec shadow",
-        "Control flow @if",
-        "Disabled state button",
-        "Classes cohérentes"
+        "Centré verticalement",
+        "Form simple email + password",
+        "Error message si échec"
       ]
     },
     
     {
       "ordre": 8,
-      "nom": "login.scss",
-      "path": "frontend/src/app/features/admin/components/login/login.scss",
+      "nom": "admin-login.scss",
+      "path": "src/features/admin/components/admin-login/admin-login.scss",
       "type": "Styles",
-      "description": "Styles page login (centré, card, sobre)",
-      "imports": [
-        "@use '@assets/styles/variables' as *;",
-        "@use '@assets/styles/mixins' as *;"
-      ],
-      "features": [
-        "Page fullscreen avec flexbox center",
-        "Card login centrée (max-width 400px)",
-        "Background subtle",
-        "Inputs avec focus state",
-        "Bouton primary",
-        "Error message en rouge"
-      ],
+      "description": "Styles login page",
       "instructions": [
-        "Flexbox center (justify + align)",
-        "Card avec padding, shadow, radius",
-        "Inputs avec border, focus primary",
-        "Bouton @include button ou custom",
-        "Minimal et propre"
+        "@use '@shared/styles' as *",
+        "Centré viewport",
+        "Container max-width 400px",
+        "Design Modern Editorial"
       ]
     },
     
     {
       "ordre": 9,
-      "nom": "dashboard.ts",
-      "path": "frontend/src/app/features/admin/components/dashboard/dashboard.ts",
+      "nom": "admin.ts",
+      "path": "src/features/admin/components/admin.ts",
       "type": "Component",
-      "description": "Composant dashboard liste contacts avec filtres",
+      "description": "Container admin dashboard",
       "structure": {
-        "selector": "app-dashboard",
+        "selector": "app-admin",
         "standalone": true,
-        "imports": ["CommonModule", "RouterLink"],
-        "template": "dashboard.html",
-        "styles": "dashboard.scss"
+        "imports": ["RouterOutlet", "RouterLink"],
+        "templateUrl": "./admin.html",
+        "styleUrl": "./admin.scss"
       },
       "logique": [
-        "Signal contacts = signal<Contact[]>([])",
-        "Signal filterStatus = signal<string>('tous')",
-        "Signal isLoading = signal(true)",
-        "Signal selectedContact = signal<Contact | null>(null)",
-        "OnInit: charger contacts",
-        "Méthode loadContacts(status?: string)",
-        "Méthode filterByStatus(status: string)",
-        "Méthode updateStatus(id: string, newStatus: string)",
-        "Méthode viewDetails(contact: Contact)",
-        "Méthode logout()"
+        "Inject AuthService, Router",
+        "Signal currentUser",
+        "logout() method → authService.logout() + navigate /admin/login"
       ],
       "instructions": [
-        "Standalone component",
-        "Injection AdminService, AuthService, Router",
-        "Signals pour données et états",
-        "ngOnInit: appeler loadContacts()",
-        "loadContacts: adminService.getContacts() → update contacts()",
-        "filterByStatus: update filterStatus() → reload",
-        "updateStatus: adminService.updateContactStatus() → reload",
-        "viewDetails: update selectedContact() (pour modal)",
-        "logout: authService.logout() → redirect /admin/login",
-        "Typage strict"
+        "Layout: sidebar + content",
+        "Sidebar: liens Contacts, Articles",
+        "Header: user email + logout",
+        "RouterOutlet pour child routes"
       ]
     },
     
     {
       "ordre": 10,
-      "nom": "dashboard.html",
-      "path": "frontend/src/app/features/admin/components/dashboard/dashboard.html",
+      "nom": "admin.html",
+      "path": "src/features/admin/components/admin.html",
       "type": "Template",
-      "description": "Template dashboard avec header, filtres, table, modal",
+      "description": "Template dashboard",
       "structure": [
-        "<div class='dashboard'>",
-        "  <header class='dashboard-header'>",
-        "    <h1>Dashboard Admin</h1>",
-        "    <button (click)='logout()'>Déconnexion</button>",
-        "  </header>",
-        "  ",
-        "  <div class='filters'>",
-        "    <button (click)='filterByStatus(\"tous\")' [class.active]='filterStatus() === \"tous\"'>Tous</button>",
-        "    <button (click)='filterByStatus(\"nouveau\")' [class.active]='filterStatus() === \"nouveau\"'>Nouveaux</button>",
-        "    <button (click)='filterByStatus(\"lu\")' [class.active]='filterStatus() === \"lu\"'>Lus</button>",
-        "    <button (click)='filterByStatus(\"traité\")' [class.active]='filterStatus() === \"traité\"'>Traités</button>",
-        "  </div>",
-        "  ",
-        "  @if (isLoading()) {",
-        "    <div class='loading'>Chargement...</div>",
-        "  } @else {",
-        "    <table class='contacts-table'>",
-        "      <thead>",
-        "        <tr>",
-        "          <th>Date</th>",
-        "          <th>Nom</th>",
-        "          <th>Email</th>",
-        "          <th>Service</th>",
-        "          <th>Statut</th>",
-        "          <th>Actions</th>",
-        "        </tr>",
-        "      </thead>",
-        "      <tbody>",
-        "        @for (contact of contacts(); track contact.id) {",
-        "          <tr (click)='viewDetails(contact)'>",
-        "            <td>{{ contact.created_at | date:'short' }}</td>",
-        "            <td>{{ contact.first_name }} {{ contact.last_name }}</td>",
-        "            <td>{{ contact.email }}</td>",
-        "            <td>{{ contact.service }}</td>",
-        "            <td><span class='badge' [class]='contact.status'>{{ contact.status }}</span></td>",
-        "            <td>",
-        "              <select (change)='updateStatus(contact.id, $event.target.value)' [value]='contact.status'>",
-        "                <option value='nouveau'>Nouveau</option>",
-        "                <option value='lu'>Lu</option>",
-        "                <option value='traité'>Traité</option>",
-        "              </select>",
-        "            </td>",
-        "          </tr>",
-        "        } @empty {",
-        "          <tr><td colspan='6'>Aucun contact</td></tr>",
-        "        }",
-        "      </tbody>",
-        "    </table>",
-        "  }",
-        "  ",
-        "  @if (selectedContact()) {",
-        "    <div class='modal-overlay' (click)='selectedContact.set(null)'>",
-        "      <div class='modal' (click)='$event.stopPropagation()'>",
-        "        <h2>Détails Contact</h2>",
-        "        <p><strong>Nom:</strong> {{ selectedContact()?.first_name }} {{ selectedContact()?.last_name }}</p>",
-        "        <p><strong>Email:</strong> {{ selectedContact()?.email }}</p>",
-        "        <p><strong>Téléphone:</strong> {{ selectedContact()?.phone }}</p>",
-        "        <p><strong>Entreprise:</strong> {{ selectedContact()?.company }}</p>",
-        "        <p><strong>Service:</strong> {{ selectedContact()?.service }}</p>",
-        "        <p><strong>Budget:</strong> {{ selectedContact()?.budget }}</p>",
-        "        <p><strong>Message:</strong> {{ selectedContact()?.message }}</p>",
-        "        <button (click)='selectedContact.set(null)'>Fermer</button>",
-        "      </div>",
-        "    </div>",
-        "  }",
+        "<div class=\"admin-layout\">",
+        "  <aside class=\"admin-sidebar\">",
+        "    <h2>Admin</h2>",
+        "    <nav>",
+        "      <a routerLink=\"/admin/contacts\" routerLinkActive=\"active\">Contacts</a>",
+        "      <a routerLink=\"/admin/articles\" routerLinkActive=\"active\">Articles</a>",
+        "    </nav>",
+        "    <button class=\"logout-button\" (click)=\"logout()\">Déconnexion</button>",
+        "  </aside>",
+        "  <main class=\"admin-content\">",
+        "    <router-outlet />",
+        "  </main>",
         "</div>"
       ],
       "instructions": [
-        "Header avec titre + bouton déconnexion",
-        "Filtres avec buttons et [class.active]",
-        "Table responsive avec thead/tbody",
-        "Control flow @for et @empty",
-        "Date pipe pour format",
-        "Badge avec class dynamique (nouveau/lu/traité)",
-        "Select pour changer statut avec event (change)",
-        "Modal overlay avec @if",
-        "stopPropagation pour éviter fermeture modal",
-        "Accessibilité (aria si besoin)"
+        "Layout grid sidebar + main",
+        "Nav links avec routerLinkActive",
+        "Logout button"
       ]
     },
     
     {
       "ordre": 11,
-      "nom": "dashboard.scss",
-      "path": "frontend/src/app/features/admin/components/dashboard/dashboard.scss",
+      "nom": "admin.scss",
+      "path": "src/features/admin/components/admin.scss",
       "type": "Styles",
-      "description": "Styles dashboard (header, table, filtres, badges, modal)",
-      "imports": [
-        "@use '@assets/styles/variables' as *;",
-        "@use '@assets/styles/mixins' as *;"
-      ],
-      "features": [
-        "Header avec flexbox (titre left, logout right)",
-        "Filtres buttons avec active state",
-        "Table responsive, hover rows",
-        "Badges colorés par statut (nouveau=bleu, lu=orange, traité=vert)",
-        "Modal overlay fullscreen avec backdrop",
-        "Modal card centré",
-        "Responsive mobile (table scroll horizontal)"
-      ],
+      "description": "Styles layout admin",
       "instructions": [
-        "Header padding, border-bottom",
-        "Filters buttons avec active border/background",
-        "Table width 100%, border-collapse",
-        "Hover tr: background subtle",
-        "Badges avec padding, radius, colors",
-        "Modal overlay: position fixed, rgba background",
-        "Modal: max-width 600px, center",
-        "Responsive: @media (max-width: 768px)"
+        "@use '@shared/styles' as *",
+        "Grid: sidebar 250px + main 1fr",
+        "Sidebar: background $color-primary, text white",
+        "Active link: accent color"
       ]
     },
     
     {
       "ordre": 12,
-      "nom": "admin.ts",
-      "path": "frontend/src/app/features/admin/admin.ts",
-      "type": "Component",
-      "description": "Container admin (router-outlet pour login/dashboard)",
-      "structure": {
-        "selector": "app-admin",
-        "standalone": true,
-        "imports": ["RouterOutlet"],
-        "template": "admin.html",
-        "styles": "admin.scss"
-      },
-      "logique": [
-        "Composant container simple",
-        "Pas de logique (juste router-outlet)"
+      "nom": "admin.service.ts",
+      "path": "src/features/admin/services/admin.service.ts",
+      "type": "Service",
+      "description": "Service API admin contacts",
+      "methodes": [
+        "getContacts(): Observable<Contact[]>",
+        "updateContactStatus(id, status): Observable<void>"
       ],
       "instructions": [
-        "Standalone component",
-        "Import RouterOutlet",
-        "Template minimal avec router-outlet",
-        "Pas de logique"
+        "Injectable({ providedIn: 'root' })",
+        "GET /api/contacts",
+        "PATCH /api/contacts/:id/status",
+        "Auth token auto ajouté par interceptor"
       ]
     },
     
     {
       "ordre": 13,
-      "nom": "admin.html",
-      "path": "frontend/src/app/features/admin/admin.html",
-      "type": "Template",
-      "description": "Template container admin",
-      "structure": [
-        "<div class='admin-container'>",
-        "  <router-outlet />",
-        "</div>"
+      "nom": "contacts-list.ts",
+      "path": "src/features/admin/components/contacts/contacts-list/contacts-list.ts",
+      "type": "Component",
+      "description": "Liste demandes contact",
+      "structure": {
+        "selector": "app-contacts-list",
+        "standalone": true,
+        "imports": ["NgFor", "DatePipe"],
+        "templateUrl": "./contacts-list.html",
+        "styleUrl": "./contacts-list.scss"
+      },
+      "logique": [
+        "Inject AdminService",
+        "Signal contacts",
+        "ngOnInit: loadContacts()",
+        "updateStatus(id, status) → service.updateContactStatus()"
       ],
       "instructions": [
-        "Minimal",
-        "Juste router-outlet"
+        "Table contacts",
+        "Colonnes: date, nom, email, sujet, message, statut",
+        "Dropdown statut (nouveau/lu/traité)",
+        "Filtre par statut optionnel"
       ]
     },
     
     {
       "ordre": 14,
-      "nom": "admin.scss",
-      "path": "frontend/src/app/features/admin/admin.scss",
-      "type": "Styles",
-      "description": "Styles container admin (minimal ou vide)",
+      "nom": "contacts-list.html",
+      "path": "src/features/admin/components/contacts/contacts-list/contacts-list.html",
+      "type": "Template",
+      "description": "Template liste contacts",
+      "structure": [
+        "<div class=\"contacts-list\">",
+        "  <h1>Demandes de Contact</h1>",
+        "  <table>",
+        "    <thead>",
+        "      <tr>",
+        "        <th>Date</th>",
+        "        <th>Nom</th>",
+        "        <th>Email</th>",
+        "        <th>Sujet</th>",
+        "        <th>Message</th>",
+        "        <th>Statut</th>",
+        "      </tr>",
+        "    </thead>",
+        "    <tbody>",
+        "      @for (contact of contacts(); track contact.id) {",
+        "        <tr>",
+        "          <td>{{ contact.createdAt | date }}</td>",
+        "          <td>{{ contact.firstName }} {{ contact.lastName }}</td>",
+        "          <td>{{ contact.email }}</td>",
+        "          <td>{{ contact.subject }}</td>",
+        "          <td class=\"message-preview\">{{ contact.message }}</td>",
+        "          <td>",
+        "            <select [value]=\"contact.status\" (change)=\"updateStatus(contact.id, $event.target.value)\">",
+        "              <option value=\"nouveau\">Nouveau</option>",
+        "              <option value=\"lu\">Lu</option>",
+        "              <option value=\"traité\">Traité</option>",
+        "            </select>",
+        "          </td>",
+        "        </tr>",
+        "      }",
+        "    </tbody>",
+        "  </table>",
+        "</div>"
+      ],
       "instructions": [
-        "Minimal ou vide",
-        "Peut définir background global admin si besoin"
+        "Table responsive",
+        "Message truncate avec ellipsis",
+        "Dropdown statut inline"
       ]
     },
     
     {
       "ordre": 15,
-      "nom": "app.routes.ts (UPDATE)",
-      "path": "frontend/src/app/app.routes.ts",
-      "type": "Routes Update",
-      "description": "Ajouter routes admin avec guard et children",
-      "routes_admin": [
-        "{ path: 'admin', component: Admin, canActivate: [authGuard], children: [",
-        "  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },",
-        "  { path: 'dashboard', component: Dashboard }",
-        "] }",
-        "{ path: 'admin/login', component: Login }"
-      ],
+      "nom": "contacts-list.scss",
+      "path": "src/features/admin/components/contacts/contacts-list/contacts-list.scss",
+      "type": "Styles",
+      "description": "Styles table contacts",
       "instructions": [
-        "Import Admin, Login, Dashboard, authGuard",
-        "Route admin avec canActivate: [authGuard]",
-        "Children: redirect vers dashboard par défaut",
-        "Route login SANS guard (accessible publiquement)",
-        "Ordre: après home et contact"
+        "@use '@shared/styles' as *",
+        "Table full-width",
+        "Borders subtle",
+        "Hover row: background light",
+        "Message preview: max-width, ellipsis"
       ]
     },
     
     {
       "ordre": 16,
-      "nom": "app.config.ts (UPDATE)",
-      "path": "frontend/src/app/app.config.ts",
-      "type": "Config Update",
-      "description": "Ajouter authInterceptor dans providers",
-      "modifications": [
-        "Import { provideHttpClient, withInterceptors } from '@angular/common/http'",
-        "Import authInterceptor",
-        "provideHttpClient(withInterceptors([authInterceptor]))"
+      "nom": "article-admin.service.ts",
+      "path": "src/features/admin/services/article-admin.service.ts",
+      "type": "Service",
+      "description": "Service API admin articles",
+      "methodes": [
+        "createArticle(data): Observable<Article>",
+        "updateArticle(id, data): Observable<Article>",
+        "deleteArticle(id): Observable<void>",
+        "publishArticle(id): Observable<Article>"
       ],
       "instructions": [
-        "Import authInterceptor",
-        "Modifier provideHttpClient() → provideHttpClient(withInterceptors([authInterceptor]))",
-        "Vérifier pas de duplication"
+        "Injectable({ providedIn: 'root' })",
+        "POST /api/articles",
+        "PUT /api/articles/:id",
+        "DELETE /api/articles/:id",
+        "PATCH /api/articles/:id/publish"
       ]
     },
     
     {
       "ordre": 17,
-      "nom": "auth.middleware.ts (backend)",
-      "path": "backend/src/middleware/auth.middleware.ts",
-      "type": "Middleware",
-      "description": "Middleware backend pour vérifier JWT sur routes admin",
+      "nom": "articles-list.ts",
+      "path": "src/features/admin/components/articles/articles-list/articles-list.ts",
+      "type": "Component",
+      "description": "Liste articles admin (draft + published)",
+      "structure": {
+        "selector": "app-articles-list",
+        "standalone": true,
+        "imports": ["NgFor", "RouterLink", "DatePipe"],
+        "templateUrl": "./articles-list.html",
+        "styleUrl": "./articles-list.scss"
+      },
       "logique": [
-        "Extraire token depuis header Authorization",
-        "Vérifier format 'Bearer TOKEN'",
-        "Vérifier token avec jwt.verify()",
-        "Si valide: next()",
-        "Si invalide: return 401 Unauthorized"
+        "Inject ArticleStateService, ArticleAdminService",
+        "Signal articles (tous statuts)",
+        "deleteArticle(id)",
+        "publishArticle(id)"
       ],
       "instructions": [
-        "Import jwt from 'jsonwebtoken'",
-        "Import dotenv pour JWT_SECRET",
-        "Middleware verifyToken(req, res, next)",
-        "Extraire token: req.headers.authorization?.split(' ')[1]",
-        "jwt.verify(token, JWT_SECRET)",
-        "Si error: res.status(401).json({ message: 'Unauthorized' })",
-        "Si success: next()",
-        "Typage Request, Response, NextFunction"
+        "Table articles",
+        "Actions: Edit, Delete, Publish",
+        "Bouton + Nouvel article"
       ]
     },
     
     {
       "ordre": 18,
-      "nom": "auth.service.ts (backend)",
-      "path": "backend/src/services/auth.service.ts",
-      "type": "Service",
-      "description": "Service backend pour login admin (vérif credentials + génération JWT)",
-      "methodes": [
-        "async login(username: string, password: string): Promise<{ token: string }>"
+      "nom": "articles-list.html",
+      "path": "src/features/admin/components/articles/articles-list/articles-list.html",
+      "type": "Template",
+      "description": "Template liste articles admin",
+      "structure": [
+        "<div class=\"articles-list\">",
+        "  <header>",
+        "    <h1>Articles</h1>",
+        "    <a routerLink=\"/admin/articles/new\" class=\"btn-primary\">+ Nouvel article</a>",
+        "  </header>",
+        "  <table>",
+        "    <thead>",
+        "      <tr>",
+        "        <th>Titre</th>",
+        "        <th>Catégorie</th>",
+        "        <th>Statut</th>",
+        "        <th>Date</th>",
+        "        <th>Actions</th>",
+        "      </tr>",
+        "    </thead>",
+        "    <tbody>",
+        "      @for (article of articles(); track article.id) {",
+        "        <tr>",
+        "          <td>{{ article.title }}</td>",
+        "          <td>{{ article.category }}</td>",
+        "          <td>",
+        "            <span class=\"badge\" [class]=\"article.status\">{{ article.status }}</span>",
+        "          </td>",
+        "          <td>{{ article.updatedAt | date }}</td>",
+        "          <td class=\"actions\">",
+        "            <a [routerLink]=\"'/admin/articles/' + article.id + '/edit'\">Modifier</a>",
+        "            @if (article.status === 'draft') {",
+        "              <button (click)=\"publishArticle(article.id)\">Publier</button>",
+        "            }",
+        "            <button (click)=\"deleteArticle(article.id)\" class=\"danger\">Supprimer</button>",
+        "          </td>",
+        "        </tr>",
+        "      }",
+        "    </tbody>",
+        "  </table>",
+        "</div>"
       ],
-      "logique": [
-        "Vérifier username === 'admin' (hardcodé pour l'instant)",
-        "Vérifier password avec bcrypt.compare()",
-        "Si OK: générer JWT token avec jwt.sign()",
-        "Payload JWT: { username, role: 'admin' }",
-        "Expiration: 7 jours",
-        "Retourner { token }"
-      ],
-      "credentials_hardcoded": {
-        "username": "admin",
-        "password_hash": "à générer avec bcrypt.hash('VotreMotDePasse', 10)"
-      },
       "instructions": [
-        "Import jwt from 'jsonwebtoken'",
-        "Import bcrypt from 'bcryptjs'",
-        "Import dotenv",
-        "Hardcoded: ADMIN_USERNAME = 'admin'",
-        "Hardcoded: ADMIN_PASSWORD_HASH = bcrypt.hashSync('password', 10)",
-        "Méthode login async",
-        "Check username et bcrypt.compare()",
-        "jwt.sign({ username, role: 'admin' }, JWT_SECRET, { expiresIn: '7d' })",
-        "Return { token }",
-        "Throw error si invalid credentials"
+        "Header avec bouton Nouvel article",
+        "Badge statut coloré",
+        "Actions: Edit, Publish (si draft), Delete"
       ]
     },
     
     {
       "ordre": 19,
-      "nom": "admin.controller.ts (backend)",
-      "path": "backend/src/controllers/admin.controller.ts",
-      "type": "Controller",
-      "description": "Controllers backend pour routes admin (login, getContacts, updateContact)",
-      "methodes": [
-        "async login(req, res)",
-        "async getContacts(req, res)",
-        "async updateContactStatus(req, res)"
-      ],
-      "logique_login": [
-        "Extraire username, password du body",
-        "Appeler authService.login()",
-        "Retourner { token, message: 'Login successful' }",
-        "Catch errors → 401"
-      ],
-      "logique_getContacts": [
-        "Extraire query params (status, page, limit)",
-        "Query Supabase avec filtres",
-        "Retourner { contacts, total }",
-        "Catch errors → 500"
-      ],
-      "logique_updateStatus": [
-        "Extraire id params et status body",
-        "Update Supabase contact status",
-        "Retourner { success: true, contact }",
-        "Catch errors → 500"
-      ],
+      "nom": "articles-list.scss",
+      "path": "src/features/admin/components/articles/articles-list/articles-list.scss",
+      "type": "Styles",
+      "description": "Styles liste articles",
       "instructions": [
-        "Import services (authService, supabase)",
-        "Async functions avec try/catch",
-        "Typage Request, Response",
-        "Status codes appropriés (200, 401, 500)",
-        "Validation basique (status in ['nouveau','lu','traité'])"
+        "@use '@shared/styles' as *",
+        "Header flex justify-between",
+        "Badge: draft orange, published green",
+        "Actions buttons inline"
       ]
     },
     
     {
       "ordre": 20,
-      "nom": "admin.routes.ts (backend)",
-      "path": "backend/src/routes/admin.routes.ts",
-      "type": "Routes",
-      "description": "Routes backend admin (login public, autres protégées par JWT)",
-      "routes": [
-        "POST /login (public)",
-        "GET /contacts (protected)",
-        "PATCH /contacts/:id (protected)"
-      ],
-      "middlewares": [
-        "verifyToken sur routes protégées"
+      "nom": "article-editor.ts",
+      "path": "src/features/admin/components/articles/article-editor/article-editor.ts",
+      "type": "Component",
+      "description": "Éditeur article (create/update)",
+      "structure": {
+        "selector": "app-article-editor",
+        "standalone": true,
+        "imports": ["ReactiveFormsModule", "ActivatedRoute"],
+        "templateUrl": "./article-editor.html",
+        "styleUrl": "./article-editor.scss"
+      },
+      "logique": [
+        "Inject ArticleAdminService, ActivatedRoute",
+        "FormGroup complet (title, excerpt, content, category, relatedService, tags, coverImage)",
+        "Mode: create ou edit (selon route param id)",
+        "ngOnInit: if id → load article + patchValue",
+        "onSubmit() → create ou update",
+        "Auto-save draft optionnel"
       ],
       "instructions": [
-        "Import Router, controllers, middlewares",
-        "router.post('/login', login) // Sans verifyToken",
-        "router.get('/contacts', verifyToken, getContacts)",
-        "router.patch('/contacts/:id', verifyToken, updateContactStatus)",
-        "Export router"
+        "Form validation",
+        "Textarea content (Markdown ou WYSIWYG simple)",
+        "Dropdown category, relatedService",
+        "Tags input (comma-separated)",
+        "Save draft button + Publish button",
+        "Preview optionnel"
       ]
     },
     
     {
       "ordre": 21,
-      "nom": "app.ts (UPDATE backend)",
-      "path": "backend/src/app.ts",
-      "type": "Application Update",
-      "description": "Monter routes admin dans app Express",
-      "modifications": [
-        "Import adminRoutes",
-        "app.use('/api/admin', adminRoutes)"
+      "nom": "article-editor.html",
+      "path": "src/features/admin/components/articles/article-editor/article-editor.html",
+      "type": "Template",
+      "description": "Template éditeur",
+      "structure": [
+        "<div class=\"article-editor\">",
+        "  <h1>{{ isEditMode() ? 'Modifier' : 'Nouvel' }} Article</h1>",
+        "  <form [formGroup]=\"articleForm\" (ngSubmit)=\"onSubmit()\">",
+        "    <div class=\"form-field\">",
+        "      <label for=\"title\">Titre *</label>",
+        "      <input id=\"title\" formControlName=\"title\" type=\"text\" />",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-field\">",
+        "      <label for=\"excerpt\">Résumé *</label>",
+        "      <textarea id=\"excerpt\" formControlName=\"excerpt\" rows=\"3\"></textarea>",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-field\">",
+        "      <label for=\"content\">Contenu *</label>",
+        "      <textarea id=\"content\" formControlName=\"content\" rows=\"20\"></textarea>",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-row\">",
+        "      <div class=\"form-field\">",
+        "        <label for=\"category\">Catégorie *</label>",
+        "        <select id=\"category\" formControlName=\"category\">",
+        "          <option value=\"copywriting\">Copywriting</option>",
+        "          <option value=\"seo\">SEO</option>",
+        "          <option value=\"strategy\">Stratégie</option>",
+        "          <option value=\"web-design\">Web Design</option>",
+        "          <option value=\"case-study\">Étude de Cas</option>",
+        "        </select>",
+        "      </div>",
+        "      ",
+        "      <div class=\"form-field\">",
+        "        <label for=\"relatedService\">Service Associé *</label>",
+        "        <select id=\"relatedService\" formControlName=\"relatedService\">",
+        "          <option value=\"copywriting\">Copywriting</option>",
+        "          <option value=\"content-strategy\">Stratégie de Contenu</option>",
+        "          <option value=\"seo-writing\">SEO Rédaction</option>",
+        "          <option value=\"web-creation\">Création Sites Web</option>",
+        "        </select>",
+        "      </div>",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-field\">",
+        "      <label for=\"tags\">Tags (séparés par virgules)</label>",
+        "      <input id=\"tags\" formControlName=\"tags\" type=\"text\" />",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-field\">",
+        "      <label for=\"coverImage\">Image de couverture (URL)</label>",
+        "      <input id=\"coverImage\" formControlName=\"coverImage\" type=\"url\" />",
+        "    </div>",
+        "    ",
+        "    <div class=\"form-actions\">",
+        "      <button type=\"button\" (click)=\"saveDraft()\" class=\"btn-secondary\">",
+        "        Enregistrer brouillon",
+        "      </button>",
+        "      <button type=\"submit\" class=\"btn-primary\">",
+        "        {{ isEditMode() ? 'Mettre à jour' : 'Publier' }}",
+        "      </button>",
+        "    </div>",
+        "  </form>",
+        "</div>"
       ],
       "instructions": [
-        "Import adminRoutes from './routes/admin.routes'",
-        "Monter routes: app.use('/api/admin', adminRoutes)",
-        "Vérifier ordre (après /api/contact)"
+        "Form complet",
+        "Textarea content large",
+        "Dropdowns category + relatedService",
+        "Tags input text",
+        "Boutons: Draft + Publish"
+      ]
+    },
+    
+    {
+      "ordre": 22,
+      "nom": "article-editor.scss",
+      "path": "src/features/admin/components/articles/article-editor/article-editor.scss",
+      "type": "Styles",
+      "description": "Styles éditeur",
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Max-width: 800px",
+        "Form-field spacing",
+        "Textarea content: font monospace",
+        "Actions: flex justify-end"
       ]
     }
   ],
   
   "validation_phase": {
-    "criteres_backend": [
-      "POST /api/admin/login fonctionne (retourne JWT)",
-      "GET /api/admin/contacts protégé (401 sans JWT)",
-      "GET /api/admin/contacts fonctionne avec JWT valide",
-      "PATCH /api/admin/contacts/:id fonctionne",
-      "JWT vérifié correctement par middleware"
-    ],
-    "criteres_frontend": [
-      "Route /admin redirect vers /admin/login si non auth",
-      "Login form fonctionne (credentials corrects → redirect dashboard)",
-      "Dashboard affiche liste contacts",
-      "Filtres par statut fonctionnent",
-      "Update statut fonctionne",
-      "Modal détails s'ouvre au clic",
-      "Déconnexion fonctionne",
-      "Interceptor ajoute JWT automatiquement"
+    "criteres": [
+      "Tous fichiers créés et validés",
+      "/admin/login fonctionne",
+      "JWT token stocké après login",
+      "Dashboard admin accessible",
+      "Liste contacts affichée",
+      "Update statut contact OK",
+      "Liste articles admin affichée",
+      "Créer/modifier article fonctionne",
+      "Publier article change statut",
+      "Guard protège routes admin",
+      "Interceptor ajoute token auto"
     ],
     "commandes_test": [
-      "Backend:",
-      "  cd backend && npm run dev",
-      "  Postman: POST /api/admin/login { username, password }",
-      "  Copier token",
-      "  Postman: GET /api/admin/contacts, Header: Authorization: Bearer TOKEN",
-      "",
-      "Frontend:",
-      "  cd frontend && ng serve",
-      "  Ouvrir http://localhost:4200/admin",
-      "  Vérifier redirect vers /admin/login",
-      "  Login avec credentials",
-      "  Vérifier dashboard affiche contacts",
-      "  Tester filtres, update statut, modal"
+      "ng serve",
+      "http://localhost:4200/admin/login",
+      "Login → redirect /admin",
+      "Voir contacts, articles",
+      "Créer nouvel article → save"
     ]
   },
   
   "notes_importantes": [
-    "Phase complexe (21 fichiers), prendre le temps",
-    "Tester backend d'abord avec Postman avant frontend",
-    "Générer password hash avec bcrypt avant de coder",
-    "Credentials hardcodés pour simplifier (production = BDD users)",
-    "JWT stocké dans localStorage (pas idéal prod, mais OK pour ce projet)",
-    "AuthGuard basique (vérifie juste présence token, pas validité)",
-    "Workflow strict: 1 fichier = 1 validation",
-    "Proposer design dashboard moderne si validé",
-    "Dernière phase du projet !"
-  ],
-  
-  "credentials_setup": {
-    "note": "Générer hash password AVANT phase 06",
-    "commande": "node -e \"console.log(require('bcryptjs').hashSync('VotreMotDePasse', 10))\"",
-    "copier_hash": "Utiliser le hash généré dans auth.service.ts backend"
-  },
-  
-  "integration_complete": {
-    "test_final": [
-      "1. Démarrer backend (npm run dev)",
-      "2. Démarrer frontend (ng serve)",
-      "3. Tester formulaire contact (/) → vérifier BDD",
-      "4. Login admin (/admin) avec credentials",
-      "5. Voir contacts dans dashboard",
-      "6. Changer statut contact",
-      "7. Déconnexion",
-      "8. Vérifier guard bloque /admin sans auth"
-    ],
-    "felicitations": "Projet complet frontend + backend + admin ! 🎉"
-  }
+    "Auth JWT avec localStorage",
+    "Guard authGuard protège routes",
+    "Interceptor auth auto header",
+    "Admin service pour contacts",
+    "ArticleAdminService pour CRUD articles",
+    "Éditeur simple (textarea Markdown ou WYSIWYG basique)",
+    "Auto-save draft optionnel (nice-to-have)",
+    "Publish button change status → published",
+    "Design admin sobre (pas besoin ultra-design)",
+    "1 fichier = 1 validation obligatoire"
+  ]
 }

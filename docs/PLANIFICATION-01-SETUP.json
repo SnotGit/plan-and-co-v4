@@ -1,22 +1,22 @@
 {
   "phase": "01",
   "nom": "SETUP PROJET",
-  "description": "Configuration initiale du projet Angular 20 et Backend Express",
-  "objectif": "Créer la structure de base et les fichiers de configuration nécessaires au démarrage du projet",
+  "description": "Configuration initiale Angular 20, palette Modern Editorial, structure src/",
+  "objectif": "Créer structure de base, config TypeScript strict, styles globaux, routes principales",
   
   "prerequis": [
-    "Node.js 18+ installé",
-    "Angular CLI 20 installé (npm install -g @angular/cli@latest)",
+    "Node.js 18+",
+    "Angular CLI 20 (npm install -g @angular/cli@latest)",
     "Git configuré"
   ],
   
   "workflow": {
     "regles_absolues": [
       "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
-      "Code COMPLET dans chaque artefact (pas de '...reste du code')",
-      "STOP après chaque fichier et ATTENDRE validation '✓ OK'",
-      "Ne PAS continuer sans validation explicite",
-      "Respecter l'ordre des fichiers ci-dessous"
+      "Code COMPLET (jamais '...reste du code')",
+      "STOP après chaque fichier → ATTENDRE validation '✓ OK'",
+      "Ordre strict des fichiers",
+      "TypeScript strict (aucun 'any')"
     ]
   },
   
@@ -24,10 +24,10 @@
     {
       "ordre": 1,
       "nom": "package.json",
-      "path": "frontend/package.json",
+      "path": "package.json",
       "type": "Configuration",
-      "description": "Configuration npm du projet Angular avec toutes les dépendances nécessaires",
-      "dependances_importantes": [
+      "description": "Dépendances npm Angular 20",
+      "dependances": [
         "@angular/core@^20.0.0",
         "@angular/common@^20.0.0",
         "@angular/router@^20.0.0",
@@ -42,48 +42,52 @@
         "build:prod": "ng build --configuration production"
       },
       "instructions": [
-        "Créer le fichier package.json complet",
-        "Inclure TOUTES les dépendances Angular 20",
-        "Ajouter scripts de dev et build",
-        "Version Angular = ^20.0.0 ou latest"
+        "Fichier complet avec toutes dépendances",
+        "Scripts dev et prod",
+        "Version Angular 20 latest"
       ]
     },
     
     {
       "ordre": 2,
       "nom": "tsconfig.json",
-      "path": "frontend/tsconfig.json",
+      "path": "tsconfig.json",
       "type": "Configuration",
-      "description": "Configuration TypeScript avec mode strict activé",
-      "regles_typescript": [
-        "strict: true",
-        "noImplicitAny: true",
-        "strictNullChecks: true",
-        "noUnusedLocals: true",
-        "noUnusedParameters: true"
-      ],
+      "description": "TypeScript config avec mode strict activé",
+      "regles": {
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+      },
+      "paths": {
+        "@app/*": ["src/app/*"],
+        "@core/*": ["src/core/*"],
+        "@shared/*": ["src/shared/*"],
+        "@features/*": ["src/features/*"]
+      },
       "instructions": [
         "Mode strict OBLIGATOIRE",
-        "Paths alias configurés (@app, @core, @shared, @features)",
-        "Target ES2022",
-        "Aucun 'any' autorisé"
+        "Paths alias configurés",
+        "Target ES2022"
       ]
     },
     
     {
       "ordre": 3,
       "nom": "angular.json",
-      "path": "frontend/angular.json",
+      "path": "angular.json",
       "type": "Configuration",
-      "description": "Configuration du workspace Angular",
+      "description": "Configuration workspace Angular",
       "configurations": [
         "development: sourceMap enabled",
         "production: optimization, minification, budget limits"
       ],
       "instructions": [
-        "Définir projet 'plan-and-co-frontend'",
-        "Configuration dev et prod",
-        "Styles globaux dans assets/styles/styles.scss",
+        "Projet 'plan-and-co'",
+        "Styles globaux: src/styles.scss",
+        "Assets: public/",
         "Budget warnings configurés"
       ]
     },
@@ -91,11 +95,11 @@
     {
       "ordre": 4,
       "nom": "tsconfig.app.json",
-      "path": "frontend/tsconfig.app.json",
+      "path": "tsconfig.app.json",
       "type": "Configuration",
-      "description": "Configuration TypeScript spécifique à l'application",
+      "description": "TypeScript config app",
       "instructions": [
-        "Extend du tsconfig.json de base",
+        "Extend tsconfig.json",
         "Files: main.ts inclus",
         "Exclude: tests, node_modules"
       ]
@@ -104,30 +108,25 @@
     {
       "ordre": 5,
       "nom": ".gitignore",
-      "path": "frontend/.gitignore",
+      "path": ".gitignore",
       "type": "Configuration",
-      "description": "Fichiers à ignorer par Git",
-      "elements_ignores": [
+      "description": "Fichiers ignorés Git",
+      "elements": [
         "node_modules/",
         "dist/",
         ".angular/",
         ".env",
         ".env.local",
         "*.log"
-      ],
-      "instructions": [
-        "Ignorer node_modules et dist",
-        "Ignorer fichiers environnement (.env)",
-        "Ignorer logs et caches Angular"
       ]
     },
     
     {
       "ordre": 6,
       "nom": "environment.ts",
-      "path": "frontend/src/environments/environment.ts",
+      "path": "src/environments/environment.ts",
       "type": "Configuration",
-      "description": "Variables d'environnement pour le développement",
+      "description": "Variables environnement dev",
       "variables": {
         "production": false,
         "apiUrl": "http://localhost:3000/api",
@@ -135,18 +134,18 @@
         "supabaseKey": "YOUR_SUPABASE_ANON_KEY"
       },
       "instructions": [
-        "Créer interface Environment typée",
-        "Valeurs de développement",
-        "Commentaires pour indiquer où obtenir les clés"
+        "Interface Environment typée",
+        "Valeurs dev",
+        "Commentaires pour clés"
       ]
     },
     
     {
       "ordre": 7,
       "nom": "environment.prod.ts",
-      "path": "frontend/src/environments/environment.prod.ts",
+      "path": "src/environments/environment.prod.ts",
       "type": "Configuration",
-      "description": "Variables d'environnement pour la production",
+      "description": "Variables environnement prod",
       "variables": {
         "production": true,
         "apiUrl": "https://planandco-api.onrender.com/api",
@@ -154,265 +153,245 @@
         "supabaseKey": "YOUR_SUPABASE_ANON_KEY"
       },
       "instructions": [
-        "Mêmes variables que environment.ts",
+        "Mêmes variables que dev",
         "production: true",
-        "URL API Render en production"
+        "URL API production"
       ]
     },
     
     {
       "ordre": 8,
       "nom": "index.html",
-      "path": "frontend/src/index.html",
+      "path": "src/index.html",
       "type": "HTML",
-      "description": "Point d'entrée HTML de l'application",
+      "description": "Point d'entrée HTML",
       "elements": [
         "Meta tags (charset, viewport, description)",
         "Title: Plan & Co | Expert Copywriting",
-        "Preconnect fonts Google",
+        "Preconnect fonts: Inter + Playfair Display",
         "Base href='/'",
         "<app-root></app-root>"
       ],
       "instructions": [
         "HTML5 sémantique",
         "Meta description SEO",
-        "Fonts Google (Inter + Playfair Display)",
-        "Balise app-root uniquement"
+        "Google Fonts preconnect"
       ]
     },
     
     {
       "ordre": 9,
       "nom": "main.ts",
-      "path": "frontend/src/main.ts",
+      "path": "src/main.ts",
       "type": "TypeScript",
-      "description": "Bootstrap de l'application Angular",
+      "description": "Bootstrap application Angular",
       "imports": [
         "bootstrapApplication from @angular/platform-browser",
-        "AppComponent",
-        "appConfig"
+        "App from './app/app'",
+        "appConfig from './app/app.config'"
       ],
       "instructions": [
-        "Bootstrap standalone avec bootstrapApplication",
-        "Importer AppComponent et appConfig",
-        "Gestion erreur avec .catch()"
+        "Bootstrap standalone",
+        "Import App et appConfig",
+        "Gestion erreur .catch()"
       ]
     },
     
     {
       "ordre": 10,
       "nom": "app.config.ts",
-      "path": "frontend/src/app/app.config.ts",
+      "path": "src/app/app.config.ts",
       "type": "TypeScript",
-      "description": "Configuration de l'application (providers, routing)",
+      "description": "Configuration app (providers)",
       "providers": [
         "provideRouter(routes)",
         "provideHttpClient()",
         "provideAnimations()"
       ],
       "instructions": [
-        "Exporter const appConfig: ApplicationConfig",
+        "Export const appConfig: ApplicationConfig",
         "Providers: router, http, animations",
-        "Importer les routes depuis app.routes.ts"
+        "Importer routes depuis app.routes.ts"
       ]
     },
     
     {
       "ordre": 11,
       "nom": "app.routes.ts",
-      "path": "frontend/src/app/app.routes.ts",
+      "path": "src/app/app.routes.ts",
       "type": "TypeScript",
-      "description": "Définition des routes de l'application",
+      "description": "Routes principales",
       "routes": [
-        "{ path: '', component: Home }",
-        "{ path: 'contact', component: Contact }",
-        "{ path: 'admin', component: Admin, canActivate: [authGuard] }",
+        "{ path: '', loadChildren: () => import('./features/home/routes/home.routes') }",
+        "{ path: 'blog', loadChildren: () => import('./features/blog/routes/blog.routes') }",
+        "{ path: 'contact', loadChildren: () => import('./features/contact/routes/contact.routes') }",
+        "{ path: 'admin', loadChildren: () => import('./features/admin/routes/admin.routes'), canActivate: [authGuard] }",
         "{ path: '**', redirectTo: '' }"
       ],
       "instructions": [
         "Type Routes from @angular/router",
-        "Route home (/) + contact + admin",
-        "Admin protégé par authGuard (à créer plus tard)",
-        "Wildcard redirect vers home"
+        "Lazy loading avec loadChildren",
+        "Admin protégé authGuard",
+        "Wildcard redirect home"
       ]
     },
     
     {
       "ordre": 12,
-      "nom": "app.component.ts",
-      "path": "frontend/src/app/app.component.ts",
-      "type": "TypeScript",
-      "description": "Composant racine de l'application (structure principale)",
+      "nom": "app.ts",
+      "path": "src/app/app.ts",
+      "type": "Component",
+      "description": "Composant racine",
       "structure": {
-        "imports": ["RouterOutlet"],
         "selector": "app-root",
         "standalone": true,
-        "template": "Séparé dans app.component.html"
+        "imports": ["RouterOutlet", "Footer"],
+        "templateUrl": "./app.html",
+        "styleUrl": "./app.scss"
       },
       "instructions": [
-        "Composant standalone",
-        "Pas de logique (juste structure)",
-        "Import RouterOutlet uniquement pour cette phase",
-        "Navbar et Footer seront ajoutés en phase 2"
+        "Standalone component",
+        "Import RouterOutlet + Footer",
+        "Pas de logique métier"
       ]
     },
     
     {
       "ordre": 13,
-      "nom": "app.component.html",
-      "path": "frontend/src/app/app.component.html",
-      "type": "HTML",
-      "description": "Template du composant racine",
+      "nom": "app.html",
+      "path": "src/app/app.html",
+      "type": "Template",
+      "description": "Template root",
       "structure": [
-        "<!-- <app-navbar /> (Phase 2) -->",
         "<router-outlet />",
-        "<!-- <app-footer /> (Phase 2) -->"
+        "<app-footer />"
       ],
       "instructions": [
-        "Pour l'instant: juste router-outlet",
-        "Commentaires pour navbar/footer (ajoutés phase 2)",
-        "Propre et minimal"
+        "Pas de navbar (design sans navbar)",
+        "Footer global en bas",
+        "Minimal"
       ]
     },
     
     {
       "ordre": 14,
-      "nom": "app.component.scss",
-      "path": "frontend/src/app/app.component.scss",
-      "type": "SCSS",
-      "description": "Styles du composant racine (vide pour l'instant)",
+      "nom": "app.scss",
+      "path": "src/app/app.scss",
+      "type": "Styles",
+      "description": "Styles root component",
       "instructions": [
-        "Fichier vide ou commentaire 'Styles globaux dans styles.scss'",
-        "Pas de styles inline dans app.component"
+        "Minimal",
+        "Layout flex pour footer en bas"
       ]
     },
     
     {
       "ordre": 15,
-      "nom": "_variables.scss",
-      "path": "frontend/src/assets/styles/_variables.scss",
-      "type": "SCSS",
-      "description": "Variables globales SCSS (couleurs, spacing, fonts)",
-      "variables": {
-        "couleurs": {
-          "$primary-color": "#E67E22",
-          "$secondary-color": "#F39C12",
-          "$text-dark": "#2C3E50",
-          "$text-gray": "#7F8C8D",
-          "$text-light": "#BDC3C7",
-          "$bg-light": "#FFF8F0",
-          "$border-color": "#E8E8E8"
-        },
-        "spacing": {
-          "$spacing-xs": "0.5rem",
-          "$spacing-sm": "1rem",
-          "$spacing-md": "1.5rem",
-          "$spacing-lg": "2.5rem",
-          "$spacing-xl": "4rem"
-        },
-        "fonts": {
-          "$font-primary": "'Inter', sans-serif",
-          "$font-display": "'Playfair Display', serif"
-        },
-        "autres": {
-          "$radius-sm": "8px",
-          "$radius-md": "12px",
-          "$radius-lg": "16px",
-          "$transition-fast": "0.2s ease",
-          "$transition-normal": "0.3s ease"
-        }
+      "nom": "modern-editorial.scss",
+      "path": "src/shared/styles/variables/modern-editorial.scss",
+      "type": "SCSS Variables",
+      "description": "Palette Modern Editorial validée",
+      "palette": {
+        "primary": "#0A0A0A",
+        "secondary": "#FFFFFF",
+        "accent": "#E74C3C",
+        "text": "#2C3E50",
+        "bg-alt": "#F7F7F7"
       },
       "instructions": [
-        "Extraire couleurs du site actuel",
-        "Spacing cohérent (basé sur 0.5rem)",
-        "Fonts Google (Inter + Playfair Display)",
-        "Variables réutilisables partout"
+        "Variables SCSS complètes",
+        "Map $colors pour boucles",
+        "Export @use"
       ]
     },
     
     {
       "ordre": 16,
-      "nom": "_mixins.scss",
-      "path": "frontend/src/assets/styles/_mixins.scss",
+      "nom": "index.scss",
+      "path": "src/shared/styles/index.scss",
       "type": "SCSS",
-      "description": "Mixins réutilisables pour composants",
-      "mixins": [
-        "@mixin button",
-        "@mixin card",
-        "@mixin gradient-warm",
-        "@mixin container"
+      "description": "Point d'entrée styles shared",
+      "imports": [
+        "@forward './variables/modern-editorial'",
+        "@forward './mixins/mixins'",
+        "@forward './artefacts/artefacts'"
       ],
       "instructions": [
-        "Créer mixins basiques (button, card)",
-        "Gradient warm (orange du site)",
-        "Container avec max-width et padding",
-        "Réutilisables dans tous les composants"
+        "Forward toutes variables",
+        "Forward mixins existants",
+        "Forward artefacts"
       ]
     },
     
     {
       "ordre": 17,
       "nom": "styles.scss",
-      "path": "frontend/src/assets/styles/styles.scss",
-      "type": "SCSS",
-      "description": "Point d'entrée des styles globaux",
+      "path": "src/styles.scss",
+      "type": "SCSS Global",
+      "description": "Point d'entrée styles globaux",
       "imports": [
-        "@use 'variables' as *;",
-        "@use 'mixins' as *;",
-        "Reset CSS basique",
-        "Styles globaux (body, html, a, button)"
+        "@use 'shared/styles' as *"
+      ],
+      "content": [
+        "Reset CSS minimal",
+        "Styles globaux body (font Inter)",
+        "Styles globaux h1-h6 (font Playfair Display)",
+        "Links sans underline",
+        "Smooth scroll"
       ],
       "instructions": [
-        "Importer variables et mixins",
-        "Reset CSS minimal (box-sizing, margin, padding)",
-        "Styles globaux body (font, color, line-height)",
-        "Liens sans underline par défaut"
+        "Reset box-sizing, margin, padding",
+        "Body: font-family Inter, color $color-text",
+        "Headings: Playfair Display",
+        "html { scroll-behavior: smooth; }"
       ]
     },
     
     {
       "ordre": 18,
       "nom": "README.md",
-      "path": "frontend/README.md",
+      "path": "README.md",
       "type": "Documentation",
-      "description": "Documentation du projet frontend",
+      "description": "Documentation projet",
       "sections": [
-        "Titre et description",
-        "Stack technique",
-        "Installation (npm install)",
-        "Commandes (npm start, build)",
-        "Structure du projet",
-        "Environnement (.env à configurer)"
+        "Titre: Plan & Co - Site Vitrine Copywriting",
+        "Stack: Angular 20, Express, Supabase",
+        "Installation: npm install",
+        "Commandes: npm start, build",
+        "Structure features",
+        "Palette Modern Editorial"
       ],
       "instructions": [
-        "Documentation claire et concise",
+        "Documentation claire",
         "Commandes essentielles",
-        "Liens vers ARCHITECTURE.md et INSTRUCTIONS.md"
+        "Liens ARCHITECTURE-V2.md"
       ]
     }
   ],
   
   "validation_phase": {
     "criteres": [
-      "Tous les fichiers créés et validés individuellement",
-      "npm install fonctionne sans erreur",
-      "ng serve démarre sans erreur",
-      "App affiche page blanche avec <router-outlet>",
-      "Aucune erreur TypeScript"
+      "Tous fichiers créés et validés",
+      "npm install OK",
+      "ng serve OK",
+      "App affiche page blanche + footer",
+      "Aucune erreur TypeScript",
+      "Palette Modern Editorial appliquée"
     ],
     "commandes_test": [
-      "cd frontend",
       "npm install",
       "ng serve",
-      "Ouvrir http://localhost:4200 → page blanche OK"
+      "http://localhost:4200 → page blanche + footer"
     ]
   },
   
   "notes_importantes": [
-    "Cette phase ne contient QUE les fichiers de configuration",
-    "Aucun composant métier (navbar, home, etc.) n'est créé ici",
-    "L'app doit démarrer mais afficher une page blanche",
-    "Phases suivantes ajouteront les composants un par un",
-    "Chaque fichier doit être validé avant de passer au suivant"
+    "Phase setup UNIQUEMENT (config)",
+    "Aucun composant métier créé",
+    "App démarre avec page blanche",
+    "Footer global présent",
+    "Pas de navbar (design sans navbar)",
+    "Palette Modern Editorial intégrée",
+    "1 fichier = 1 validation obligatoire"
   ]
 }

@@ -1,0 +1,483 @@
+{
+  "phase": "02",
+  "nom": "FEATURE HOME",
+  "description": "Page d'accueil avec Hero, Services (4 cards), Blog Preview, CTA",
+  "objectif": "Créer home complète avec scroll spy, sections élégantes, palette Modern Editorial",
+  
+  "structure_feature": {
+    "path": "src/features/home/",
+    "organisation": [
+      "components/ → home + sous-composants (-card)",
+      "services/ → home.service.ts, scroll.service.ts",
+      "routes/ → home.routes.ts"
+    ]
+  },
+  
+  "workflow": {
+    "regles_absolues": [
+      "1 FICHIER = 1 MESSAGE = 1 ARTEFACT",
+      "Code COMPLET (jamais '...')",
+      "STOP après chaque → ATTENDRE '✓ OK'",
+      "Ordre strict",
+      "TypeScript strict (aucun 'any')"
+    ]
+  },
+  
+  "fichiers": [
+    {
+      "ordre": 1,
+      "nom": "home.routes.ts",
+      "path": "src/features/home/routes/home.routes.ts",
+      "type": "Routes",
+      "description": "Routes feature home",
+      "routes": [
+        "{ path: '', component: Home }"
+      ],
+      "instructions": [
+        "Export default Routes array",
+        "Route vide → Home component",
+        "Import lazy depuis ../components/home/home"
+      ]
+    },
+    
+    {
+      "ordre": 2,
+      "nom": "home.ts",
+      "path": "src/features/home/components/home.ts",
+      "type": "Component",
+      "description": "Container home (4 sections)",
+      "structure": {
+        "selector": "app-home",
+        "standalone": true,
+        "imports": [
+          "HeroCard",
+          "ServiceCard",
+          "BlogPreviewCard",
+          "CtaCard"
+        ],
+        "templateUrl": "./home.html",
+        "styleUrl": "./home.scss"
+      },
+      "logique": [
+        "Inject scroll.service",
+        "ngOnInit: scroll.service.init()",
+        "4 sections: hero, services, blog-preview, cta"
+      ],
+      "instructions": [
+        "Standalone component",
+        "Imports 4 sous-composants",
+        "Init scroll spy service",
+        "Pas de logique métier"
+      ]
+    },
+    
+    {
+      "ordre": 3,
+      "nom": "home.html",
+      "path": "src/features/home/components/home.html",
+      "type": "Template",
+      "description": "Template home avec 4 sections",
+      "structure": [
+        "<section id=\"hero\" class=\"home-section\">",
+        "  <app-hero-card />",
+        "</section>",
+        "",
+        "<section id=\"services\" class=\"home-section\">",
+        "  <app-service-card />",
+        "</section>",
+        "",
+        "<section id=\"blog-preview\" class=\"home-section\">",
+        "  <app-blog-preview-card />",
+        "</section>",
+        "",
+        "<section id=\"cta\" class=\"home-section\">",
+        "  <app-cta-card />",
+        "</section>"
+      ],
+      "instructions": [
+        "4 sections avec id (pour scroll spy)",
+        "Classe 'home-section' commune",
+        "Sémantique HTML5",
+        "Minimal et clean"
+      ]
+    },
+    
+    {
+      "ordre": 4,
+      "nom": "home.scss",
+      "path": "src/features/home/components/home.scss",
+      "type": "Styles",
+      "description": "Styles container home",
+      "styles": [
+        ".home-section { padding: 4rem 0; }",
+        "@media (max-width: 768px) { padding: 2rem 0; }"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Spacing vertical sections",
+        "Responsive mobile"
+      ]
+    },
+    
+    {
+      "ordre": 5,
+      "nom": "hero-card.ts",
+      "path": "src/features/home/components/hero-card/hero-card.ts",
+      "type": "Component",
+      "description": "Hero section (titre + CTA)",
+      "structure": {
+        "selector": "app-hero-card",
+        "standalone": true,
+        "imports": [],
+        "templateUrl": "./hero-card.html",
+        "styleUrl": "./hero-card.scss"
+      },
+      "data": {
+        "title": "Plan & Co",
+        "subtitle": "Expert Copywriting & Stratégie de Contenu",
+        "cta": "Contactez-moi"
+      },
+      "instructions": [
+        "Signals pour title, subtitle, cta",
+        "Click CTA → naviguer /contact",
+        "Design: centré, typographie hero"
+      ]
+    },
+    
+    {
+      "ordre": 6,
+      "nom": "hero-card.html",
+      "path": "src/features/home/components/hero-card/hero-card.html",
+      "type": "Template",
+      "description": "Template hero",
+      "structure": [
+        "<div class=\"hero-container\">",
+        "  <h1 class=\"hero-title\">{{ title() }}</h1>",
+        "  <p class=\"hero-subtitle\">{{ subtitle() }}</p>",
+        "  <button class=\"hero-cta\" (click)=\"goToContact()\">",
+        "    {{ cta() }}",
+        "  </button>",
+        "</div>"
+      ],
+      "instructions": [
+        "Centré verticalement et horizontalement",
+        "Typographie géante (h1: 4rem desktop)",
+        "Bouton accent (#E74C3C)"
+      ]
+    },
+    
+    {
+      "ordre": 7,
+      "nom": "hero-card.scss",
+      "path": "src/features/home/components/hero-card/hero-card.scss",
+      "type": "Styles",
+      "description": "Styles hero Modern Editorial",
+      "design": [
+        "Background: $color-primary (#0A0A0A)",
+        "Text: $color-secondary (#FFFFFF)",
+        "Title: Playfair Display, 4rem",
+        "Subtitle: Inter, 1.5rem",
+        "Button: $color-accent (#E74C3C), rounded-full"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Min-height: 100vh",
+        "Flexbox centré",
+        "Responsive: title 2.5rem mobile"
+      ]
+    },
+    
+    {
+      "ordre": 8,
+      "nom": "service-card.ts",
+      "path": "src/features/home/components/service-card/service-card.ts",
+      "type": "Component",
+      "description": "Section services (4 cards)",
+      "structure": {
+        "selector": "app-service-card",
+        "standalone": true,
+        "imports": ["NgFor"],
+        "templateUrl": "./service-card.html",
+        "styleUrl": "./service-card.scss"
+      },
+      "data": {
+        "services": [
+          {
+            "icon": "✍️",
+            "title": "Copywriting",
+            "description": "Des textes qui convertissent et engagent votre audience"
+          },
+          {
+            "icon": "📊",
+            "title": "Stratégie de Contenu",
+            "description": "Planification éditoriale sur-mesure pour votre marque"
+          },
+          {
+            "icon": "🔍",
+            "title": "SEO Rédaction",
+            "description": "Contenu optimisé pour les moteurs de recherche"
+          },
+          {
+            "icon": "💻",
+            "title": "Création Sites Web",
+            "description": "Sites vitrines élégants et performants"
+          }
+        ]
+      },
+      "instructions": [
+        "Signal services avec interface Service",
+        "Grid 4 colonnes desktop, 1 col mobile",
+        "Hover effect sur cards"
+      ]
+    },
+    
+    {
+      "ordre": 9,
+      "nom": "service-card.html",
+      "path": "src/features/home/components/service-card/service-card.html",
+      "type": "Template",
+      "description": "Template grille services",
+      "structure": [
+        "<div class=\"services-container\">",
+        "  <h2 class=\"section-title\">Mes Services</h2>",
+        "  <div class=\"services-grid\">",
+        "    @for (service of services(); track service.title) {",
+        "      <div class=\"service-item\">",
+        "        <div class=\"service-icon\">{{ service.icon }}</div>",
+        "        <h3 class=\"service-title\">{{ service.title }}</h3>",
+        "        <p class=\"service-description\">{{ service.description }}</p>",
+        "      </div>",
+        "    }",
+        "  </div>",
+        "</div>"
+      ],
+      "instructions": [
+        "Titre section: Mes Services",
+        "Grid responsive",
+        "@for Angular 20 (pas ngFor)"
+      ]
+    },
+    
+    {
+      "ordre": 10,
+      "nom": "service-card.scss",
+      "path": "src/features/home/components/service-card/service-card.scss",
+      "type": "Styles",
+      "description": "Styles grille services",
+      "design": [
+        "Background: $color-bg-alt (#F7F7F7)",
+        "Cards: white, shadow subtle",
+        "Grid: 4 cols (1fr each)",
+        "Icon: $color-accent circle",
+        "Hover: transform scale(1.05)"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Gap: 2rem",
+        "Padding cards: 2rem",
+        "Border-radius: 12px",
+        "Responsive: 1 col mobile"
+      ]
+    },
+    
+    {
+      "ordre": 11,
+      "nom": "blog-preview-card.ts",
+      "path": "src/features/home/components/blog-preview-card/blog-preview-card.ts",
+      "type": "Component",
+      "description": "Preview 3 derniers articles blog",
+      "structure": {
+        "selector": "app-blog-preview-card",
+        "standalone": true,
+        "imports": ["NgFor", "RouterLink"],
+        "templateUrl": "./blog-preview-card.html",
+        "styleUrl": "./blog-preview-card.scss"
+      },
+      "data": {
+        "latestArticles": "Signal<Article[]> (3 articles)",
+        "note": "Phase 02: mock data. Phase 03: BlogService"
+      },
+      "instructions": [
+        "Mock 3 articles pour l'instant",
+        "RouterLink vers /blog",
+        "Interface Article minimal"
+      ]
+    },
+    
+    {
+      "ordre": 12,
+      "nom": "blog-preview-card.html",
+      "path": "src/features/home/components/blog-preview-card/blog-preview-card.html",
+      "type": "Template",
+      "description": "Template preview blog",
+      "structure": [
+        "<div class=\"blog-preview-container\">",
+        "  <h2 class=\"section-title\">Conseils & Stratégies</h2>",
+        "  <div class=\"articles-grid\">",
+        "    @for (article of latestArticles(); track article.id) {",
+        "      <article class=\"article-card\">",
+        "        <h3>{{ article.title }}</h3>",
+        "        <p>{{ article.excerpt }}</p>",
+        "        <a [routerLink]=\"'/blog/' + article.slug\">Lire →</a>",
+        "      </article>",
+        "    }",
+        "  </div>",
+        "  <a routerLink=\"/blog\" class=\"view-all\">Voir tous les articles →</a>",
+        "</div>"
+      ],
+      "instructions": [
+        "Titre: Conseils & Stratégies",
+        "3 cards articles",
+        "Lien Voir tous → /blog"
+      ]
+    },
+    
+    {
+      "ordre": 13,
+      "nom": "blog-preview-card.scss",
+      "path": "src/features/home/components/blog-preview-card/blog-preview-card.scss",
+      "type": "Styles",
+      "description": "Styles preview blog",
+      "design": [
+        "Grid 3 colonnes",
+        "Cards: white, border subtle",
+        "Lien accent hover",
+        "Bouton 'Voir tous' centré"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Gap: 1.5rem",
+        "Responsive: 1 col mobile"
+      ]
+    },
+    
+    {
+      "ordre": 14,
+      "nom": "cta-card.ts",
+      "path": "src/features/home/components/cta-card/cta-card.ts",
+      "type": "Component",
+      "description": "CTA final (devis gratuit)",
+      "structure": {
+        "selector": "app-cta-card",
+        "standalone": true,
+        "imports": ["RouterLink"],
+        "templateUrl": "./cta-card.html",
+        "styleUrl": "./cta-card.scss"
+      },
+      "data": {
+        "title": "Prêt à booster votre communication ?",
+        "subtitle": "Discutons de votre projet ensemble",
+        "cta": "Demander un devis gratuit"
+      },
+      "instructions": [
+        "Signals title, subtitle, cta",
+        "RouterLink vers /contact",
+        "Background accent"
+      ]
+    },
+    
+    {
+      "ordre": 15,
+      "nom": "cta-card.html",
+      "path": "src/features/home/components/cta-card/cta-card.html",
+      "type": "Template",
+      "description": "Template CTA",
+      "structure": [
+        "<div class=\"cta-container\">",
+        "  <h2 class=\"cta-title\">{{ title() }}</h2>",
+        "  <p class=\"cta-subtitle\">{{ subtitle() }}</p>",
+        "  <a routerLink=\"/contact\" class=\"cta-button\">",
+        "    {{ cta() }}",
+        "  </a>",
+        "</div>"
+      ],
+      "instructions": [
+        "Centré",
+        "Bouton prominent"
+      ]
+    },
+    
+    {
+      "ordre": 16,
+      "nom": "cta-card.scss",
+      "path": "src/features/home/components/cta-card/cta-card.scss",
+      "type": "Styles",
+      "description": "Styles CTA Modern Editorial",
+      "design": [
+        "Background: $color-bg-alt",
+        "Padding: 4rem",
+        "Button: $color-accent, large",
+        "Hover: darker accent"
+      ],
+      "instructions": [
+        "@use '@shared/styles' as *",
+        "Text-align center",
+        "Button rounded-full"
+      ]
+    },
+    
+    {
+      "ordre": 17,
+      "nom": "scroll.service.ts",
+      "path": "src/features/home/services/scroll.service.ts",
+      "type": "Service",
+      "description": "Scroll spy service (sections actives)",
+      "fonctionnalites": [
+        "Détecter section visible",
+        "Signal activeSection",
+        "IntersectionObserver"
+      ],
+      "instructions": [
+        "Injectable({ providedIn: 'root' })",
+        "init() → observer sections",
+        "Signal activeSection: string",
+        "Cleanup onDestroy"
+      ]
+    },
+    
+    {
+      "ordre": 18,
+      "nom": "home.service.ts",
+      "path": "src/features/home/services/home.service.ts",
+      "type": "Service",
+      "description": "Service métier home (futur)",
+      "note": "Vide pour l'instant, utilisé phase 03 pour blog preview",
+      "instructions": [
+        "Injectable({ providedIn: 'root' })",
+        "Méthode getLatestArticles() → Phase 03",
+        "Pour l'instant: return mock data"
+      ]
+    }
+  ],
+  
+  "validation_phase": {
+    "criteres": [
+      "Tous fichiers créés et validés",
+      "Home affiche 4 sections",
+      "Hero avec titre géant + CTA",
+      "Services 4 cards responsive",
+      "Blog preview 3 articles mock",
+      "CTA final fonctionnel",
+      "Scroll spy détecte sections",
+      "Palette Modern Editorial appliquée",
+      "Design élégant et sobre"
+    ],
+    "commandes_test": [
+      "ng serve",
+      "http://localhost:4200 → Home complète",
+      "Scroll → sections visibles",
+      "Click CTA → /contact (404 ok pour l'instant)"
+    ]
+  },
+  
+  "notes_importantes": [
+    "Structure feature: components/services/routes",
+    "Sous-composants suffixe -card",
+    "scroll.service.ts (pas scroll-spy)",
+    "Blog preview = mock data (connecté phase 03)",
+    "Design Modern Editorial strict",
+    "Pas de navbar (design validé)",
+    "Footer déjà présent (phase 01)",
+    "1 fichier = 1 validation obligatoire"
+  ]
+}
