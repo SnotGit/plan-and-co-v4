@@ -1,0 +1,12 @@
+<footer class="footer">
+  <div class="footer-socials">
+    @for (social of socialLinks(); track social.name) {
+      <a [href]="social.url" target="_blank" rel="noopener" class="social-link" [title]="social.name">
+        <i [class]="social.icon"></i>
+      </a>
+    }
+  </div>
+  <p class="footer-copyright">
+    © {{ currentYear() }} {{ companyName() }}. Tous droits réservés.
+  </p>
+</footer>

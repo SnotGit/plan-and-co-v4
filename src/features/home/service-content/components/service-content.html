@@ -1,0 +1,17 @@
+<main class="service-content">
+  <section class="services-section">
+    <h2 class="section-title">Mes Services</h2>
+    <div class="services-grid">
+      @for (service of services(); track service.id) {
+        <a [routerLink]="service.route" class="service-item">
+          <div class="service-icon">{{ service.icon }}</div>
+          <h3 class="service-title">{{ service.title }}</h3>
+          <p class="service-description">{{ service.description }}</p>
+        </a>
+      }
+    </div>
+  </section>
+
+  <app-blog-preview-card></app-blog-preview-card>
+  <app-cta-card></app-cta-card>
+</main>

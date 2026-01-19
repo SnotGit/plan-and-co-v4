@@ -1,5 +1,0 @@
-@use '../../variables/variables' as *;
-
-@mixin gradient-warm {
-  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
-}

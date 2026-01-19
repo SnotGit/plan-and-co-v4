@@ -1,0 +1,41 @@
+@use 'shared/styles' as *;
+
+.header {
+  background-color: $color-primary;
+  padding: 3rem 2rem;
+  text-align: center;
+  border-radius: 1.5rem 1.5rem 0 0;
+  position: relative;
+
+  @media (max-width: 768px) {
+    border-radius: 0;
+  }
+}
+
+.title {
+  font-family: $header-title-font;
+  font-size: $header-title-size;
+  font-weight: $header-title-weight;
+  color: $header-title-color;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: $header-title-size-mobile;
+  }
+}
+
+.subtitle {
+  color: $color-bg-alt !important;
+  margin-left: auto;
+  margin-right: auto;
+  @include subtitle;
+}
+
+.cta {
+  @include cta-button;
+}
+
+.admin {
+  @include admin-button;
+}

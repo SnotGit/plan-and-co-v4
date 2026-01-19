@@ -1,0 +1,9 @@
+<header class="header">
+  <h1 class="title">{{ title() }}</h1>
+  <p class="subtitle">{{ subtitle() }}</p>
+  <button class="cta" (click)="onCtaClick()">{{ cta() }}</button>
+  
+  @if (isAdmin()) {
+    <button class="admin" (click)="goToAdmin()">Admin</button>
+  }
+</header>
