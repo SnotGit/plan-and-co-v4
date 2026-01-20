@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,8 +9,18 @@ import { Router } from '@angular/router';
 })
 export class CopywritingCard {
 
-  constructor(private router: Router) {}
+  //======= INJECTIONS =======
+  
+  private readonly router = inject(Router);
 
+  //======= SIGNALS =======
+  
+  title = signal('Copywriting');
+  description = signal('Des textes qui convertissent et engagent votre audience.');
+  buttonText = signal('Voir Détails');
+
+  //======= METHODS =======
+  
   navigateToCopywriting(): void {
     this.router.navigate(['/copywriting']);
   }

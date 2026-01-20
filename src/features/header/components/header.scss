@@ -1,0 +1,28 @@
+@use 'shared/styles' as *;
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    gap: 20px;
+}
+
+.header-icon {
+    width: 80px;
+    height: 80px;
+}
+
+.header-logo {
+    height: 80px;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 1.5rem;
+    }
+
+    .header-icon {
+        width: 32px;
+        height: 32px;
+    }
+}

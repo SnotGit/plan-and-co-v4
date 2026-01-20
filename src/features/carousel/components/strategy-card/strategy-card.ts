@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,8 +9,18 @@ import { Router } from '@angular/router';
 })
 export class StrategyCard {
 
-  constructor(private router: Router) {}
+  //======= INJECTIONS =======
+  
+  private readonly router = inject(Router);
 
+  //======= SIGNALS =======
+  
+  title = signal('Stratégie de Contenu');
+  description = signal('Planification éditoriale sur-mesure pour votre marque.');
+  buttonText = signal('Voir Détails');
+
+  //======= METHODS =======
+  
   navigateToStrategy(): void {
     this.router.navigate(['/strategy']);
   }

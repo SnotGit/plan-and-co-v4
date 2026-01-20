@@ -4,7 +4,7 @@
   </button>
 
   <div class="carousel-track">
-    <div class="carousel-slides" [style.transform]="'translateX(-' + (carouselService.currentIndex() * 100) + '%)'">
+    <div class="carousel-slides" [style.transform]="'translateX(-' + (currentIndex() * 100) + '%)'">
       <div class="carousel-slide">
         <app-seo-card />
       </div>
@@ -34,7 +34,7 @@
     @for (dot of dots; track dot) {
       <span 
         class="dot" 
-        [class.active]="carouselService.currentIndex() === dot"
+        [class.active]="currentIndex() === dot"
         (click)="goToSlide(dot)"
         [attr.aria-label]="'Slide ' + (dot + 1)">
       </span>

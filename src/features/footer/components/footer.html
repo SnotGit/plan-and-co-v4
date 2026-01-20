@@ -1,15 +1,19 @@
 <footer class="footer">
-  <div class="footer-content">
-    <div class="social-links">
-      @for (social of socialLinks(); track social.name) {
-        <a [href]="social.url" target="_blank" rel="noopener" [attr.aria-label]="social.name">
-          <i [class]="social.icon"></i>
-        </a>
-      }
-    </div>
-    
-    <p class="copyright">
-      © {{ currentYear() }} {{ companyName() }}. Tous droits réservés.
-    </p>
+  @if (isAdmin()) {
+    <button class="admin-btn" (click)="goToAdmin()">
+      ADMIN
+    </button>
+  }
+
+  <div class="footer-socials">
+    @for (social of socialLinks(); track social.name) {
+      <a [href]="social.url" target="_blank" rel="noopener" [attr.aria-label]="social.name" class="social-link">
+        <i [class]="social.icon"></i>
+      </a>
+    }
   </div>
+  
+  <p class="footer-copyright">
+    © {{ currentYear() }} {{ companyName() }}. Tous droits réservés.
+  </p>
 </footer>

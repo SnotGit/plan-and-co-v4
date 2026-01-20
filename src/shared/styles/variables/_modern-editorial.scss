@@ -1,15 +1,11 @@
-$color-primary: #0A0A0A;
-$color-secondary: #FFFFFF;
-$color-accent: #E74C3C;
-$color-text: #2C3E50;
-$color-bg-alt: #F7F7F7;
-
-$carousel-text-color: #3D3F47;
-$carousel-hover-color: #3b3f4a;
-$carousel-text-light: rgba(61, 63, 71, 0.6);
+$color-primary: #3D3F47; // Anthracite (texte, logo, éléments)
+$color-text-muted: rgba(61, 63, 71, 0.6); // Baseline claire
+$color-bg: #E8E8E8; // Background gris clair
+$color-white: #FFFFFF; // Contraste
+$color-hover: #3b3f4a; // Hover state
 
 $header-title-font: 'Playfair Display', Georgia, serif;
 $header-title-size: 4rem;
 $header-title-size-mobile: 2.5rem;
 $header-title-weight: 400;
-$header-title-color: $color-secondary;
+$header-title-color: $color-primary;

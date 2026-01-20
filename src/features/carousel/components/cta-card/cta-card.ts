@@ -1,6 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TypingEffectService } from '../../services/typing-effect.service';
 
 @Component({
   selector: 'app-cta-card',
@@ -8,27 +7,18 @@ import { TypingEffectService } from '../../services/typing-effect.service';
   templateUrl: './cta-card.html',
   styleUrl: './cta-card.scss'
 })
-export class CtaCard implements OnInit {
+export class CtaCard {
 
-  private hasAnimated = false;
-  showBaseline = signal<boolean>(false);
+  //======= INJECTIONS =======
+  
+  private readonly router = inject(Router);
 
-  constructor(
-    private router: Router,
-    public typingService: TypingEffectService
-  ) {}
+  //======= SIGNALS =======
+  
+  buttonText = signal('contact');
 
-  ngOnInit(): void {
-    if (!this.hasAnimated) {
-      this.hasAnimated = true;
-      this.typingService.title('Plan & Co');
-
-      setTimeout(() => {
-        this.showBaseline.set(true);
-      }, 1500);
-    }
-  }
-
+  //======= METHODS =======
+  
   navigateToContact(): void {
     this.router.navigate(['/contact']);
   }

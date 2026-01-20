@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,8 +9,18 @@ import { Router } from '@angular/router';
 })
 export class WebCard {
 
-  constructor(private router: Router) {}
+  //======= INJECTIONS =======
+  
+  private readonly router = inject(Router);
 
+  //======= SIGNALS =======
+  
+  title = signal('Création Sites Web');
+  description = signal('Sites vitrines élégants et performants.');
+  buttonText = signal('Voir Détails');
+
+  //======= METHODS =======
+  
   navigateToWeb(): void {
     this.router.navigate(['/web']);
   }

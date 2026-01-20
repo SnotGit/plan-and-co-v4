@@ -1,48 +1,22 @@
 @use 'shared/styles' as *;
 
-.carousel-card.cta-special {
+.container {
   @include carousel-card;
 }
 
-.logo-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+.bg {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 2rem;
 }
 
-.logo-title {
-  font-family: $header-title-font;
-  font-size: 3rem;
-  font-weight: 400;
-  color: $carousel-text-color;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.cursor {
-  animation: blink 1s step-end infinite;
-  color: $carousel-text-color;
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-.logo-baseline {
-  font-size: 1rem;
-  color: $carousel-text-light;
-  margin: 0;
-  animation: fadeIn 1s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .card-btn {
-  @include carousel-card-button;
-  margin-top: 1rem;
+  @include card-button;
 }

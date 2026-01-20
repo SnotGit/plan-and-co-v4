@@ -1,46 +1,34 @@
 @use '../../variables/modern-editorial' as *;
+@use '../buttons/buttons' as *;
 
 @mixin carousel-card {
   background: transparent;
-  padding: 3rem 2rem;
   text-align: center;
-  height: 400px;
+  height: 600px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: 4rem;
+  border: 2px solid $color-text-muted;
 }
 
-@mixin carousel-card-title {
+@mixin card-title {
   font-family: $header-title-font;
   font-size: 2.5rem;
   font-weight: 600;
-  color: $carousel-text-color;
+  color: $color-primary;
   margin: 0;
 }
 
-@mixin carousel-card-description {
+@mixin card-description {
   font-size: 1rem;
-  color: $carousel-text-light;
+  color: $color-text-muted;
   line-height: 1.6;
   max-width: 350px;
   margin: 0;
 }
 
-@mixin carousel-card-button {
-  background: transparent;
-  color: $carousel-text-color;
-  border: 1px solid $carousel-text-color;
-  padding: 0.875rem 2rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: $carousel-hover-color;
-    color: $color-secondary;
-  }
+@mixin card-button {
+  @include primary-button;
 }

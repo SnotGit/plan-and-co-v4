@@ -1,73 +1,75 @@
-@use 'sass:color';
 @use '../../variables/modern-editorial' as *;
 
-@mixin cta-button {
-  background-color: $color-accent;
-  color: $color-secondary;
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: none;
+@mixin primary-button {
+  background: transparent;
+  color: $color-primary;
+  border: 1px solid $color-primary;
+  padding: 0.875rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   border-radius: 50px;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: color.adjust($color-accent, $lightness: -10%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    background: $color-hover;
+    color: $color-white;
   }
 
   &:active {
-    transform: translateY(0);
+    transform: scale(0.98);
+  }
+}
+
+@mixin admin-button {
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: 1px solid $color-primary;
+  color: $color-primary;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 25px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  z-index: 100;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+    background: $color-primary;
+    color: $color-white;
+  }
+
+  @media (max-width: 768px) {
+    left: 1rem;
   }
 }
 
 @mixin back-button {
-  background-color: transparent;
+  background: transparent;
   color: $color-primary;
+  border: 1px solid $color-primary;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;
-  border: 2px solid $color-primary;
   border-radius: 50px;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: $color-primary;
-    color: $color-secondary;
+    background: $color-primary;
+    color: $color-white;
     transform: translateX(-5px);
   }
 
   &:active {
     transform: translateX(0);
-  }
-}
-
-@mixin admin-button {
-  background-color: $color-primary;
-  color: $color-secondary;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  position: absolute;
-  top: 1rem;
-  right: 2rem;
-
-  &:hover {
-    background-color: color.adjust($color-primary, $lightness: 20%);
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(1);
   }
 }

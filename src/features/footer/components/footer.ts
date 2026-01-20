@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface SocialLink {
   name: string;
@@ -14,8 +15,15 @@ interface SocialLink {
 })
 export class Footer {
 
+  //======= INJECTIONS =======
+  
+  private readonly router = inject(Router);
+
+  //======= SIGNALS =======
+  
   currentYear = signal(new Date().getFullYear());
   companyName = signal('Plan & Co');
+  isAdmin = signal(false);
 
   socialLinks = signal<SocialLink[]>([
     {
@@ -34,4 +42,10 @@ export class Footer {
       url: 'https://instagram.com'
     }
   ]);
+
+  //======= METHODS =======
+  
+  goToAdmin(): void {
+    this.router.navigate(['/admin']);
+  }
 }

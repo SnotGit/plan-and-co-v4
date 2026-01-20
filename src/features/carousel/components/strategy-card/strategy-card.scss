@@ -5,13 +5,13 @@
 }
 
 .card-title {
-  @include carousel-card-title;
+  @include card-title;
 }
 
 .card-description {
-  @include carousel-card-description;
+  @include card-description;
 }
 
 .card-btn {
-  @include carousel-card-button;
+  @include card-button;
 }

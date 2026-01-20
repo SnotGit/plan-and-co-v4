@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { SeoCard } from './seo-card/seo-card';
 import { WebCard } from './web-card/web-card';
 import { CopywritingCard } from './copywriting-card/copywriting-card';
@@ -22,10 +22,16 @@ import { CarouselService } from '../services/carousel.service';
 })
 export class Carousel implements OnInit, OnDestroy {
 
-  totalCards = 6;
+  //======= INJECTIONS =======
+  
+  private readonly carouselService = inject(CarouselService);
 
-  constructor(public carouselService: CarouselService) {}
+  //======= PROPERTIES =======
+  
+  readonly totalCards = 6;
 
+  //======= LIFECYCLE =======
+  
   ngOnInit(): void {
     this.carouselService.startAutoRotate();
   }
@@ -34,6 +40,18 @@ export class Carousel implements OnInit, OnDestroy {
     this.carouselService.destroy();
   }
 
+  //======= COMPUTED =======
+  
+  get currentIndex() {
+    return this.carouselService.currentIndex;
+  }
+
+  get dots(): number[] {
+    return Array.from({ length: this.totalCards }, (_, i) => i);
+  }
+
+  //======= METHODS =======
+  
   prev(): void {
     this.carouselService.prev();
   }
@@ -44,9 +62,5 @@ export class Carousel implements OnInit, OnDestroy {
 
   goToSlide(index: number): void {
     this.carouselService.goToSlide(index);
-  }
-
-  get dots(): number[] {
-    return Array.from({ length: this.totalCards }, (_, i) => i);
   }
 }

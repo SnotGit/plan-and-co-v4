@@ -1,9 +1,7 @@
 <div class="carousel-card">
-  <h2 class="card-title">Création Sites Web</h2>
-  <p class="card-description">
-    Sites vitrines élégants et performants.
-  </p>
+  <h2 class="card-title">{{ title() }}</h2>
+  <p class="card-description">{{ description() }}</p>
   <button class="card-btn" (click)="navigateToWeb()">
-    Voir Détails
+    {{ buttonText() }}
   </button>
 </div>

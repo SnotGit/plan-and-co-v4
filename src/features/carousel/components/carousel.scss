@@ -1,24 +1,25 @@
-@use '@shared/styles' as *;
+@use 'shared/styles' as *;
 
 .carousel-container {
-  position: relative;
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  height: 100%;
+  max-width: 800px;
 }
 
 .carousel-track {
   overflow: hidden;
-  position: relative;
+  height: 100%;
 }
 
 .carousel-slides {
   display: flex;
-  transition: transform 0.5s ease-out;
+  height: 100%;
+  transition: transform 1s ease-out;
 }
 
 .carousel-slide {
   min-width: 100%;
+  height: 100%;
   flex-shrink: 0;
 }
 
@@ -28,14 +29,14 @@
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  color: $carousel-text-color;
+  color: $color-primary;
   font-size: 3rem;
   font-weight: 300;
   cursor: pointer;
   padding: 1rem;
   z-index: 10;
-  transition: opacity 0.3s ease;
   opacity: 0.4;
+  transition: opacity 0.3s ease;
 
   &:hover {
     opacity: 1;
@@ -56,26 +57,28 @@
 }
 
 .carousel-dots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 2rem;
+  gap: 20px;
 }
 
 .dot {
   width: 20px;
-  height: 2px;
-  background: rgba($carousel-text-color, 0.3);
+  height: 10px;
+  background: rgba($color-primary, 0.3);
   cursor: pointer;
   transition: all 0.3s ease;
 
   &.active {
-    background: $carousel-text-color;
-    height: 3px;
+    background: $color-primary;
+    height: 10px;
   }
 
   &:hover:not(.active) {
-    background: rgba($carousel-text-color, 0.6);
+    background: rgba($color-primary, 0.6);
   }
 }
 

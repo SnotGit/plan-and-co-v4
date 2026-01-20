@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -8,6 +8,10 @@ import { Router } from '@angular/router';
   styleUrl: './seo-card.scss'
 })
 export class SeoCard {
+
+  title = signal('SEO Rédaction');
+  description = signal('Contenu optimisé pour les moteurs de recherche.');
+  buttonText = signal('Voir Détails');
 
   constructor(private router: Router) {}
 

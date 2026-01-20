@@ -1,68 +1,26 @@
 @use 'shared/styles' as *;
 
-.feature-page {
-  min-height: 100vh;
-  padding: 4rem 2rem;
-  background-color: $color-secondary;
+.container {
   @include container;
 }
 
 .back-btn {
-  margin-bottom: 2rem;
   @include back-button;
+  margin-bottom: 2rem;
 }
 
-.feature-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.feature-title {
-  text-align: center;
+.title {
   @include title;
 }
 
-.feature-description {
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
+.subtitle {
   @include subtitle;
 }
 
-.feature-section {
-  margin-bottom: 3rem;
+.content {
+  @include content;
+}
 
-  h2 {
-    font-size: 2rem;
-    color: $color-primary;
-    margin-bottom: 1rem;
-  }
-
-  p {
-    font-size: 1.125rem;
-    color: $color-text;
-    line-height: 1.8;
-    margin-bottom: 1rem;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-
-    li {
-      font-size: 1.125rem;
-      color: $color-text;
-      padding: 0.5rem 0;
-      padding-left: 1.5rem;
-      position: relative;
-
-      &::before {
-        content: '✓';
-        position: absolute;
-        left: 0;
-        color: $color-accent;
-        font-weight: bold;
-      }
-    }
-  }
+.cta {
+  @include cta;
 }

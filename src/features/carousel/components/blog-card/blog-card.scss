@@ -6,7 +6,7 @@
 }
 
 .card-title {
-  @include carousel-card-title;
+  @include card-title;
 }
 
 .articles-list {
@@ -22,34 +22,34 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  border: 1px solid $carousel-text-light;
+  border: 1px solid $color-text-muted;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba($carousel-text-color, 0.05);
-    border-color: $carousel-text-color;
+    background: rgba($color-primary, 0.05);
+    border-color: $color-primary;
   }
 }
 
 .article-title {
   font-size: 0.9rem;
-  color: $carousel-text-color;
+  color: $color-primary;
   font-weight: 500;
 }
 
 .article-arrow {
-  color: $carousel-text-light;
+  color: $color-text-muted;
   font-size: 1.2rem;
   transition: transform 0.3s ease;
 
   .article-item:hover & {
     transform: translateX(5px);
-    color: $carousel-text-color;
+    color: $color-primary;
   }
 }
 
 .card-btn {
-  @include carousel-card-button;
+  @include card-button;
 }
