@@ -1,0 +1,72 @@
+@use '@shared/styles' as *;
+
+.home-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: #E8E8E8;
+}
+
+.wallpaper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100vh;
+  background-image: url('/public/assets/wallpaper/plan-and-co.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.content-container {
+  position: relative;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  z-index: 10;
+}
+
+.admin-btn {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  background: transparent;
+  border: 1px solid $carousel-text-color;
+  color: $carousel-text-color;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+    background: $carousel-text-color;
+    color: $color-secondary;
+  }
+}
+
+@media (max-width: 768px) {
+  .wallpaper {
+    display: none;
+  }
+
+  .content-container {
+    width: 100%;
+    padding: 2rem 1rem;
+  }
+
+  .admin-btn {
+    bottom: 1rem;
+    left: 1rem;
+  }
+}

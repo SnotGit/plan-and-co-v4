@@ -1,0 +1,41 @@
+@use 'shared/styles' as *;
+
+.footer {
+  background: transparent;
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+
+.footer-socials {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.social-link {
+  color: $carousel-text-light;
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $carousel-text-color;
+  }
+}
+
+.footer-copyright {
+  color: $carousel-text-light;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 1rem;
+  }
+
+  .footer-socials {
+    gap: 1rem;
+  }
+}

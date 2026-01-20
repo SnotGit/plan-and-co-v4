@@ -1,0 +1,43 @@
+<div class="carousel-container">
+  <button class="nav-arrow nav-arrow-left" (click)="prev()" aria-label="Précédent">
+    <span>‹</span>
+  </button>
+
+  <div class="carousel-track">
+    <div class="carousel-slides" [style.transform]="'translateX(-' + (carouselService.currentIndex() * 100) + '%)'">
+      <div class="carousel-slide">
+        <app-seo-card />
+      </div>
+      <div class="carousel-slide">
+        <app-web-card />
+      </div>
+      <div class="carousel-slide">
+        <app-copywriting-card />
+      </div>
+      <div class="carousel-slide">
+        <app-strategy-card />
+      </div>
+      <div class="carousel-slide">
+        <app-blog-card />
+      </div>
+      <div class="carousel-slide">
+        <app-cta-card />
+      </div>
+    </div>
+  </div>
+
+  <button class="nav-arrow nav-arrow-right" (click)="next()" aria-label="Suivant">
+    <span>›</span>
+  </button>
+
+  <div class="carousel-dots">
+    @for (dot of dots; track dot) {
+      <span 
+        class="dot" 
+        [class.active]="carouselService.currentIndex() === dot"
+        (click)="goToSlide(dot)"
+        [attr.aria-label]="'Slide ' + (dot + 1)">
+      </span>
+    }
+  </div>
+</div>

@@ -1,0 +1,18 @@
+<div class="carousel-card cta-special">
+  <div class="logo-container">
+    <h1 class="logo-title">
+      {{ typingService.headerTitle() }}
+      @if (typingService.showCursor()) {
+        <span class="cursor">|</span>
+      }
+    </h1>
+    
+    @if (showBaseline()) {
+      <p class="logo-baseline">votre expertise du web</p>
+    }
+  </div>
+
+  <button class="card-btn" (click)="navigateToContact()">
+    contact
+  </button>
+</div>

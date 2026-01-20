@@ -1,0 +1,17 @@
+@use 'shared/styles' as *;
+
+.carousel-card {
+  @include carousel-card;
+}
+
+.card-title {
+  @include carousel-card-title;
+}
+
+.card-description {
+  @include carousel-card-description;
+}
+
+.card-btn {
+  @include carousel-card-button;
+}

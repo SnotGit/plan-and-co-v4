@@ -1,0 +1,14 @@
+<div class="carousel-card">
+  <h2 class="card-title">Articles & Conseils</h2>
+  <div class="articles-list">
+    @for (article of articles(); track article.slug) {
+      <div class="article-item" (click)="navigateToArticle(article.slug)">
+        <span class="article-title">{{ article.title }}</span>
+        <span class="article-arrow">→</span>
+      </div>
+    }
+  </div>
+  <button class="card-btn" (click)="navigateToBlog()">
+    Voir tous les articles
+  </button>
+</div>
