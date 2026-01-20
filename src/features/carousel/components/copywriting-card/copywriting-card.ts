@@ -17,7 +17,7 @@ export class CopywritingCard {
   
   title = signal('Copywriting');
   description = signal('Des textes qui convertissent et engagent votre audience.');
-  buttonText = signal('Voir Détails');
+  buttonText = signal('Informations');
 
   //======= METHODS =======
   

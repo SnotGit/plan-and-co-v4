@@ -17,7 +17,7 @@ export class StrategyCard {
   
   title = signal('Stratégie de Contenu');
   description = signal('Planification éditoriale sur-mesure pour votre marque.');
-  buttonText = signal('Voir Détails');
+  buttonText = signal('Informations');
 
   //======= METHODS =======
   

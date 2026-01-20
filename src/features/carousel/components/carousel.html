@@ -1,43 +1,25 @@
-<div class="carousel-container">
-  <button class="nav-arrow nav-arrow-left" (click)="prev()" aria-label="Précédent">
-    <span>‹</span>
-  </button>
-
-  <div class="carousel-track">
-    <div class="carousel-slides" [style.transform]="'translateX(-' + (currentIndex() * 100) + '%)'">
-      <div class="carousel-slide">
-        <app-seo-card />
-      </div>
-      <div class="carousel-slide">
-        <app-web-card />
-      </div>
-      <div class="carousel-slide">
-        <app-copywriting-card />
-      </div>
-      <div class="carousel-slide">
-        <app-strategy-card />
-      </div>
-      <div class="carousel-slide">
-        <app-blog-card />
-      </div>
-      <div class="carousel-slide">
-        <app-cta-card />
-      </div>
-    </div>
-  </div>
-
-  <button class="nav-arrow nav-arrow-right" (click)="next()" aria-label="Suivant">
-    <span>›</span>
-  </button>
-
-  <div class="carousel-dots">
-    @for (dot of dots; track dot) {
-      <span 
-        class="dot" 
-        [class.active]="currentIndex() === dot"
-        (click)="goToSlide(dot)"
-        [attr.aria-label]="'Slide ' + (dot + 1)">
-      </span>
-    }
-  </div>
-</div>
+<owl-carousel-o [options]="carouselOptions">
+  <ng-template carouselSlide>
+    <app-seo-card />
+  </ng-template>
+  
+  <ng-template carouselSlide>
+    <app-web-card />
+  </ng-template>
+  
+  <ng-template carouselSlide>
+    <app-copywriting-card />
+  </ng-template>
+  
+  <ng-template carouselSlide>
+    <app-strategy-card />
+  </ng-template>
+  
+  <ng-template carouselSlide>
+    <app-blog-card />
+  </ng-template>
+  
+  <ng-template carouselSlide>
+    <app-cta-card />
+  </ng-template>
+</owl-carousel-o>

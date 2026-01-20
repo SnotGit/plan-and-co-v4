@@ -11,7 +11,7 @@ export class SeoCard {
 
   title = signal('SEO Rédaction');
   description = signal('Contenu optimisé pour les moteurs de recherche.');
-  buttonText = signal('Voir Détails');
+  buttonText = signal('Informations');
 
   constructor(private router: Router) {}
 

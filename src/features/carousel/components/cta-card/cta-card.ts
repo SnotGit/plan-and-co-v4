@@ -15,7 +15,7 @@ export class CtaCard {
 
   //======= SIGNALS =======
   
-  buttonText = signal('contact');
+  buttonText = signal('Contactez-nous');
 
   //======= METHODS =======
   

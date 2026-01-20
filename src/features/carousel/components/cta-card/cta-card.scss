@@ -7,7 +7,7 @@
 .bg {
   width: 100%;
   max-width: 600px;
-  margin: 0 auto 2rem;
+  
 }
 
 .image {
@@ -19,4 +19,5 @@
 
 .card-btn {
   @include card-button;
+
 }
