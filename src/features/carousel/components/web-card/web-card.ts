@@ -15,8 +15,8 @@ export class WebCard {
 
   //======= SIGNALS =======
   
-  title = signal('Création De Sites Web');
-  description = signal('Sites vitrines élégants et performants.');
+  title = signal('Web');
+  description = signal('Création de sites élégants et performants.\n Hébergement et Maintenance.');
   buttonText = signal('Informations');
 
   //======= METHODS =======

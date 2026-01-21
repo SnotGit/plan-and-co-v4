@@ -3,7 +3,7 @@
 
 @mixin container {
   min-height: 100vh;
-  max-width: 1200px;
+  min-width: 100%;
   margin: 0 auto;
   padding: 4rem 2rem;
   background-color: $color-white;

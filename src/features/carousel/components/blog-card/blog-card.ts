@@ -22,11 +22,11 @@ export class BlogCard {
   //======= SIGNALS =======
   
   title = signal('Articles & Conseils');
-  buttonText = signal('Voir tous les articles');
+  buttonText = signal('Voir tous nos articles');
   
   latestArticles = signal<Article[]>([
-    { id: 1, title: 'SEO en 2025 : Les nouvelles règles', slug: 'seo-2025' },
-    { id: 2, title: 'Créer une stratégie de contenu gagnante', slug: 'strategie-contenu' }
+    { id: 1, title: 'SEO 2026 : Qui dicte les règles ?', slug: 'seo-2025' },
+    { id: 2, title: 'Angular pour les nuls', slug: 'Angular 2026' }
   ]);
 
   //======= METHODS =======

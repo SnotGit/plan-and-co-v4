@@ -30,9 +30,9 @@ export class Carousel {
     dots: true,
     nav: false,
     autoplay: true,
-    autoplayTimeout: 5000,
+    autoplayTimeout: 9000,
     autoplayHoverPause: false,
-    smartSpeed: 1500,
+    smartSpeed: 2000,
     items: 1,
     responsive: {
       0: {

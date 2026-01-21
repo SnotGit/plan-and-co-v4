@@ -29,17 +29,17 @@ export class Footer {
     {
       name: 'LinkedIn',
       icon: 'fab fa-linkedin',
-      url: 'https://linkedin.com'
+      url: 'https://www.linkedin.com/in/nicolas-renaud-07a346328/'
     },
     {
       name: 'Facebook',
       icon: 'fab fa-facebook',
-      url: 'https://facebook.com'
+      url: 'https://www.facebook.com/profile.php?id=61583270181197&locale=fr_FR'
     },
     {
       name: 'Instagram',
       icon: 'fab fa-instagram',
-      url: 'https://instagram.com'
+      url: 'https://www.instagram.com/planandco44190/'
     }
   ]);
 

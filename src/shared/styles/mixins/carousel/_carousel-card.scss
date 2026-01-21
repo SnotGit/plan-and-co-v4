@@ -8,18 +8,21 @@
   flex-direction: column;
   background: transparent;
   box-sizing: border-box;
-  padding: 3rem 2rem;
   
   .card-header {
+    flex-shrink: 0;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    margin-bottom: 2rem;
   }
   
   .card-title {
     font-family: $header-title-font;
     font-size: 2.5rem;
     font-weight: 600;
-    color: $color-primary;
+    color: $color-dark;
     margin: 0;
   }
   
@@ -27,23 +30,29 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     text-align: center;
-    gap: 1.5rem;
+    min-height: 0;
+    overflow-y: auto;
   }
   
   .card-description {
-    font-size: 1.2rem;
-    color: $color-text-muted;
+    font-size: 1.6rem;
+    color: $color-dark;
     line-height: 1.6;
     max-width: 400px;
     margin: 0;
   }
   
   .card-footer {
-    text-align: center;
-    margin-top: 2rem;
+    flex-shrink: 0;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 80px; 
   }
   
   .card-btn {

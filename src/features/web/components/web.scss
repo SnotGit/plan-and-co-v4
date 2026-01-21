@@ -2,6 +2,9 @@
 
 .container {
   @include container;
+  background-image: url('/assets/wallpaper/wallpaper-web.png');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .back-btn {

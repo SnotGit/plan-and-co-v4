@@ -7,4 +7,9 @@ import { Carousel } from '@features/carousel/components/carousel';
   templateUrl: './home-content.html',
   styleUrl: './home-content.scss'
 })
-export class HomeContent {}
+export class HomeContent {
+
+//============== SIGNAL ===========//
+
+  title = 'Nos Services';
+}

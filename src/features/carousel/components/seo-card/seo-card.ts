@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,12 +9,18 @@ import { Router } from '@angular/router';
 })
 export class SeoCard {
 
-  title = signal('Optimisation SEO');
+  //======= INJECTIONS =======
+  
+  private readonly router = inject(Router);
+
+  //======= SIGNALS =======
+  
+  title = signal('SEO');
   description = signal('Contenu optimisé pour les moteurs de recherche.');
   buttonText = signal('Informations');
 
-  constructor(private router: Router) {}
-
+  //======= METHODS =======
+  
   navigateToSeo(): void {
     this.router.navigate(['/seo']);
   }
