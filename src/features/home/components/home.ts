@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { Header } from '@features/header/components/header';
-import { Carousel } from '@features/carousel/components/carousel';
+import { HomeContent } from './home-content/home-content';
 import { Footer } from '@features/footer/components/footer';
 
 @Component({
   selector: 'app-home',
   imports: [
     Header,
-    Carousel,
+    HomeContent,
     Footer
   ],
   templateUrl: './home.html',

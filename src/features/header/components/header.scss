@@ -1,28 +1,41 @@
 @use 'shared/styles' as *;
 
-.header {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    gap: 20px;
+.container {
+  height: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: transparent;
+  border: 2px solid crimson;
 }
 
 .header-icon {
-    width: 80px;
-    height: 80px;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
 }
 
-.header-logo {
-    height: 80px;
+.header-title {
+  font-family: $header-title-font;
+  font-size: 3rem;
+  font-weight: $header-title-weight;
+  color: $color-primary;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
-    .header {
-        padding: 1.5rem;
-    }
+  .container {
+    padding: 0 1rem;
+  }
 
-    .header-icon {
-        width: 32px;
-        height: 32px;
-    }
+  .header-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-title {
+    font-size: 1.8rem;
+  }
 }

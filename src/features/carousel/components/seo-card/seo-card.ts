@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class SeoCard {
 
-  title = signal('SEO Rédaction');
+  title = signal('Optimisation SEO');
   description = signal('Contenu optimisé pour les moteurs de recherche.');
   buttonText = signal('Informations');
 

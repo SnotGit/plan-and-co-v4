@@ -1,11 +1,11 @@
-<footer class="footer">
+<div class="container">
   @if (isAdmin()) {
     <button class="admin-btn" (click)="goToAdmin()">
       ADMIN
     </button>
   }
 
-  <div class="footer-socials">
+  <div class="socials-networks">
     @for (social of socialLinks(); track social.name) {
       <a [href]="social.url" target="_blank" rel="noopener" [attr.aria-label]="social.name" class="social-link">
         <i [class]="social.icon"></i>
@@ -13,7 +13,7 @@
     }
   </div>
   
-  <p class="footer-copyright">
+  <p class="copyright">
     © {{ currentYear() }} {{ companyName() }}. Tous droits réservés.
   </p>
-</footer>
+</div>

@@ -1,7 +1,15 @@
-<div class="carousel-card">
-  <h2 class="card-title">{{ title() }}</h2>
-  <p class="card-description">{{ description() }}</p>
-  <button class="card-btn" (click)="navigateToCopywriting()">
-    {{ buttonText() }}
-  </button>
+<div class="container">
+  <div class="card-header">
+    <h2 class="card-title">{{ title() }}</h2>
+  </div>
+  
+  <div class="card-content">
+    <p class="card-description">{{ description() }}</p>
+  </div>
+  
+  <div class="card-footer">
+    <button class="card-btn" (click)="navigateToCopywriting()">
+      {{ buttonText() }}
+    </button>
+  </div>
 </div>

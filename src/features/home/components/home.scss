@@ -1,38 +1,14 @@
-@use 'shared/styles' as *;
-
-.home-container {
+:host {
+  display: block;
   min-height: 100vh;
   background-image: url('/assets/wallpaper/plan-and-co.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+.container {
   display: flex;
   flex-direction: column;
-}
-
-.content-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  flex: 1;
-}
-
-.carousel-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (max-width: 768px) {
-  .home-container {
-    background-image: none;
-    background-color: $color-bg;
-  }
-
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .wallpaper-section {
-    display: none;
-  }
+  min-height: 100vh;
 }

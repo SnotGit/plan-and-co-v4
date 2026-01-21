@@ -1,17 +1,31 @@
 @use 'shared/styles' as *;
 
-.footer {
+:host {
+  display: block;
+  width: 100%;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
   background: transparent;
-  padding: 1.5rem 2rem;
   text-align: center;
   position: relative;
+  gap: 1rem;
+  padding: 0;
+  border: 2px solid green
 }
 
 .admin-btn {
   @include admin-button;
 }
 
-.footer-socials {
+.socials-networks {
   display: flex;
   justify-content: center;
   gap: 3rem;
@@ -28,18 +42,18 @@
   }
 }
 
-.footer-copyright {
+.copyright {
   color: $color-text-muted;
-  font-size: 0.875rem;
+  font-size: 1rem;
   margin: 0;
 }
 
 @media (max-width: 768px) {
-  .footer {
+  .container {
     padding: 1rem;
   }
 
-  .footer-socials {
+  .socials-network {
     gap: 1rem;
   }
 }

@@ -1,17 +1,5 @@
 @use 'shared/styles' as *;
 
-.carousel-card {
+.container {
   @include carousel-card;
-}
-
-.card-title {
-  @include card-title;
-}
-
-.card-description {
-  @include card-description;
-}
-
-.card-btn {
-  @include card-button;
 }

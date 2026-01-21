@@ -1,18 +1,13 @@
 @use 'shared/styles' as *;
 
-.carousel-card {
+.container {
   @include carousel-card;
-  gap: 3rem;
-}
-
-.card-title {
-  @include card-title;
 }
 
 .articles-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
   max-width: 400px;
 }
@@ -48,8 +43,4 @@
     transform: translateX(5px);
     color: $color-primary;
   }
-}
-
-.card-btn {
-  @include card-button;
 }

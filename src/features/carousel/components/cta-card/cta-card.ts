@@ -15,6 +15,8 @@ export class CtaCard {
 
   //======= SIGNALS =======
   
+  title = signal('Plan & Co');
+  description = signal('Votre expertise du numérique');
   buttonText = signal('Contactez-nous');
 
   //======= METHODS =======
