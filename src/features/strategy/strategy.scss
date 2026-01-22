@@ -1,26 +1,106 @@
 @use 'shared/styles' as *;
 
+//======= CONTAINER =======
+
 .container {
-  @include container;
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem;
+  background-color: $color-bg;
+}
+
+//======= HEADER =======
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
 }
 
 .back-btn {
   @include back-button;
-  margin-bottom: 2rem;
 }
 
 .title {
-  @include title;
+  font-family: $header-title-font;
+  font-size: 3rem;
+  font-weight: 600;
+  color: $color-dark;
+  margin: 0;
+}
+
+//======= CONTENT =======
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+//======= BOX LEFT =======
+
+.box-left {
+  display: flex;
+  flex-direction: column;
+  background-color: $color-bg;
+  border-radius: 8px;
+  min-height: 500px;
+}
+
+//======= BOX RIGHT =======
+
+.box-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .subtitle {
-  @include subtitle;
+  font-size: 1.3rem;
+  color: $color-text-muted;
+  line-height: 1.6;
+  margin: 0;
 }
 
-.content {
-  @include content;
+//======= FEATURE CARD =======
+
+.feature-card {
+  @include feature-card;
 }
 
-.cta {
-  @include cta;
+//======= RESPONSIVE =======
+
+@media (max-width: 1024px) {
+  .header {
+    grid-template-columns: auto 1fr;
+  }
+  
+  .header-right {
+    justify-content: center;
+  }
+  
+  .title {
+    text-align: center;
+  }
+  
+  .content {
+    grid-template-columns: 1fr;
+  }
+  
+  .box-left {
+    display: none;
+  }
 }

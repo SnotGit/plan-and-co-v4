@@ -1,29 +1,125 @@
 @use 'shared/styles' as *;
 
+//======= CONTAINER =======
+
 .container {
-  background-image: url('/assets/wallpaper/wallpaper-web3.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  @include container;
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem;
+  background-color: $color-bg;
+}
+
+//======= HEADER =======
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
 }
 
 .back-btn {
-  margin-bottom: 2rem;
   @include back-button;
 }
 
+.code-scroll {
+  flex: 1;
+  border: 2px solid $color-dark;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  overflow-y: auto;
+  max-height: 200px;
+  max-width: 500px;
+  
+  p {
+    margin: 0.5rem 0;
+    color: $color-dark;
+  }
+}
+
 .title {
-  @include title;
+  font-family: $header-title-font;
+  font-size: 3rem;
+  font-weight: 600;
+  color: $color-dark;
+  margin: 0;
+}
+
+//======= CONTENT =======
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+}
+
+//======= BOX LEFT =======
+
+.box-left {
+  display: flex;
+  flex-direction: column;
+  background-color: $color-bg;
+  border-radius: 8px;
+  min-height: 100%;
+}
+
+//======= BOX RIGHT =======
+
+.box-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .subtitle {
-  @include subtitle;
+  font-size: 1.3rem;
+  color: $color-text-muted;
+  line-height: 1.6;
+  margin: 0;
 }
 
-.content {
-  @include content;
+//======= FEATURE CARD =======
+
+.feature-card {
+  @include feature-card;
 }
 
-.cta {
-  @include cta;
+//======= RESPONSIVE =======
+
+@media (max-width: 1024px) {
+  .header {
+    grid-template-columns: auto 1fr;
+  }
+  
+  .header-right {
+    justify-content: center;
+  }
+  
+  .title {
+    text-align: center;
+  }
+  
+  .content {
+    grid-template-columns: 1fr;
+  }
+  
+  .box-left {
+    display: none;
+  }
 }

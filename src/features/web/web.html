@@ -1,25 +1,67 @@
 <div class="container">
-  <button class="back-btn" (click)="goBack()">← Retour</button>
   
-  <div class="feature-content">
-    <h1 class="feature-title">Création Sites Web</h1>
-    <p class="feature-description">
-      Sites vitrines élégants et performants.
-    </p>
-    
-    <section class="feature-section">
-      <h2>Pourquoi un Site Professionnel ?</h2>
-      <p>Votre site web est votre vitrine digitale. Un design soigné et un contenu percutant renforcent votre crédibilité et attirent vos clients.</p>
-    </section>
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()"><span style="font-size: 1.6em;">←</span>&nbsp;&nbsp; Retour</button>
 
-    <section class="feature-section">
-      <h2>Mes Services</h2>
-      <ul>
-        <li>Sites vitrines responsive</li>
-        <li>Landing pages optimisées</li>
-        <li>Design moderne et épuré</li>
-        <li>Performance et SEO intégrés</li>
-      </ul>
-    </section>
+      <div class="code-scroll">
+        <p>const GENESE = "1969: ARPANET..."</p>
+        <p>const PREMIER_MOT = "Le premier mot..."</p>
+        <p>const MAGICIEN_WEB = "Tim Berners-Lee..."</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <h1 class="title">Nos créations Web</h1>
+    </div>
   </div>
+  
+  <div class="content">
+    
+    <div class="box-left">
+      <div class="box-header"></div>
+      <div class="box-content"></div>
+    </div>
+    
+    <div class="box-right">
+      
+      <div class="box-header">
+        <p class="subtitle">Des sites élégants et performants.</p>
+      </div>
+      
+      <div class="box-content">
+        <div class="feature-card">
+          
+          <section class="card-section">
+            <h2 class="section-title">Stack Technique</h2>
+            <div class="section-content">
+              <p>Angular / Typescript / Node JS</p>
+            </div>
+          </section>
+          
+          <section class="card-section">
+            <h2 class="section-title">Solution Complète</h2>
+            <div class="section-content">
+              <p>Application web développée de A à Z.</p>
+            </div>
+          </section>
+          
+          <section class="card-section">
+            <h2 class="section-title">Avantages</h2>
+            <div class="section-content">
+              <p>Performances, sécurité et évolutivité</p>
+            </div>
+          </section>
+          
+          <footer class="card-footer">
+            <button class="cta-btn">Demander un devis</button>
+          </footer>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+  </div>
+  
 </div>

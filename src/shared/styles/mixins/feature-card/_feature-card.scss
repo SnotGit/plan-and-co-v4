@@ -1,56 +1,52 @@
 @use '../../variables/modern-editorial' as *;
-@use '../buttons/buttons' as *;
+@use '../buttons/primary-button' as *;
+@use '../buttons/secondary-button' as *;
 
-@mixin container {
-  min-height: 100vh;
-  min-width: 100%;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-  background-color: $color-white;
-
-  @media (max-width: 768px) {
-    padding: 2rem 1rem;
-  }
-}
-
-@mixin title {
-  font-family: $header-title-font;
-  font-size: 3.5rem;
-  font-weight: 600;
-  color: $color-primary;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
-
-  @media (max-width: 768px) {
-    font-size: 2.5rem;
-  }
-}
-
-@mixin subtitle {
-  font-size: 1.5rem;
-  color: $color-text-muted;
-  text-align: center;
-  margin: 0 auto 3rem;
-  max-width: 700px;
-  line-height: 1.6;
-
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-  }
-}
-
-@mixin content {
-  max-width: 900px;
-  margin: 0 auto 3rem;
-}
-
-@mixin cta {
+@mixin feature-card {
   display: flex;
-  justify-content: center;
-  margin-top: 4rem;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
   
-  button, a {
+  .card-section {
+    border: 2px solid $color-dark;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: $color-primary;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .section-title {
+    font-family: $header-title-font;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $color-dark;
+    margin: 0 0 0.75rem 0;
+  }
+  
+  .section-content {
+    font-size: 1.1rem;
+    color: $color-dark;
+    line-height: 1.6;
+    
+    p {
+      margin: 0;
+    }
+  }
+  
+  .card-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 1rem;
+  }
+  
+  .cta-btn {
     @include primary-button;
+    font-size: 1.2rem;
+    padding: 1rem 2.5rem;
   }
 }
