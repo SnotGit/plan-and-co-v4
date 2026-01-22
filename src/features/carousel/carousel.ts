@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { CarouselModule, OwlOptions } from 'ngx-owl-carousel-o';
-import { SeoCard } from './seo-card/seo-card';
-import { WebCard } from './web-card/web-card';
-import { CopywritingCard } from './copywriting-card/copywriting-card';
-import { StrategyCard } from './strategy-card/strategy-card';
-import { BlogCard } from './blog-card/blog-card';
-import { CtaCard } from './cta-card/cta-card';
+import { SeoCard } from './cards/seo-card/seo-card';
+import { WebCard } from './cards/web-card/web-card';
+import { CopywritingCard } from './cards/copywriting-card/copywriting-card';
+import { StrategyCard } from './cards/strategy-card/strategy-card';
+import { BlogCard } from './cards/blog-card/blog-card';
+import { CtaCard } from './cards/cta-card/cta-card';
 
 @Component({
   selector: 'app-carousel',

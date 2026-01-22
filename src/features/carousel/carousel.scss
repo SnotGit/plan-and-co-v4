@@ -6,19 +6,27 @@
   height: 100%;
 
   owl-carousel-o {
+    $fade: clamp(0%, 8vw, 20%);
     width: 100%;
-    height: 68%;
+    height: 70%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black $fade,
+      black calc(100% - $fade),
+      transparent 100%
+    );
   }
 }
 
 ::ng-deep {
   .owl-dots {
     position: absolute;
-    bottom: 2rem;
+    bottom: clamp(0.5rem, 3vh, 2rem);
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
@@ -26,9 +34,9 @@
 
   .owl-dot {
     span {
-      width: 20px !important;
-      height: 8px !important;
-      margin: 0 10px !important;
+      width: clamp(16px, 2vw, 20px) !important;
+      height: clamp(7px, 1vw, 8px) !important;
+      margin: 0 clamp(10px, 1vw, 10px) !important;
       background-color: $color-dark !important;
       border-radius: 5px !important;
     }

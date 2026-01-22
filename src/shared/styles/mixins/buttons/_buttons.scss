@@ -4,10 +4,10 @@
   background: transparent;
   color: $color-dark;
   border: 2px solid $color-dark;
-  padding: 0.875rem 2rem;
-  font-size: 1.3rem;
+  padding: clamp(0.8rem, 1.5vw, 1rem) clamp(1.6rem, 3vw, 2rem);
+  font-size: clamp(1.2rem, 2vw, 1.3rem);
   font-weight: 500;
-  border-radius: 30px;
+  border-radius: 50px;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s ease;

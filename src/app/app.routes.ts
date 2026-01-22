@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { Home } from 'src/features/home/components/home';
-import { Copywriting } from 'src/features/copywriting/components/copywriting';
-import { Seo } from 'src/features/seo/components/seo';
-import { Strategy } from 'src/features/strategy/components/strategy';
-import { Web } from 'src/features/web/components/web';
+import { Home } from '@features/home/home';
+import { Copywriting } from '@features/copywriting/copywriting';
+import { Seo } from '@features/seo/seo';
+import { Strategy } from '@features/strategy/strategy';
+import { Web } from '@features/web/web';
 
 export const routes: Routes = [
   { path: '', component: Home },

@@ -1,15 +1,15 @@
 @use 'shared/styles' as *;
 
 .container {
-  @include container;
-  background-image: url('/assets/wallpaper/wallpaper-web.png');
+  background-image: url('/assets/wallpaper/wallpaper-web3.png');
   background-size: cover;
   background-repeat: no-repeat;
+  @include container;
 }
 
 .back-btn {
-  @include back-button;
   margin-bottom: 2rem;
+  @include back-button;
 }
 
 .title {
