@@ -1,49 +1,16 @@
 @use '../../variables/modern-editorial' as *;
 @use '../buttons/primary-button' as *;
-@use '../buttons/secondary-button' as *;
+@use '../buttons/card-btn' as *;
 
 @mixin feature-card {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  flex: 1;
   
-  .card-section {
-    border: 2px solid $color-dark;
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    
-    &:hover {
-      border-color: $color-primary;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+  .card-btn {
+    @include card-btn;
   }
-  
-  .section-title {
-    font-family: $header-title-font;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: $color-dark;
-    margin: 0 0 0.75rem 0;
-  }
-  
-  .section-content {
-    font-size: 1.1rem;
-    color: $color-dark;
-    line-height: 1.6;
-    
-    p {
-      margin: 0;
-    }
-  }
-  
-  .card-footer {
-    display: flex;
-    justify-content: center;
-    padding-top: 1rem;
-  }
-  
+
   .cta-btn {
     @include primary-button;
     font-size: 1.2rem;
