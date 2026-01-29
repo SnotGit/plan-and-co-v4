@@ -1,0 +1,56 @@
+<!-- LOGIN MODAL -->
+@if (!isAuthenticated()) {
+  <app-login (googleLogin)="onGoogleLogin()" />
+}
+
+<!-- ADMIN DASHBOARD -->
+@if (isAuthenticated()) {
+  <div class="admin-container">
+    
+    <!-- HEADER -->
+    <header class="admin-header">
+      <h1 class="header-title">Tableau de bord</h1>
+      
+      <div class="header-actions">
+        <!-- NOTIFICATIONS -->
+        <button class="notif-btn" (click)="goToAlerts()">
+          <i class="fa-solid fa-bell"></i>
+          @if (unreadAlerts() > 0) {
+            <span class="notif-badge">{{ unreadAlerts() }}</span>
+          }
+        </button>
+
+        <!-- USER MENU -->
+        <div class="user-menu">
+          <button class="user-avatar-btn" (click)="toggleUserMenu()">
+            @if (user().photoUrl) {
+              <img [src]="user().photoUrl" [alt]="user().name" class="user-photo">
+            } @else {
+              <i class="fa-solid fa-user"></i>
+            }
+            <span class="user-name">{{ user().name || 'Utilisateur' }}</span>
+          </button>
+
+          @if (showUserMenu()) {
+            <div class="user-dropdown">
+              <button class="dropdown-item" (click)="goToSettings()">
+                <i class="fa-solid fa-gear"></i>
+                <span>Paramètres</span>
+              </button>
+              <button class="dropdown-item" (click)="logout()">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-content">
+      <router-outlet />
+    </main>
+
+  </div>
+}

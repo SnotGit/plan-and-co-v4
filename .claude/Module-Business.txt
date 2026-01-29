@@ -1,0 +1,136 @@
+{
+  "module_business": {
+    "phase_1_structure": {
+      "taches": [
+        "Créer 11 composants squelettes",
+        "Créer business.routes.ts avec toutes les routes",
+        "Intégrer routes business dans admin.routes.ts",
+        "Tester compilation"
+      ],
+      "composants": [
+        "business/business-home/",
+        "business/clients/clients-list/",
+        "business/clients/client-detail/",
+        "business/clients/client-editor/",
+        "business/invoices/invoices-list/",
+        "business/invoices/invoice-detail/",
+        "business/invoices/invoice-editor/",
+        "business/invoices/archives/",
+        "business/quotes/quotes-list/",
+        "business/quotes/quote-detail/",
+        "business/quotes/quote-editor/"
+      ]
+    },
+
+    "phase_2_models_services": {
+      "taches": [
+        "Créer interfaces TypeScript (Client, Invoice, Quote)",
+        "Créer BusinessService avec méthodes CRUD",
+        "Définir schéma Supabase (tables: clients, invoices, quotes)"
+      ],
+      "models": {
+        "Client": ["id", "name", "email", "address", "siret", "phone", "created_at"],
+        "Invoice": ["id", "number", "client_id", "amount", "status", "date", "paid_at"],
+        "Quote": ["id", "number", "client_id", "amount", "status", "date", "validated_at"]
+      }
+    },
+
+    "phase_3_business_home": {
+      "taches": [
+        "Bannière stats YouTube style (CA année, mois, semaine)",
+        "3 cards aperçu (Factures impayées, Devis en attente, Nouveaux clients)",
+        "Graphique CA évolution (ApexCharts)",
+        "Navigation rapide vers listes"
+      ]
+    },
+
+    "phase_4_clients": {
+      "taches": [
+        "clients-list: Tableau + bouton nouveau + recherche",
+        "client-detail: Fiche complète + factures/devis liés",
+        "client-editor: Form créer/éditer (nom, email, adresse, SIRET, téléphone)"
+      ]
+    },
+
+    "phase_5_invoices": {
+      "taches": [
+        "invoices-list: Tableau + 3 onglets (En attente, Brouillons, Toutes)",
+        "invoice-detail: Aperçu facture + boutons (Éditer, Marquer payée, Télécharger PDF)",
+        "invoice-editor: Form complet + sélection client + lignes produits + total HT/TTC",
+        "Logique: Marquer payée → Update stats CA + Déplacer archives"
+      ]
+    },
+
+    "phase_6_archives": {
+      "taches": [
+        "archives: Liste factures soldées + filtre année",
+        "Export CSV pour comptable",
+        "Stats récapitulatives par année"
+      ]
+    },
+
+    "phase_7_quotes": {
+      "taches": [
+        "quotes-list: Tableau + statuts",
+        "quote-detail: Aperçu + boutons (Éditer, Valider)",
+        "quote-editor: Form identique invoice",
+        "Logique: Valider devis → Créer facture automatiquement"
+      ]
+    },
+
+    "phase_8_pdf_generation": {
+      "taches": [
+        "Intégrer bibliothèque PDF (jsPDF ou pdfmake)",
+        "Template facture professionnel",
+        "Template devis",
+        "Logo entreprise + mentions légales"
+      ]
+    },
+
+    "phase_9_polish": {
+      "taches": [
+        "Numérotation auto factures/devis",
+        "Validation formulaires",
+        "Messages succès/erreur",
+        "Responsive mobile"
+      ]
+    },
+
+    "routes": {
+      "/admin/business": "business-home",
+      "/admin/business/clients": "clients-list",
+      "/admin/business/clients/nouveau": "client-editor (mode création)",
+      "/admin/business/clients/:id": "client-detail",
+      "/admin/business/clients/:id/editer": "client-editor (mode édition)",
+      "/admin/business/factures": "invoices-list",
+      "/admin/business/factures/nouvelle": "invoice-editor",
+      "/admin/business/factures/archives": "archives",
+      "/admin/business/factures/:id": "invoice-detail",
+      "/admin/business/factures/:id/editer": "invoice-editor (édition)",
+      "/admin/business/devis": "quotes-list",
+      "/admin/business/devis/nouveau": "quote-editor",
+      "/admin/business/devis/:id": "quote-detail",
+      "/admin/business/devis/:id/editer": "quote-editor (édition)"
+    },
+
+    "priorite_developpement": [
+      "1. Structure + Routes",
+      "2. Models + Service",
+      "3. Business Home Dashboard",
+      "4. Clients complet",
+      "5. Invoices complet",
+      "6. Archives",
+      "7. Quotes complet",
+      "8. PDF Generation",
+      "9. Polish final"
+    ],
+
+    "technologies": {
+      "frontend": "Angular 20 Signals + Zoneless",
+      "backend": "Supabase (PostgreSQL + Auth + Storage)",
+      "pdf": "jsPDF ou pdfmake",
+      "charts": "ApexCharts",
+      "forms": "Reactive Forms"
+    }
+  }
+}

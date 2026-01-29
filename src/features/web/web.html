@@ -1,11 +1,9 @@
 <div class="container">
   
-  <!-- COL 1, ROW 1-2: BACK BUTTON -->
   <button class="back-btn" (click)="goBack()">
     <span style="font-size: 1.6em;">←</span>&nbsp;&nbsp; Retour
   </button>
 
-  <!-- COL 2, ROW 1: STORY BOX -->
   <div class="story-box" #storyBox>
     @for (line of storyBoxService.lines(); track $index) {
       <p>
@@ -16,7 +14,6 @@
     }
   </div>
 
-  <!-- COL 2, ROW 2: LEFT CONTENT (SECTIONS AVEC SCROLL) -->
   <div class="left-content">
     <div class="sections-wrapper" #scrollContainer>
     
@@ -112,13 +109,14 @@
         </div>
       </section>
 
-    </div>
-  </div>
+      <p class="extensions-note">Découvrez nos <a routerLink="/extensions">modules additionnels</a> pour étendre les fonctionnalités.</p>`n`n      
 
-  <!-- COL 4, ROW 1: TITLE -->
+      <button class="cta-btn">Demander un devis</button>
+      </div>
+    </div>
+
   <h1 class="title">Nos créations Web</h1>
 
-  <!-- COL 4, ROW 2: RIGHT CONTENT -->
   <div class="right-content">
     
     <p class="subtitle">Nous créons des sites élégants et performants.</p>
@@ -149,10 +147,10 @@
         <span class="btn-subtitle">Performances et sécurité</span>
       </button>
 
+     <p class="extensions-note">Découvrez nos <a routerLink="/extensions">modules additionnels</a> pour étendre les fonctionnalités.</p>
+
       <button class="cta-btn">Demander un devis</button>
-      
+      </div>
     </div>
-    
-  </div>
   
 </div>

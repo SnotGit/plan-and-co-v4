@@ -1,0 +1,361 @@
+{
+  "blog_frontend_module": {
+    "structure_dossiers": {
+      "features_blog_public": [
+        "article-list",
+        "article-detail"
+      ],
+      "features_admin_blog_private": [
+        "blog-editor",
+        "drafts",
+        "published"
+      ]
+    },
+
+    "features_blog_public": {
+      "article_list": {
+        "route": "/blog",
+        "description": "Liste articles publiés pour visiteurs",
+        "structure": {
+          "grid_articles": "Cards articles (titre, excerpt, date, auteur, image)",
+          "filtres": "Catégories (Copywriting, SEO, Dev, Stratégie)",
+          "pagination": "12 articles par page"
+        },
+        "signals": [
+          "articles: signal<Article[]>([])",
+          "selectedCategory: signal<string | null>(null)",
+          "currentPage: signal<number>(1)"
+        ],
+        "interactions": [
+          "Clic article → Navigate /blog/:slug",
+          "Filtre catégorie → Recharge liste",
+          "Pagination → Charge page suivante"
+        ]
+      },
+
+      "article_detail": {
+        "route": "/blog/:slug",
+        "description": "Lecture article + commentaires + modération admin inline",
+        "structure": {
+          "article_content": {
+            "header": "Titre + date + catégorie + auteur",
+            "body": "Contenu article (HTML safe)",
+            "footer": "Tags + partage social"
+          },
+          "section_commentaires": {
+            "form_guest": {
+              "affichage": "Toujours visible pour guests",
+              "champs": ["Nom", "Email", "Commentaire", "reCAPTCHA"],
+              "submit": "Envoie commentaire statut 'pending'"
+            },
+            "liste_commentaires": {
+              "guest_view": "Uniquement commentaires approuvés",
+              "admin_view": "Tous commentaires + badge pending + actions"
+            },
+            "actions_admin": {
+              "affichage": "@if (isAdmin())",
+              "boutons": [
+                "Approuver (pending → approved)",
+                "Refuser (dialog confirmation + toggle ban)",
+                "Répondre (form inline)",
+                "Supprimer"
+              ]
+            },
+            "form_reponse_admin": {
+              "affichage": "@if (isAdmin() && showReplyForm())",
+              "champs": "Textarea réponse + boutons"
+            }
+          }
+        },
+        "signals": [
+          "article: signal<Article | null>(null)",
+          "comments: signal<Comment[]>([])",
+          "commentForm: signal<CommentForm>({ name: '', email: '', text: '' })",
+          "showReplyForm: signal<number | null>(null)",
+          "replyText: signal<string>('')",
+          "isAdmin: computed(() => authService.isAdmin())"
+        ],
+        "computed": [
+          "approvedComments: computed(() => comments filtered approved)",
+          "pendingComments: computed(() => comments filtered pending si admin)",
+          "canSubmitComment: computed(() => form valid + captcha OK)"
+        ],
+        "interactions": [
+          "Guest submit comment → API + message 'En attente modération'",
+          "Admin approuve → Update statut + visible tous",
+          "Admin refuse → Dialog confirmation (+ toggle ban IP)",
+          "Admin répond → Publie réponse inline"
+        ]
+      }
+    },
+
+    "features_admin_blog": {
+      "blog_editor": {
+        "routes": {
+          "/admin/blog/editeur": "Nouvel article",
+          "/admin/blog/editeur/:id": "Éditer article (draft ou published)"
+        },
+        "description": "Éditeur unifié création/édition articles",
+        "structure": {
+          "formulaire": {
+            "champs": [
+              "Titre (input text)",
+              "Slug (auto-généré, éditable)",
+              "Catégorie (select: Copywriting, SEO, Dev, Stratégie)",
+              "Tags (multi-input chips)",
+              "Image featured (upload)",
+              "Contenu (WYSIWYG: TinyMCE ou Quill)",
+              "Excerpt (textarea optionnel)"
+            ],
+            "preview": "Toggle preview mode"
+          },
+          "actions": {
+            "buttons": [
+              "Sauvegarder brouillon (disabled si nouveau vide)",
+              "Publier (enabled si canPublish)",
+              "Annuler"
+            ],
+            "autosave_indicator": "Dernière sauvegarde: il y a Xs"
+          }
+        },
+        "signals": [
+          "articleId: signal<number>(0)",
+          "articleTitle: signal<string>('')",
+          "articleSlug: signal<string>('')",
+          "articleContent: signal<string>('')",
+          "articleCategory: signal<string>('')",
+          "articleTags: signal<string[]>([])",
+          "articleImage: signal<string>('')",
+          "articleExcerpt: signal<string>('')",
+          "originalData: signal<ArticleFormData | null>(null)",
+          "showPreview: signal<boolean>(false)",
+          "lastSaved: signal<Date | null>(null)"
+        ],
+        "computed": [
+          "articleData: computed(() => ({ title, slug, content, category, tags, image, excerpt }))",
+          "isEdited: computed(() => current !== original)",
+          "canPublish: computed(() => title.length >= 3 && content.length >= 50 && category)",
+          "isDraftCreated: computed(() => articleId > 0)",
+          "generatedSlug: computed(() => slugify(articleTitle))"
+        ],
+        "effects": [
+          {
+            "nom": "firstCharacterEffect",
+            "description": "Crée draft dès première lettre",
+            "trigger": "isEdited && !isDraftCreated",
+            "action": "createInitialDraft() → set articleId"
+          },
+          {
+            "nom": "autoSaveEffect",
+            "description": "Sauvegarde localStorage instantanée",
+            "trigger": "isDraftCreated && isEdited",
+            "action": "saveLocal('article-{id}', articleData)"
+          },
+          {
+            "nom": "slugAutoGenerateEffect",
+            "description": "Auto-génère slug depuis titre si nouveau",
+            "trigger": "articleTitle changes && !isDraftCreated",
+            "action": "articleSlug.set(generatedSlug)"
+          }
+        ],
+        "lifecycle": {
+          "ngOnInit": [
+            "Si :id → Load article + restore localStorage",
+            "Si nouveau → Clear localStorage",
+            "Restore localStorage modifs"
+          ],
+          "ngOnDestroy": "Clean localStorage si publié/annulé"
+        },
+        "actions": [
+          {
+            "nom": "cancel",
+            "workflow": [
+              "Si pas édité → Navigate back",
+              "Si édité → Dialog confirm",
+              "Si confirmé + draft créé → Delete draft + clear local",
+              "Navigate back"
+            ]
+          },
+          {
+            "nom": "publishArticle",
+            "workflow": [
+              "Check canPublish",
+              "Si pas draft créé → createInitialDraft",
+              "Publish article (status: draft → published)",
+              "Clear localStorage",
+              "Toast success",
+              "Navigate /admin/blog/publies"
+            ]
+          },
+          {
+            "nom": "goBack",
+            "workflow": [
+              "Si édité → Save draft",
+              "Clear localStorage",
+              "Navigate back"
+            ]
+          }
+        ]
+      },
+
+      "drafts": {
+        "route": "/admin/blog/brouillons",
+        "description": "Liste brouillons avec actions",
+        "structure": {
+          "tableau": {
+            "colonnes": [
+              "Titre",
+              "Catégorie",
+              "Dernière modification",
+              "Actions"
+            ],
+            "actions_ligne": [
+              "Éditer (→ /admin/blog/editeur/:id)",
+              "Publier (→ change status + redirect)",
+              "Supprimer (→ dialog confirm)"
+            ]
+          },
+          "header": "Bouton 'Nouvel article' → /admin/blog/editeur"
+        },
+        "signals": [
+          "drafts: signal<ArticleDraft[]>([])",
+          "sortColumn: signal<string>('updated_at')",
+          "sortDirection: signal<'asc' | 'desc'>('desc')",
+          "loading: signal<boolean>(false)"
+        ],
+        "interactions": [
+          "Clic éditer → Navigate avec state { articleId }",
+          "Clic publier → Dialog confirm → Publish",
+          "Clic supprimer → Dialog confirm → Delete",
+          "Tri colonne → Reorder liste"
+        ]
+      },
+
+      "published": {
+        "route": "/admin/blog/publies",
+        "description": "Liste articles publiés + gestion commentaires",
+        "structure": {
+          "tableau": {
+            "colonnes": [
+              "Titre",
+              "Catégorie",
+              "Date publication",
+              "Vues",
+              "Commentaires (badge pending)",
+              "Actions"
+            ],
+            "actions_ligne": [
+              "Voir sur site (→ /blog/:slug)",
+              "Éditer (→ /admin/blog/editeur/:id)",
+              "Dépublier (→ back to drafts)"
+            ]
+          },
+          "badge_commentaires": {
+            "affichage": "Si pendingCount > 0",
+            "style": "Badge rouge avec nombre",
+            "action": "Clic → Navigate /blog/:slug (mode admin)"
+          }
+        },
+        "signals": [
+          "publishedArticles: signal<ArticlePublished[]>([])",
+          "sortColumn: signal<string>('published_at')",
+          "sortDirection: signal<'asc' | 'desc'>('desc')"
+        ],
+        "computed": [
+          "articlesWithPendingComments: computed(() => filter articles pendingCount > 0)"
+        ],
+        "interactions": [
+          "Clic badge commentaires → Navigate article public en mode admin",
+          "Clic éditer → Navigate editor",
+          "Clic dépublier → Dialog confirm → Change status"
+        ]
+      }
+    },
+
+    "shared_components": {
+      "confirmation_dialog": {
+        "description": "Dialog réutilisable confirmations",
+        "types": [
+          {
+            "nom": "confirmCancelArticle",
+            "titre": "Annuler les modifications ?",
+            "message": "Les modifications non sauvegardées seront perdues.",
+            "buttons": ["Annuler", "Confirmer"]
+          },
+          {
+            "nom": "confirmDeleteArticle",
+            "titre": "Supprimer cet article ?",
+            "message": "Cette action est irréversible.",
+            "buttons": ["Annuler", "Supprimer"]
+          },
+          {
+            "nom": "confirmRefuseComment",
+            "titre": "Refuser ce commentaire ?",
+            "apercu": "Texte du commentaire",
+            "toggle": "☐ Bannir cette IP (xxx.xxx.xxx.xxx)",
+            "buttons": ["Annuler", "Confirmer refus"]
+          },
+          {
+            "nom": "confirmPublish",
+            "titre": "Publier cet article ?",
+            "message": "L'article sera visible publiquement.",
+            "buttons": ["Annuler", "Publier"]
+          },
+          {
+            "nom": "confirmUnpublish",
+            "titre": "Dépublier cet article ?",
+            "message": "L'article redeviendra un brouillon.",
+            "buttons": ["Annuler", "Dépublier"]
+          }
+        ],
+        "service": "ConfirmationDialogService",
+        "methods": [
+          "async confirm(type, data): Promise<boolean>",
+          "showSuccessMessage(message)",
+          "showErrorMessage(message)"
+        ]
+      }
+    },
+
+    "routes_recap": {
+      "public": {
+        "/blog": "article-list",
+        "/blog/:slug": "article-detail"
+      },
+      "admin": {
+        "/admin/blog/editeur": "blog-editor (nouveau)",
+        "/admin/blog/editeur/:id": "blog-editor (édition)",
+        "/admin/blog/brouillons": "drafts",
+        "/admin/blog/publies": "published"
+      }
+    },
+
+    "workflow_commentaires_recap": [
+      "1. Guest soumet commentaire + captcha → Statut 'pending'",
+      "2. Admin reçoit notif (cloche header)",
+      "3. Admin clique notif → Redirect /blog/:slug",
+      "4. Admin voit commentaire pending avec badge + actions",
+      "5. Admin approuve → Commentaire visible tous",
+      "6. Admin refuse → Dialog (+ option ban) → Suppression",
+      "7. Admin répond → Form inline → Réponse publiée directement"
+    ],
+
+    "technologies_frontend": {
+      "editor": "TinyMCE ou Quill (WYSIWYG)",
+      "captcha": "reCAPTCHA v3",
+      "forms": "FormsModule (ngModel)",
+      "routing": "Router state pour IDs",
+      "storage": "localStorage pour autosave",
+      "slugify": "Fonction custom ou bibliothèque"
+    },
+
+    "notes_importantes": [
+      "Slugs permanents générés une seule fois à la création",
+      "Autosave localStorage instantané (pas de debounce)",
+      "Modération commentaires se fait sur page publique, pas dashboard séparé",
+      "Dialog service centralisé pour toutes confirmations",
+      "Badge pending commentaires sur liste published pour visibilité",
+      "Admin identifié via authService.isAdmin() pour affichage conditionnel"
+    ]
+  }
+}

@@ -1,0 +1,525 @@
+{
+  "blog_backend_module": {
+    "stack_technique": {
+      "runtime": "Node.js + TypeScript",
+      "framework": "Express",
+      "orm": "Prisma",
+      "database": "PostgreSQL (Supabase)",
+      "auth": "JWT tokens",
+      "captcha": "reCAPTCHA v3 server validation",
+      "upload": "Multer + Supabase Storage"
+    },
+
+    "schema_database": {
+      "articles": {
+        "fields": [
+          "id: Int @id @default(autoincrement())",
+          "title: String",
+          "slug: String @unique",
+          "content: String @db.Text",
+          "excerpt: String?",
+          "category: String",
+          "tags: String[]",
+          "image_url: String?",
+          "status: ArticleStatus (DRAFT | PUBLISHED)",
+          "views: Int @default(0)",
+          "user_id: Int",
+          "created_at: DateTime @default(now())",
+          "updated_at: DateTime @updatedAt",
+          "published_at: DateTime?"
+        ],
+        "relations": [
+          "user: User @relation(fields: [user_id], references: [id])",
+          "comments: Comment[]"
+        ],
+        "indexes": [
+          "@@index([slug])",
+          "@@index([status, published_at])",
+          "@@index([user_id, status])",
+          "@@index([category])"
+        ]
+      },
+
+      "comments": {
+        "fields": [
+          "id: Int @id @default(autoincrement())",
+          "article_id: Int",
+          "parent_id: Int? (pour réponses)",
+          "author_name: String",
+          "author_email: String",
+          "author_ip: String",
+          "content: String @db.Text",
+          "status: CommentStatus (PENDING | APPROVED | SPAM)",
+          "is_admin_reply: Boolean @default(false)",
+          "created_at: DateTime @default(now())",
+          "updated_at: DateTime @updatedAt"
+        ],
+        "relations": [
+          "article: Article @relation(fields: [article_id], references: [id], onDelete: Cascade)",
+          "parent: Comment? @relation('CommentReplies', fields: [parent_id], references: [id])",
+          "replies: Comment[] @relation('CommentReplies')"
+        ],
+        "indexes": [
+          "@@index([article_id, status])",
+          "@@index([author_email])",
+          "@@index([author_ip])"
+        ]
+      },
+
+      "banned_ips": {
+        "fields": [
+          "id: Int @id @default(autoincrement())",
+          "ip_address: String @unique",
+          "reason: String?",
+          "banned_at: DateTime @default(now())",
+          "banned_by: Int (admin user_id)"
+        ],
+        "relations": [
+          "admin: User @relation(fields: [banned_by], references: [id])"
+        ]
+      }
+    },
+
+    "api_endpoints": {
+      "articles_public": [
+        {
+          "method": "GET",
+          "route": "/api/blog/articles",
+          "description": "Liste articles publiés",
+          "query_params": ["category?", "page?", "limit?"],
+          "response": "{ articles: Article[], totalPages: number }"
+        },
+        {
+          "method": "GET",
+          "route": "/api/blog/articles/:slug",
+          "description": "Article par slug",
+          "response": "{ article: ArticleDetail }",
+          "side_effect": "Incrémente views +1"
+        }
+      ],
+
+      "articles_admin": [
+        {
+          "method": "POST",
+          "route": "/api/admin/blog/articles",
+          "auth": "Required (JWT)",
+          "description": "Créer draft initial (vide ou avec data)",
+          "body": "{ title?, content?, category?, tags?, image_url? }",
+          "response": "{ article: { id, title, slug, content } }",
+          "logic": "Génère slug unique depuis title ou aléatoire si vide"
+        },
+        {
+          "method": "PUT",
+          "route": "/api/admin/blog/articles/:id",
+          "auth": "Required (JWT)",
+          "description": "Sauvegarder draft",
+          "body": "{ title, slug, content, category, tags, excerpt, image_url }",
+          "validation": "Vérifie slug unique (sauf si même article)",
+          "response": "{ message: 'Brouillon sauvegardé' }"
+        },
+        {
+          "method": "POST",
+          "route": "/api/admin/blog/articles/:id/publish",
+          "auth": "Required (JWT)",
+          "description": "Publier article",
+          "validation": "title >= 3 chars, content >= 50 chars, category present",
+          "logic": "status: DRAFT → PUBLISHED, set published_at",
+          "response": "{ message: 'Article publié' }"
+        },
+        {
+          "method": "POST",
+          "route": "/api/admin/blog/articles/:id/unpublish",
+          "auth": "Required (JWT)",
+          "description": "Dépublier article",
+          "logic": "status: PUBLISHED → DRAFT, published_at: null",
+          "response": "{ message: 'Article dépublié' }"
+        },
+        {
+          "method": "DELETE",
+          "route": "/api/admin/blog/articles/:id",
+          "auth": "Required (JWT)",
+          "description": "Supprimer article (draft ou published)",
+          "cascade": "Supprime commentaires associés",
+          "response": "{ message: 'Article supprimé' }"
+        },
+        {
+          "method": "GET",
+          "route": "/api/admin/blog/drafts",
+          "auth": "Required (JWT)",
+          "description": "Liste brouillons user",
+          "response": "{ articles: DraftArticle[] }",
+          "sort": "updated_at DESC"
+        },
+        {
+          "method": "GET",
+          "route": "/api/admin/blog/published",
+          "auth": "Required (JWT)",
+          "description": "Liste publiés user",
+          "response": "{ articles: PublishedArticle[] }",
+          "include": "pending_comments_count per article",
+          "sort": "published_at DESC"
+        },
+        {
+          "method": "GET",
+          "route": "/api/admin/blog/articles/:id",
+          "auth": "Required (JWT)",
+          "description": "Charger article pour édition",
+          "response": "{ article: ArticleEdit }"
+        }
+      ],
+
+      "comments_public": [
+        {
+          "method": "POST",
+          "route": "/api/blog/articles/:slug/comments",
+          "description": "Soumettre commentaire guest",
+          "body": "{ author_name, author_email, content, captcha_token }",
+          "validation": [
+            "Vérifie captcha reCAPTCHA v3",
+            "Check IP pas bannie",
+            "Rate limit: 1 comment/5min par IP",
+            "Spam detection (Akismet API optionnel)"
+          ],
+          "logic": "Crée comment status: PENDING, save IP",
+          "side_effect": "Crée notification admin",
+          "response": "{ message: 'Commentaire en attente de modération' }"
+        },
+        {
+          "method": "GET",
+          "route": "/api/blog/articles/:slug/comments",
+          "description": "Charger commentaires article",
+          "response": "{ comments: Comment[] (APPROVED only) }",
+          "structure": "Tree structure avec replies"
+        }
+      ],
+
+      "comments_admin": [
+        {
+          "method": "GET",
+          "route": "/api/admin/blog/articles/:slug/comments",
+          "auth": "Required (JWT)",
+          "description": "Charger TOUS commentaires (admin view)",
+          "response": "{ comments: Comment[] (all status) }"
+        },
+        {
+          "method": "POST",
+          "route": "/api/admin/blog/comments/:id/approve",
+          "auth": "Required (JWT)",
+          "description": "Approuver commentaire",
+          "logic": "status: PENDING → APPROVED",
+          "response": "{ message: 'Commentaire approuvé' }"
+        },
+        {
+          "method": "POST",
+          "route": "/api/admin/blog/comments/:id/refuse",
+          "auth": "Required (JWT)",
+          "description": "Refuser commentaire",
+          "body": "{ ban_ip: boolean }",
+          "logic": [
+            "Delete comment",
+            "Si ban_ip: true → Add IP to banned_ips"
+          ],
+          "response": "{ message: 'Commentaire refusé' }"
+        },
+        {
+          "method": "POST",
+          "route": "/api/admin/blog/comments/:id/reply",
+          "auth": "Required (JWT)",
+          "description": "Répondre à commentaire",
+          "body": "{ content }",
+          "logic": "Crée comment avec parent_id, is_admin_reply: true, status: APPROVED",
+          "response": "{ comment: AdminReply }"
+        },
+        {
+          "method": "DELETE",
+          "route": "/api/admin/blog/comments/:id",
+          "auth": "Required (JWT)",
+          "description": "Supprimer commentaire",
+          "cascade": "Supprime replies",
+          "response": "{ message: 'Commentaire supprimé' }"
+        },
+        {
+          "method": "GET",
+          "route": "/api/admin/blog/comments/pending/count",
+          "auth": "Required (JWT)",
+          "description": "Nombre total commentaires pending (pour badge notif)",
+          "response": "{ count: number }"
+        }
+      ],
+
+      "upload": [
+        {
+          "method": "POST",
+          "route": "/api/admin/blog/upload/image",
+          "auth": "Required (JWT)",
+          "description": "Upload image featured article",
+          "body": "multipart/form-data (image file)",
+          "validation": [
+            "Max 5MB",
+            "Types: jpg, jpeg, png, webp",
+            "Resize/optimize automatique"
+          ],
+          "storage": "Supabase Storage bucket 'blog-images'",
+          "response": "{ image_url: string (public URL) }"
+        }
+      ],
+
+      "slug_validation": [
+        {
+          "method": "GET",
+          "route": "/api/admin/blog/slug/check",
+          "auth": "Required (JWT)",
+          "query": "?slug=mon-article&article_id=123",
+          "description": "Vérifie unicité slug",
+          "response": "{ available: boolean }"
+        }
+      ]
+    },
+
+    "controllers": {
+      "articlesPublicController": {
+        "fichier": "articlesPublicController.ts",
+        "methods": [
+          "getPublishedArticles(req, res) - Liste paginée",
+          "getArticleBySlug(req, res) - Article détail + increment views"
+        ]
+      },
+
+      "articlesAdminController": {
+        "fichier": "articlesAdminController.ts",
+        "methods": [
+          "createDraft(req, res) - Crée draft initial",
+          "saveDraft(req, res) - Update draft",
+          "publishArticle(req, res) - DRAFT → PUBLISHED",
+          "unpublishArticle(req, res) - PUBLISHED → DRAFT",
+          "deleteArticle(req, res) - Delete article",
+          "getDrafts(req, res) - Liste drafts user",
+          "getPublished(req, res) - Liste published user + pending counts",
+          "getArticleForEdit(req, res) - Load article édition"
+        ]
+      },
+
+      "commentsPublicController": {
+        "fichier": "commentsPublicController.ts",
+        "methods": [
+          "submitComment(req, res) - Guest submit + captcha validation",
+          "getApprovedComments(req, res) - Load comments approved only"
+        ]
+      },
+
+      "commentsAdminController": {
+        "fichier": "commentsAdminController.ts",
+        "methods": [
+          "getAllComments(req, res) - Load all comments (admin)",
+          "approveComment(req, res) - PENDING → APPROVED",
+          "refuseComment(req, res) - Delete + optional ban IP",
+          "replyToComment(req, res) - Create admin reply",
+          "deleteComment(req, res) - Delete comment",
+          "getPendingCount(req, res) - Count pending comments"
+        ]
+      },
+
+      "uploadController": {
+        "fichier": "uploadController.ts",
+        "methods": [
+          "uploadImage(req, res) - Upload + optimize + storage"
+        ]
+      },
+
+      "slugController": {
+        "fichier": "slugController.ts",
+        "methods": [
+          "checkSlugAvailability(req, res) - Vérifie unicité"
+        ]
+      }
+    },
+
+    "services": {
+      "slugService": {
+        "description": "Génération et validation slugs",
+        "methods": [
+          "generateSlug(title: string): string - Slug depuis titre",
+          "generateUniqueSlug(title: string): Promise<string> - Check BDD unicité",
+          "isSlugAvailable(slug: string, excludeId?: number): Promise<boolean>"
+        ],
+        "logic": [
+          "Lowercase",
+          "Supprime accents",
+          "Remplace espaces par hyphens",
+          "Supprime caractères spéciaux",
+          "Si doublon → ajoute -2, -3, etc."
+        ]
+      },
+
+      "captchaService": {
+        "description": "Validation reCAPTCHA v3",
+        "methods": [
+          "verifyCaptcha(token: string, ip: string): Promise<boolean>"
+        ],
+        "api": "Google reCAPTCHA verify endpoint",
+        "score_threshold": "0.5 minimum"
+      },
+
+      "ipBanService": {
+        "description": "Gestion bannissement IPs",
+        "methods": [
+          "isIpBanned(ip: string): Promise<boolean>",
+          "banIp(ip: string, adminId: number, reason?: string): Promise<void>",
+          "unbanIp(ip: string): Promise<void>"
+        ]
+      },
+
+      "notificationService": {
+        "description": "Notifications admin",
+        "methods": [
+          "notifyNewComment(articleId: number, commentId: number): Promise<void>",
+          "getPendingNotifications(adminId: number): Promise<Notification[]>"
+        ]
+      },
+
+      "imageService": {
+        "description": "Upload et optimisation images",
+        "methods": [
+          "uploadToSupabase(file: Buffer, filename: string): Promise<string>",
+          "optimizeImage(buffer: Buffer): Promise<Buffer>",
+          "deleteImage(url: string): Promise<void>"
+        ],
+        "optimization": "sharp library (resize, webp conversion)"
+      }
+    },
+
+    "middlewares": {
+      "authMiddleware": {
+        "description": "Vérifie JWT token",
+        "methods": [
+          "verifyToken(req, res, next)",
+          "isAdmin(req, res, next)"
+        ]
+      },
+
+      "rateLimitMiddleware": {
+        "description": "Rate limiting commentaires",
+        "config": "1 comment / 5 minutes par IP",
+        "storage": "Redis ou in-memory Map"
+      },
+
+      "validateArticleMiddleware": {
+        "description": "Validation données article",
+        "checks": [
+          "Title min 3 chars",
+          "Content min 50 chars",
+          "Category in allowed list",
+          "Slug format valide"
+        ]
+      },
+
+      "ipBanCheckMiddleware": {
+        "description": "Check IP pas bannie",
+        "action": "Block request si banned"
+      }
+    },
+
+    "validation_schemas": {
+      "createArticleSchema": {
+        "title": "optional string min 0 max 200",
+        "content": "optional string",
+        "category": "optional enum",
+        "tags": "optional array of strings",
+        "image_url": "optional url"
+      },
+
+      "updateArticleSchema": {
+        "title": "required string min 3 max 200",
+        "slug": "required string min 3 max 250 format slug",
+        "content": "required string min 50",
+        "category": "required enum [Copywriting, SEO, Dev, Stratégie]",
+        "tags": "optional array max 10 items",
+        "excerpt": "optional string max 300",
+        "image_url": "optional url"
+      },
+
+      "submitCommentSchema": {
+        "author_name": "required string min 2 max 100",
+        "author_email": "required email",
+        "content": "required string min 10 max 2000",
+        "captcha_token": "required string"
+      },
+
+      "replyCommentSchema": {
+        "content": "required string min 10 max 2000"
+      }
+    },
+
+    "error_handling": {
+      "error_codes": [
+        "ARTICLE_NOT_FOUND: 404",
+        "SLUG_ALREADY_EXISTS: 409",
+        "UNAUTHORIZED: 401",
+        "FORBIDDEN: 403 (pas owner article)",
+        "VALIDATION_ERROR: 400",
+        "CAPTCHA_FAILED: 400",
+        "IP_BANNED: 403",
+        "RATE_LIMIT_EXCEEDED: 429"
+      ],
+      "format": "{ error: string, message: string, details?: any }"
+    },
+
+    "security": {
+      "measures": [
+        "JWT authentication pour routes admin",
+        "Vérifier ownership article (userId match)",
+        "Sanitize HTML content (prevent XSS)",
+        "Rate limiting commentaires",
+        "reCAPTCHA v3 validation",
+        "IP ban system",
+        "CORS configuré",
+        "Helmet.js headers sécurité",
+        "SQL injection prevented (Prisma ORM)",
+        "File upload validation stricte"
+      ]
+    },
+
+    "performance": {
+      "optimizations": [
+        "Index database sur slug, status, published_at",
+        "Pagination articles (limit 12 par page)",
+        "Cache Redis pour articles populaires (optionnel)",
+        "Lazy load commentaires (pagination si > 50)",
+        "Image optimization automatique (WebP, resize)",
+        "CDN pour images (Supabase Storage)"
+      ]
+    },
+
+    "testing": {
+      "unit_tests": [
+        "slugService.generateSlug()",
+        "slugService.isSlugAvailable()",
+        "captchaService.verifyCaptcha()",
+        "ipBanService methods"
+      ],
+      "integration_tests": [
+        "POST /api/admin/blog/articles - Create draft",
+        "PUT /api/admin/blog/articles/:id - Update draft",
+        "POST /api/admin/blog/articles/:id/publish - Publish",
+        "POST /api/blog/articles/:slug/comments - Submit comment",
+        "POST /api/admin/blog/comments/:id/approve - Approve comment"
+      ],
+      "e2e_tests": [
+        "Flow complet: Créer article → Publier → Commenter → Modérer"
+      ]
+    },
+
+    "environment_variables": {
+      "required": [
+        "DATABASE_URL - Supabase PostgreSQL",
+        "JWT_SECRET - Token signing",
+        "RECAPTCHA_SECRET_KEY - reCAPTCHA v3",
+        "SUPABASE_URL - Storage",
+        "SUPABASE_ANON_KEY - Storage public access",
+        "SUPABASE_SERVICE_KEY - Storage admin",
+        "AKISMET_API_KEY - Spam detection (optionnel)",
+        "REDIS_URL - Rate limiting cache (optionnel)"
+      ]
+    }
+  }
+}

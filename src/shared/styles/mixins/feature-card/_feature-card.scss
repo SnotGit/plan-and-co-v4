@@ -1,19 +1,19 @@
 @use '../../variables/modern-editorial' as *;
-@use '../buttons/primary-button' as *;
+@use '../buttons/cta-btn' as *;
 @use '../buttons/card-btn' as *;
 
 @mixin feature-card {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.2rem;
   
   .card-btn {
     @include card-btn;
   }
 
   .cta-btn {
-    @include primary-button;
-    font-size: 1.2rem;
-    padding: 1rem 2.5rem;
+    @include cta-btn;
+    align-self: center;
+    margin-top: 2rem;
   }
 }

@@ -1,7 +1,5 @@
 @use 'shared/styles' as *;
 
-//======= CONTAINER =======
-
 .container {
   display: grid;
   grid-template-columns: auto 1fr 1fr 3rem;
@@ -12,8 +10,6 @@
   background-color: $color-bg;
 }
 
-//======= COL 1: BACK BUTTON =======
-
 .back-btn {
   @include back-button;
   grid-column: 1;
@@ -21,47 +17,11 @@
   align-self: start;
 }
 
-//======= COL 2, ROW 1: STORY BOX =======
-
 .story-box {
+  @include story-box;
   grid-column: 2;
   grid-row: 1;
-  border: 2px solid $color-dark;
-  border-radius: 8px;
-  padding: 1.4rem 1rem;
-  font-family: 'Courier New', monospace;
-  font-size: 1rem;
-  line-height: 1.8;
-  overflow-y: auto;
-  height: 140px;
-  scrollbar-width: none; 
-
-  &::-webkit-scrollbar {
-    display: none; 
-  }
-
-  p {
-    margin: 0;
-  }
 }
-
-.keyword-export {
-  color: #2373c4;
-}
-
-.keyword-const {
-  color: #ae4bbd;
-}
-
-.brace {
-  color: #8cf541;
-}
-
-.text {
-  color: #000000;
-}
-
-//======= COL 2, ROW 2: LEFT CONTENT =======
 
 .left-content {
   grid-column: 2;
@@ -93,6 +53,12 @@
   &::-webkit-scrollbar {
     display: none;
   }
+
+  .cta-btn {
+    @include cta-btn;
+    display: none;
+    margin: 0 auto 4rem;
+  }
 }
 
 .section {
@@ -114,6 +80,7 @@
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: center;
+    column-gap: 1rem;
     
     .tech-icon {
       grid-column: 1;
@@ -152,8 +119,6 @@
   }
 }
 
-//======= COL 3, ROW 1: TITLE =======
-
 .title {
   grid-column: 3;
   grid-row: 1;
@@ -166,8 +131,6 @@
   justify-content: flex-start;
   align-items: center;
 }
-
-//======= COL 3, ROW 2: RIGHT CONTENT =======
 
 .right-content {
   grid-column: 3;
@@ -190,8 +153,6 @@
   width: 600px;
   @include feature-card;
 }
-
-//======= RESPONSIVE =======
 
 @media (max-width: 1024px) {
   .container {
@@ -225,6 +186,10 @@
 
   .sections-wrapper {
     max-width: 100%;
+
+    .cta-btn {
+      display: block;
+    }
   }
 
   .right-content {

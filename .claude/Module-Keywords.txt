@@ -1,0 +1,124 @@
+{
+  "keywords_module": {
+    "composants": [
+      "keywords-home",
+      "keywords-category"
+    ],
+
+    "keywords_home": {
+      "structure": {
+        "barre_recherche": {
+          "placeholder": "Rechercher un mot-clé...",
+          "api_call": "Recherche API keyword tools",
+          "resultat": "Volume, difficulté, tendance"
+        },
+
+        "grid_categories": {
+          "layout": "Grid 2x2 cards",
+          "cards": [
+            {
+              "titre": "Top 3 Dev",
+              "data": "3 meilleurs keywords développement",
+              "mini_graph": "Sparkline évolution 30j",
+              "route": "/admin/mots-cles/dev"
+            },
+            {
+              "titre": "Top 3 SEO",
+              "data": "3 meilleurs keywords SEO",
+              "mini_graph": "Sparkline évolution 30j",
+              "route": "/admin/mots-cles/seo"
+            },
+            {
+              "titre": "Top 3 Copy",
+              "data": "3 meilleurs keywords copywriting",
+              "mini_graph": "Sparkline évolution 30j",
+              "route": "/admin/mots-cles/copy"
+            },
+            {
+              "titre": "Top 3 Stratégie",
+              "data": "3 meilleurs keywords stratégie entreprise",
+              "mini_graph": "Sparkline évolution 30j",
+              "route": "/admin/mots-cles/strategie"
+            }
+          ]
+        }
+      },
+
+      "signals": [
+        "searchQuery: signal<string>('')",
+        "searchResults: signal<SearchResult | null>(null)",
+        "categoryTops: signal<CategoryTop[]>([])",
+        "loading: signal<boolean>(false)"
+      ],
+
+      "interactions": [
+        "Recherche keyword → API call → Affiche résultats",
+        "Clic card catégorie → Navigate détail"
+      ]
+    },
+
+    "keywords_category": {
+      "structure": {
+        "header": {
+          "titre": "Mots-clés [Catégorie]",
+          "back_button": "Retour"
+        },
+
+        "filtres_periode": {
+          "options": ["7 jours", "30 jours", "90 jours", "Année"],
+          "default": "30 jours"
+        },
+
+        "graphique_principal": {
+          "type": "Line chart positions",
+          "description": "Évolution positions top keywords catégorie",
+          "axe_y": "Position (inversé, 1 en haut)",
+          "periode": "Selon filtre sélectionné",
+          "courbes": "5-10 meilleurs keywords"
+        },
+
+        "liste_keywords": {
+          "colonnes": [
+            "Mot-clé",
+            "Position actuelle",
+            "Évolution (↑↓)",
+            "Volume recherche",
+            "Mini graphique (sparkline)"
+          ],
+          "tri": "Par position (meilleur d'abord)",
+          "pagination": "20 par page"
+        }
+      },
+
+      "signals": [
+        "category: signal<string>('')",
+        "selectedPeriod: signal<'7d' | '30d' | '90d' | 'year'>('30d')",
+        "keywords: signal<Keyword[]>([])",
+        "chartData: signal<ChartData[]>([])",
+        "sortColumn: signal<string>('position')",
+        "sortDirection: signal<'asc' | 'desc'>('asc')"
+      ],
+
+      "interactions": [
+        "Changer période → Update graphique + sparklines",
+        "Tri colonne → Reorder liste",
+        "Hover sparkline → Tooltip détail"
+      ]
+    },
+
+    "routes": {
+      "/admin/mots-cles": "keywords-home",
+      "/admin/mots-cles/dev": "keywords-category (param: dev)",
+      "/admin/mots-cles/seo": "keywords-category (param: seo)",
+      "/admin/mots-cles/copy": "keywords-category (param: copy)",
+      "/admin/mots-cles/strategie": "keywords-category (param: strategie)"
+    },
+
+    "categories": [
+      { "slug": "dev", "label": "Développement Web" },
+      { "slug": "seo", "label": "SEO & Référencement" },
+      { "slug": "copy", "label": "Copywriting" },
+      { "slug": "strategie", "label": "Stratégie Entreprise" }
+    ]
+  }
+}

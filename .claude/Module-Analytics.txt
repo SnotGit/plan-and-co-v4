@@ -1,0 +1,95 @@
+{
+  "analytics_component": {
+    "structure": {
+      "banniere_kpis": {
+        "cards": [
+          "Visiteurs aujourd'hui (nombre + % vs hier)",
+          "Visiteurs ce mois (nombre + % vs mois dernier)", 
+          "Visiteurs ce trimestre (nombre + % vs trimestre précédent)",
+          "Taux d'engagement (% + indicateur up/down)"
+        ]
+      },
+      
+      "graphique_trafic": {
+        "type": "Line chart (ApexCharts)",
+        "filtres": ["7 jours", "30 jours", "90 jours", "Année"],
+        "courbes": [
+          "Total visiteurs",
+          "Visiteurs organiques",
+          "Nouveaux visiteurs"
+        ],
+        "interactions": "Hover tooltip, zoom, période sélectionnable"
+      },
+
+      "sources_trafic": {
+        "layout": "Grid 2x2",
+        "cards": [
+          "Organic (% + nombre)",
+          "Direct (% + nombre)", 
+          "Referral (% + nombre)",
+          "Social (% + nombre)"
+        ]
+      },
+
+      "metriques_engagement": {
+        "data": [
+          "Durée moyenne session (minutes:secondes)",
+          "Pages par session (nombre moyen)",
+          "Taux de rebond (%)"
+        ]
+      },
+
+      "repartition_devices": {
+        "visualisation": "3 cards ou pie chart",
+        "data": [
+          "Mobile (%)",
+          "Desktop (%)",
+          "Tablet (%)"
+        ]
+      },
+
+      "liste_pages": {
+        "tableau_columns": [
+          "URL page",
+          "Nombre de vues",
+          "Temps moyen sur page",
+          "Taux de sortie (%)"
+        ],
+        "fonctionnalites": [
+          "Tri par colonne (asc/desc)",
+          "Recherche/filtre",
+          "Pagination (20 lignes par page)"
+        ]
+      }
+    },
+
+    "signals_data": {
+      "kpis": [
+        "visitorsToday",
+        "visitorsMonth", 
+        "visitorsQuarter",
+        "engagementRate",
+        "comparisonToday (% vs hier)",
+        "comparisonMonth (% vs mois dernier)"
+      ],
+      "chart": [
+        "trafficData (array pour graphique)",
+        "selectedPeriod ('7d' | '30d' | '90d' | 'year')"
+      ],
+      "sources": "trafficSources (array 4 sources)",
+      "pages": [
+        "pagesPerformance (array)",
+        "sortColumn",
+        "sortDirection"
+      ]
+    },
+
+    "interactions_utilisateur": [
+      "Sélectionner période graphique → Recharge data + update courbes",
+      "Hover cards KPIs → Afficher détails/tooltip",
+      "Cliquer en-tête colonne tableau → Tri asc/desc",
+      "Rechercher dans tableau → Filtre résultats",
+      "Changer page pagination → Affiche 20 suivants"
+    ]
+  }
+}

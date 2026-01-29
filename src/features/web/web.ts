@@ -23,7 +23,6 @@ export class Web implements AfterViewInit, OnDestroy {
   //======= VIEW CHILD =======
 
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLDivElement>;
-  @ViewChild('storyBox') storyBox!: ElementRef<HTMLDivElement>;
 
   //======= OBSERVER =======
 
@@ -33,7 +32,6 @@ export class Web implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.setupScrollDetection();
-    this.storyBoxService.scrollCallback = () => this.scrollStoryBoxToBottom();
     this.storyBoxService.startAnimation();
   }
 
@@ -58,14 +56,6 @@ export class Web implements AfterViewInit, OnDestroy {
       const offsetTop = section.offsetTop;
       container.scrollTo({ top: offsetTop, behavior: 'smooth' });
     }
-  }
-
-  private scrollStoryBoxToBottom(): void {
-    setTimeout(() => {
-      if (this.storyBox?.nativeElement) {
-        this.storyBox.nativeElement.scrollTop = this.storyBox.nativeElement.scrollHeight;
-      }
-    }, 50);
   }
 
   private setupScrollDetection(): void {

@@ -1,0 +1,57 @@
+@use '../../variables/modern-editorial' as *;
+
+@mixin story-box {
+  border: 2px solid $color-dark;
+  border-radius: 8px;
+  padding: 1.4rem 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  line-height: 1.8;
+  height: calc(1rem * 1.8 * 3 + 2.8rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  p {
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .keyword-export,
+  .keyword-const,
+  .keyword-function,
+  .keyword-return {
+    color: #ae00ff;
+  }
+
+  .function-name {
+    color: #d80048;
+  }
+
+  .constant-name {
+    color: #001080;
+  }
+
+  .property {
+    color: #008665;
+  }
+
+  .string {
+    color: #000000;
+  }
+
+  .brace {
+    color: #000000;
+  }
+
+  .operator {
+    color: #000000;
+  }
+
+  .text {
+    color: #000000;
+  }
+}

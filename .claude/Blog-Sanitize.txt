@@ -1,0 +1,179 @@
+{
+  "sanitization_security": {
+    "backend": {
+      "libraries": [
+        "DOMPurify (isomorphic-dompurify) - Sanitize HTML",
+        "express-validator - Validation inputs",
+        "xss-clean - Middleware anti-XSS",
+        "helmet - Headers sécurité"
+      ],
+
+      "sanitization_points": {
+        "article_content": {
+          "library": "DOMPurify",
+          "config": {
+            "allowed_tags": ["p", "h1", "h2", "h3", "strong", "em", "ul", "ol", "li", "a", "img", "blockquote", "code", "pre"],
+            "allowed_attributes": {
+              "a": ["href", "title"],
+              "img": ["src", "alt", "width", "height"]
+            }
+          },
+          "apply": "Avant save en BDD"
+        },
+
+        "comment_content": {
+          "library": "DOMPurify",
+          "config": "STRICT - Pas de HTML, juste texte plain",
+          "apply": "Avant save commentaire"
+        },
+
+        "article_title": {
+          "validation": "Strip HTML tags, max 200 chars",
+          "library": "express-validator"
+        },
+
+        "slug": {
+          "validation": "Regex ^[a-z0-9-]+$ uniquement",
+          "sanitize": "Lowercase + strip special chars"
+        }
+      },
+
+      "code_example": `
+import createDOMPurify from 'isomorphic-dompurify';
+import { body, validationResult } from 'express-validator';
+
+const DOMPurify = createDOMPurify();
+
+// Config article content
+const articleContentConfig = {
+  ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'code', 'pre'],
+  ALLOWED_ATTR: ['href', 'title', 'src', 'alt', 'width', 'height']
+};
+
+// Sanitize article
+export const sanitizeArticle = (req, res, next) => {
+  if (req.body.content) {
+    req.body.content = DOMPurify.sanitize(req.body.content, articleContentConfig);
+  }
+  if (req.body.title) {
+    req.body.title = DOMPurify.sanitize(req.body.title, { ALLOWED_TAGS: [] });
+  }
+  next();
+};
+
+// Sanitize comment (strict)
+export const sanitizeComment = (req, res, next) => {
+  if (req.body.content) {
+    req.body.content = DOMPurify.sanitize(req.body.content, { ALLOWED_TAGS: [] });
+  }
+  req.body.author_name = DOMPurify.sanitize(req.body.author_name, { ALLOWED_TAGS: [] });
+  next();
+};
+
+// Validation article
+export const validateArticle = [
+  body('title').trim().isLength({ min: 3, max: 200 }).escape(),
+  body('content').isLength({ min: 50 }),
+  body('slug').matches(/^[a-z0-9-]+$/),
+  body('category').isIn(['Copywriting', 'SEO', 'Dev', 'Stratégie'])
+];
+      `
+    },
+
+    "frontend": {
+      "libraries": [
+        "DOMPurify - Sanitize avant affichage",
+        "Angular built-in - bypassSecurityTrustHtml (avec précaution)"
+      ],
+
+      "sanitization_display": {
+        "article_content": {
+          "method": "DOMPurify.sanitize() + Angular DomSanitizer",
+          "config": "Même config que backend",
+          "component": `
+import DOMPurify from 'dompurify';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+sanitizedContent = computed(() => {
+  const raw = this.article()?.content || '';
+  const clean = DOMPurify.sanitize(raw, articleConfig);
+  return this.sanitizer.bypassSecurityTrustHtml(clean);
+});
+          `
+        },
+
+        "comments_display": {
+          "method": "Texte plain uniquement, pas de HTML",
+          "component": `<p>{{ comment.content }}</p> // Angular escape auto`
+        }
+      }
+    },
+
+    "protection_layers": {
+      "layer_1_input": "Validation express-validator",
+      "layer_2_sanitization": "DOMPurify backend avant BDD",
+      "layer_3_storage": "Prisma ORM (prévient SQL injection)",
+      "layer_4_output": "DOMPurify frontend avant affichage",
+      "layer_5_headers": "Helmet.js CSP headers"
+    },
+
+    "helmet_config": `
+import helmet from 'helmet';
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.google.com"], // reCAPTCHA
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https://your-supabase-url.supabase.co"],
+      connectSrc: ["'self'", "https://your-api.com"],
+      frameSrc: ["https://www.google.com"] // reCAPTCHA
+    }
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true },
+  noSniff: true,
+  xssFilter: true
+}));
+    `,
+
+    "additional_security": {
+      "sql_injection": "Prisma ORM parameterized queries (safe by default)",
+      "nosql_injection": "N/A (PostgreSQL)",
+      "path_traversal": "Validate file uploads, whitelist extensions",
+      "csrf": "SameSite cookies + JWT (stateless)",
+      "clickjacking": "X-Frame-Options: DENY (helmet)",
+      "file_upload": `
+// Validation stricte
+const fileFilter = (req, file, cb) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Type fichier non autorisé'), false);
+  }
+};
+
+// Limite taille
+const upload = multer({
+  storage: memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter
+});
+      `
+    },
+
+    "attack_vectors_covered": [
+      "✅ XSS (Cross-Site Scripting) - DOMPurify + CSP",
+      "✅ SQL Injection - Prisma ORM",
+      "✅ CSRF - JWT stateless",
+      "✅ Clickjacking - X-Frame-Options",
+      "✅ MIME sniffing - X-Content-Type-Options",
+      "✅ HTML injection - DOMPurify strict",
+      "✅ Command injection - Input validation",
+      "✅ Path traversal - File validation",
+      "✅ DOS - Rate limiting",
+      "✅ Brute force - Rate limiting + captcha"
+    ]
+  }
+}
