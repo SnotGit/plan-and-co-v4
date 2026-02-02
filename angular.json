@@ -85,10 +85,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "plan-and-co-v3:build:production"
+              "buildTarget": "plan-and-co-v4:build:production"
             },
             "development": {
-              "buildTarget": "plan-and-co-v3:build:development"
+              "buildTarget": "plan-and-co-v4:build:development"
             }
           },
           "defaultConfiguration": "development"
