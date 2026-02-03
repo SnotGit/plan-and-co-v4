@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "plan-and-co-v3": {
+    "plan-and-co-v4": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {

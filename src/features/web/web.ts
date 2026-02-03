@@ -1,11 +1,9 @@
 import { Component, inject, signal, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { StoryBoxService } from './story-box.service';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-web',
-  imports: [CommonModule],
+  imports: [RouterLink],
   templateUrl: './web.html',
   styleUrl: './web.scss'
 })
@@ -14,11 +12,10 @@ export class Web implements AfterViewInit, OnDestroy {
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
-  readonly storyBoxService = inject(StoryBoxService);
 
   //======= SIGNALS =======
 
-  activeSection = signal<string>('stack');
+  activeSection = signal<string>('solution');
 
   //======= VIEW CHILD =======
 
@@ -32,14 +29,12 @@ export class Web implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.setupScrollDetection();
-    this.storyBoxService.startAnimation();
   }
 
   ngOnDestroy(): void {
     if (this.observer) {
       this.observer.disconnect();
     }
-    this.storyBoxService.destroy();
   }
 
   //======= METHODS =======

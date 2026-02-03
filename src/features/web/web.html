@@ -4,84 +4,44 @@
     <span style="font-size: 1.6em;">←</span>&nbsp;&nbsp; Retour
   </button>
 
-  <div class="story-box" #storyBox>
-    @for (line of storyBoxService.lines(); track $index) {
-      <p>
-        @for (token of line.tokens; track $index) {
-          <span [ngClass]="token.type">{{ token.content }}</span>
-        }
-      </p>
-    }
+  <h1 class="title">Nos créations Web</h1>
+
+  <div class="description">
+    <p>"Des sites élégants et performants."</p>
   </div>
 
   <div class="left-content">
     <div class="sections-wrapper" #scrollContainer>
     
-      <section id="stack" class="section">
-        <h2>Stack Technique</h2>
-        
-        <div class="text">
-          <img src="assets/logos/angular.png" alt="Angular" class="tech-icon">
-          <h3>Angular</h3>
-          <p>C'est le patron de tout ce que vous voyez à l'écran.
-            <br>Un chef d'orchestre pour une interface très puissant et très réactive.
-            <br>Fini les temps de chargements !
-            <br>Quand on clique quelque part, il va aussi vite que la lumière.
-            <br>Vos visiteurs même les plus impatients en seront ravis.</p>
-        </div>
-
-        <div class="text">
-          <img src="assets/logos/typescript.png" alt="TypeScript" class="tech-icon">
-          <h3>TypeScript</h3>
-          <p>Le cœur du code, le moteur sous le capot.
-            <br>Il s'auto contrôle de lui-même. Comme un grand.
-            <br>Les bugs vous dites ? Ca existe encore ?
-            <br>C'est une technologie de codage merveilleuse.
-            <br>Elle marche bien et dure dans le temps.</p>
-        </div>
-
-        <div class="text">
-          <img src="assets/logos/jsIconGreen.svg" alt="Node.js" class="tech-icon">
-          <h3>Node.js</h3>
-          <p>Du côté du serveur.
-            <br>C'est l'arrière-boutique.
-            <br>Quand vous recevez un formulaire ou un paiement en ligne, c'est ce qui traite les informations et qui communique avec la base de données.
-            <br>Vous avez demandé en toute Fluidité ? Ne quittez pas...</p>
-        </div>
-
-        <div class="text">
-          <img src="assets/logos/Postgresql.png" alt="PostgreSQL" class="tech-icon">
-          <h3>PostgreSQL</h3>
-          <p>La base de données.
-            <br>Le coffre-fort où tout est rangé.
-            <br>Vos articles, vos produits, vos utilisateurs, vos commandes.
-            <br>Tout est stocké là, en sécurité. 
-            <br>Rien ne se perd, tout ne se transformera pas, tout se crée.</p>
-        </div>
-      </section>
-
       <section id="solution" class="section">
         <h2>Solution Complète</h2>
         
         <div class="text">
           <h3>Analyse de vos besoins</h3>
-          <p>On commence par en discuter, faire des plans sur papier et comprendre exactement ce que vous voulez. Pas de devinettes, pas d'approximations. Chaque fonction est définie clairement avant le premier coup de clavier. Avec nous, vous savez où vous allez.</p>
+          <p>On commence par discuter, faire des plans sur papier.
+            <br>Pas de devinettes, pas d'approximations.
+            <br>Chaque fonction est définie avant le premier coup de clavier.
         </div>
 
         <div class="text">
           <h3>Design & Interface</h3>
-          <p>L'apparence s'adapte à votre identité. Les couleurs, les formes, l'organisation des éléments : tout est pensé pour guider vos visiteurs naturellement. Beau et efficace, pas l'un sans l'autre.</p>
+          <p>L'apparence s'adapte à votre identité.
+            <br>Tout est pensé pour guider vos visiteurs naturellement.
+            <br>Simplicité et efficacité, l'un ne va pas sans l'autre.</p>
         </div>
 
         <div class="text">
           <h3>Développement</h3>
-          <p>C'est là que la magie opère. Le site prend vie, page après page, fonction après fonction. Chaque détail est scruté, testé et validé avant de passer au suivant. Pas de surprises à la livraison.</p>
+          <p>Le site prend vie, page après page, fonction après fonction.
+            <br>Chaque détail est scruté, testé et validé avant de passer au suivant.
+            <br>Pas de surprises à la livraison.</p>
         </div>
 
         <div class="text">
           <h3>Mise en ligne & Maintenance</h3>
-          <p>Votre site sera hébergé* sur des serveurs performants et sécurisés. Les sauvegardes sont automatiques, les futures mises à jour seront parfaitement gérées. Vous pourrez dormir tranquille, on s'occupera de tout.</p>
-          <p class="note">*conditions d'hébergement à définir sur devis</p>
+          <p>Votre site hébergé* en France sur des serveurs performants et sécurisés.
+            <br>Les sauvegardes sont automatiques, bien gérées.
+            <br>Vous pourrez dormir tranquille, on s'occupe de tout.</p>
         </div>
       </section>
 
@@ -90,47 +50,89 @@
         
         <div class="text">
           <h3>Performances</h3>
-          <p>Le site charge vite, très vite. Les pages s'affichent instantanément, même sur mobile. Vos visiteurs ne partent pas avant d'avoir vu ce que vous proposez. La vitesse, c'est la politesse du web.</p>
+          <p>La vitesse, c'est la politesse du web.
+            <br>Votre site charge en un éclair, même sur mobile.
+            <br>Vos visiteurs même les plus impatients n'en seront que ravis.</p>
         </div>
 
         <div class="text">
           <h3>Sécurité</h3>
-          <p>Les données sont chiffrées, les failles sont bloquées, les sauvegardes tournent en permanence. Pas de piratage, pas de perte d'informations. Vous et vos clients êtes protégés. Point final.</p>
+          <p>Vos données et celles de vos clients sont chiffrées.
+            <br>Les failles sont bloquées avant même qu'elles n'arrivent.
+            <br>Vous et vos clients êtes protégés. Point final.</p>
         </div>
 
         <div class="text">
           <h3>Évolutivité</h3>
-          <p>Besoin d'ajouter une boutique en ligne dans 6 mois ? Un espace membre dans 1 an ? Pas de problème. Le site grandit avec vos ambitions sans tout recommencer. C'est prévu pour durer.</p>
+          <p>Votre site grandit avec vous.
+            <br>D'une landing page à une boutique en ligne dans 6 mois ?
+            <br>Pas de problème. Rien à recommencer. C'est prévu de base pour évoluer.</p>
         </div>
 
         <div class="text">
           <h3>Maintenance</h3>
-          <p>Les mises à jour se font en douceur. Les bugs potentiels sont corrigés avant même que vous les remarquiez. Le site reste au top, année après année. Vous gérez votre business, on gère la technique.</p>
+          <p>Votre site reste au top, sans aucun effort de votre part.
+            <br>Les mises à jour se font en douceur, en toute discrétion.
+            <br>Vous gérez votre business, on gère la technique.</p>
         </div>
       </section>
 
-      <p class="extensions-note">Découvrez nos <a routerLink="/extensions">modules additionnels</a> pour étendre les fonctionnalités.</p>`n`n      
+      <section id="stack" class="section">
+        <h2>Stack Technique</h2>
+        
+        <div class="stack-text">
+          <img src="assets/logos/angular.png" alt="Angular" class="tech-icon">
+          <h3>Angular</h3>
+          <p>Le patron de tout ce que vous voyez à l'écran.
+            <br>Quand on clique quelque part, il va aussi vite que la lumière.
+            <br>Fini les temps de chargement.
+            <br>Vos visiteurs même les plus impatients en seront ravis.</p>
+        </div>
 
-      <button class="cta-btn">Demander un devis</button>
-      </div>
+        <div class="stack-text">
+          <img src="assets/logos/typescript.png" alt="TypeScript" class="tech-icon">
+          <h3>TypeScript</h3>
+          <p>Le code qui ne plante jamais.
+            <br>Chaque ligne est vérifiée avant même qu'elle ne soit écrite.
+            <br>Pas de bugs cachés, pas de surprises.
+            <br>Votre site dure dans le temps. Toujours.</p>
+        </div>
+
+        <div class="stack-text">
+          <img src="assets/logos/jsIconGreen.svg" alt="Node.js" class="tech-icon">
+          <h3>Node.js</h3>
+          <p>L'arrière-boutique. Un Node.Js ne dort jamais.
+            <br>Formulaires, paiements, messages, tout est traité en temps réel.
+            <br>Fluide, rapide, fiable.
+            <br>Vous ne le voyez pas, mais il travaille 24h/24.</p>
+        </div>
+
+        <div class="stack-text">
+          <img src="assets/logos/Postgresql.png" alt="PostgreSQL" class="tech-icon">
+          <h3>PostgreSQL</h3>
+          <p>Le coffre-fort de toutes vos données.
+            <br>Vos articles, vos produits, vos clients, vos commandes.
+            <br>Tout y est stocké, en sécurité.
+            <br>Rien ne se perd, tout ne se transformera pas, tout se crée.</p>
+        </div>
+
+        <div class="stack-text">
+          <img src="assets/logos/ClaudeIcon-Rounded.png" alt="Anthropic" class="tech-icon">
+          <h3>Extensions IA</h3>
+          <p>Vous voulez augmenter votre intelligence technique ?
+            <br>Passez à l'IA. Nous développons des modules d'extension assistée par IA.
+            <br>Greffés à votre système, il n'aura plus de limites.
+            <br><a routerLink="/extensions">En savoir plus</a></p>
+        </div>
+      </section>
+
+      <button class="cta-btn">Contactez Nous</button>
     </div>
-
-  <h1 class="title">Nos créations Web</h1>
+  </div>
 
   <div class="right-content">
-    
-    <p class="subtitle">Nous créons des sites élégants et performants.</p>
-    
     <div class="feature-card">
       
-      <button 
-        class="card-btn"
-        [class.active]="activeSection() === 'stack'"
-        (click)="scrollToSection('stack')">
-        <span class="btn-title">Stack Technique</span>
-        <span class="btn-subtitle">Angular / TypeScript / Node.js</span>
-      </button>
-
       <button 
         class="card-btn"
         [class.active]="activeSection() === 'solution'"
@@ -147,10 +149,16 @@
         <span class="btn-subtitle">Performances et sécurité</span>
       </button>
 
-     <p class="extensions-note">Découvrez nos <a routerLink="/extensions">modules additionnels</a> pour étendre les fonctionnalités.</p>
+      <button 
+        class="card-btn"
+        [class.active]="activeSection() === 'stack'"
+        (click)="scrollToSection('stack')">
+        <span class="btn-title">Stack Technique</span>
+        <span class="btn-subtitle">Angular / TypeScript / Node.js</span>
+      </button>
 
-      <button class="cta-btn">Demander un devis</button>
-      </div>
+      <button class="cta-btn">Contactez Nous</button>
     </div>
+  </div>
   
 </div>

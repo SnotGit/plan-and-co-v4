@@ -1,0 +1,192 @@
+@use 'shared/styles' as *;
+
+//======= CONTAINER =======
+
+.container {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 3rem;
+  grid-template-rows: auto auto 1fr;
+  gap: 3rem;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 1rem;
+  background-color: $color-bg;
+}
+
+//======= BACK BTN =======
+
+.back-btn {
+  @include back-button;
+  grid-column: 1;
+  grid-row: 1 / 4;
+  align-self: start;
+}
+
+//======= TITLE =======
+
+.title {
+  grid-column: 2 / 4;
+  grid-row: 1;
+  font-family: $header-title-font;
+  font-size: 3rem;
+  font-weight: 600;
+  color: $color-dark;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+//======= DESCRIPTION =======
+
+.description {
+  grid-column: 2 / 4;
+  grid-row: 2;
+  text-align: center;
+
+  p {
+    font-family: $header-title-font;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: $color-dark;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+//======= LEFT CONTENT =======
+
+.left-content {
+  grid-column: 2;
+  grid-row: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, $color-bg);
+    pointer-events: none;
+  }
+}
+
+.sections-wrapper {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  max-height: 75vh;
+  max-width: 90%;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cta-btn {
+    @include cta-btn;
+    display: block;
+    margin: 0 auto 4rem;
+  }
+}
+
+//======= SECTIONS =======
+
+.section {
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+
+  h2 {
+    font-family: $header-title-font;
+    font-size: 2rem;
+    font-weight: 600;
+    color: $color-dark;
+    margin: 0 0 2rem 0;
+    border-bottom: 2px solid $color-dark;
+    padding-bottom: 0.5rem;
+  }
+
+  .text {
+    margin-bottom: 3rem;
+
+    h3 {
+      font-family: $header-title-font;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: $color-dark;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: $color-dark;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #1d4ed8;
+      }
+    }
+  }
+}
+
+//======= RIGHT CONTENT =======
+
+.right-content {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+//======= RESPONSIVE =======
+
+@media (max-width: 1024px) {
+  .container {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr;
+    gap: 1rem;
+  }
+
+  .back-btn {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .title {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 2.5rem;
+  }
+
+  .description {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .left-content {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .sections-wrapper {
+    .cta-btn {
+      display: block;
+    }
+  }
+
+  .right-content {
+    display: none;
+  }
+}

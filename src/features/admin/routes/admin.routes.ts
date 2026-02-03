@@ -14,10 +14,6 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () => import('../analytics/analytics').then(m => m.Analytics)
   },
   {
-    path: 'page-speed',
-    loadComponent: () => import('../page-speed/page-speed').then(m => m.PageSpeed)
-  },
-  {
     path: 'notifications',
     loadComponent: () => import('../alerts/alerts').then(m => m.Alerts)
   },
